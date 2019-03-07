@@ -24,12 +24,12 @@ body {
     word-wrap: break-word;
 }
 
-#filterbar {
+#headerbar {
     margin-top: 20px;
     margin-bottom: 20px;
 }
 
-#filterbar .btn-default, .task .btn-default  { background: transparent; border: none;}
+#headerbar .btn-default, .task .btn-default  { background: transparent; border: none;}
 
 .tasklane header h5 {
     margin-top:  5px;

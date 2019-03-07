@@ -1,54 +1,69 @@
 'use strict';
 
-var tbApp = angular.module('taskboardApp', ['ui.sortable']);
+var outlookApp;
+var outlookNS;
 
-try {
-    // check whether the page is opened in outlook app
+function checkBrowser() {
+    var isBrowserSupported
     if (window.external !== undefined && window.external.OutlookApplication !== undefined) {
-        var outlookApp = window.external.OutlookApplication;
+        isBrowserSupported = true;
+        outlookApp = window.external.OutlookApplication;
+        outlookNS = outlookApp.GetNameSpace("MAPI");
     } else {
-        // if it is opened via browser, create activex object
-        // this should be supported only from IE8 to IE11.
-        // IE Edge currently does not support ActiveXObject
-        var outlookApp = new ActiveXObject("Outlook.Application");
-    }
-    var outlookNS = outlookApp.GetNameSpace("MAPI");
-
-}
-catch (e) { console.log(e); }
-
-function stringify(obj, replacer, spaces, cycleReplacer) {
-    return JSON.stringify(obj, serializer(replacer, cycleReplacer), spaces)
-}
-
-function serializer(replacer, cycleReplacer) {
-    var stack = [], keys = []
-
-    if (cycleReplacer == null) cycleReplacer = function (key, value) {
-        if (stack[0] === value) return "[Circular ~]"
-        return "[Circular ~." + keys.slice(0, stack.indexOf(value)).join(".") + "]"
-    }
-
-    return function (key, value) {
-        if (stack.length > 0) {
-            var thisPos = stack.indexOf(this)
-            ~thisPos ? stack.splice(thisPos + 1) : stack.push(this)
-            ~thisPos ? keys.splice(thisPos, Infinity, key) : keys.push(key)
-            if (~stack.indexOf(value)) value = cycleReplacer.call(this, key, value)
+        try {
+            isBrowserSupported = true;
+            outlookApp = new ActiveXObject("Outlook.Application");
+            outlookNS = outlookApp.GetNameSpace("MAPI");
         }
-        else stack.push(value)
-
-        return replacer == null ? value : replacer.call(this, key, value)
+        catch (e) {
+            isBrowserSupported = false;
+        }
     }
+    return isBrowserSupported;
 }
+
+// function stringify(obj, replacer, spaces, cycleReplacer) {
+//     return JSON.stringify(obj, serializer(replacer, cycleReplacer), spaces)
+// }
+
+// function serializer(replacer, cycleReplacer) {
+//     var stack = [], keys = []
+
+//     if (cycleReplacer == null) cycleReplacer = function (key, value) {
+//         if (stack[0] === value) return "[Circular ~]"
+//         return "[Circular ~." + keys.slice(0, stack.indexOf(value)).join(".") + "]"
+//     }
+
+//     return function (key, value) {
+//         if (stack.length > 0) {
+//             var thisPos = stack.indexOf(this)
+//             ~thisPos ? stack.splice(thisPos + 1) : stack.push(this)
+//             ~thisPos ? keys.splice(thisPos, Infinity, key) : keys.push(key)
+//             if (~stack.indexOf(value)) value = cycleReplacer.call(this, key, value)
+//         }
+//         else stack.push(value)
+
+//         return replacer == null ? value : replacer.call(this, key, value)
+//     }
+// }
+
+var tbApp = angular.module('taskboardApp', ['ui.sortable']);
 
 tbApp.controller('taskboardController', function ($scope, $filter) {
 
-    // DeepDiff.observableDiff(def, curr, function(d) {
-
-    // });
-
     $scope.init = function () {
+
+        $scope.isBrowserSupported = checkBrowser();
+        if (!$scope.isBrowserSupported)
+        {
+            return;
+        }
+
+        // application modes:
+        // 0 = application mode (default)
+        // 1 = configuration mode
+        // 2 = help mode
+        $scope.applMode = 0;
 
         $scope.getConfig();
 
@@ -449,6 +464,10 @@ tbApp.controller('taskboardController', function ($scope, $filter) {
         }
     }
 
+    $scope.setApplMode = function (mode) {
+        $scope.applMode = mode;
+    }
+
     $scope.saveState = function () {
         if ($scope.config.SAVE_STATE) {
             var state = { "private": $scope.private, "search": $scope.search };
@@ -524,6 +543,7 @@ tbApp.controller('taskboardController', function ($scope, $filter) {
     }
 
     $scope.displayHelp = function () {
+        $scope.applMode = 2;
         var mailItem, mailBody;
         mailItem = outlookApp.CreateItem(0);
         mailItem.Subject = "Outlook Kanban Help";
@@ -918,6 +938,7 @@ tbApp.controller('taskboardController', function ($scope, $filter) {
     }
 
     $scope.editConfig = function () {
+        $scope.applMode = 1;
         var folder = outlookNS.GetDefaultFolder(11);
         var configItems = folder.Items.Restrict('[Subject] = "KanbanConfig"');
         var configItem = configItems(1);

@@ -23,13 +23,19 @@
 
 <body ng-controller="taskboardController" ng-init="init()">
 
-    <div class="taskboard container-fluid">
+    <div ng-if="!isBrowserSupported">
+        <h1>Sorry, this app can only be run in Internet Explorer or as the Outlook Today home page</h1>
+    </div>
 
-        <!-- filter bar -->
-        <section id="filterbar" class="row">
+    <div ng-if="isBrowserSupported" class="taskboard container-fluid">
+
+        <!-- header bar -->
+        <section id="headerbar" class="row">
             <div class="col-md-12">
                 <div class="input-group">
-                    <div class="input-group-addon"><strong>Outlook Taskboard</strong></div>
+                    <div class="input-group-addon" ng-click="setApplMode(0);">
+                        <strong>Outlook Taskboard  applMode = {{applMode}}</strong>
+                    </div>
                     <div class="input-group-addon">
                         <button id="refreshbutton" class="btn btn-default btn-xs" aria-label="Refresh" type="button" ng-click="initTasks();"><span class="glyphicon glyphicon-refresh" aria-hidden="true"></span></button>
                     </div>
@@ -40,24 +46,23 @@
                     <div class="input-group-addon">
                         <button class="btn btn-default btn-xs" aria-label="Report" type="button" ng-click="createReport();"><span class="glyphicon glyphicon-list-alt" aria-hidden="true"></span></button>
                     </div>
-                    <div ng-show="(usePrivate && private == true)" class="input-group-addon">
-                        <button class="btn btn-default btn-xs" ng-model="private" aria-label="Private" type="button" ng-click="private = !private"><span class="glyphicon glyphicon-lock" aria-hidden="true"></span></button>
-                    </div>
-                    <div ng-show="(usePrivate && private == false)" class="input-group-addon">
-                        <button class="btn btn-default btn-xs" ng-model="private" aria-label="Public" type="button" ng-click="private = !private"><span class="glyphicon glyphicon-globe" aria-hidden="true"></span></button>
+                    <div ng-show="usePrivate" class="input-group-addon">
+                        <button class="btn btn-default btn-xs" ng-model="private" aria-label="Private" type="button" ng-click="private = !private">
+                            <span ng-class=" { 'glyphicon-lock' : private, 'glyphicon-globe' : !private } " class="glyphicon" aria-hidden="true"></span>
+                        </button>
                     </div>
                     <div class="input-group-addon">
                         <button class="btn btn-default btn-xs" aria-label="Config" type="button" ng-click="editConfig();"><span class="glyphicon glyphicon-wrench" aria-hidden="true"></span></button>
                     </div>
                     <div class="input-group-addon">
-                        <button class="btn btn-default btn-xs" aria-label="Help" ng-click="displayHelp();"><strong>?</strong></button>
+                        <button class="btn btn-default btn-xs" aria-label="Help" ng-click="setApplMode(2);"><strong>?</strong></button>
                     </div>
                 </div>
             </div>
         </section>
 
         <!-- tasklanes section -->
-        <section class="row">
+        <section ng-if="(applMode === 0)" class="row">
 
             <!-- backlog lane -->
             <div ng-if="( config.BACKLOG_FOLDER.ACTIVE )" class="tasklane col-md-3 col-sm-4 col-xs-6" ng-class=" { 'col-lg-100' : numfolders === 1, 'col-lg-50' : numfolders === 2, 'col-lg-33' : numfolders === 3, 'col-lg-25': numfolders === 4, 'col-lg-20': numfolders === 5 }">
@@ -256,6 +261,77 @@
 
         </section>
 
+        <!-- config section -->
+        <section ng-if="(applMode === 1)" class="row">
+                CONFIG
+            </section>
+    
+        <!-- help section -->
+        <section ng-if="(applMode === 2)" class="row">
+                <h2>Configuration options:</h2>
+                <table>
+                <tr><strong>BACKLOG_FOLDER</strong></tr>
+                <tr><td>ACTIVE</td><td>display this folder on the board or not</td></tr>
+                <tr><td>FILTER_ON_START_DATE</td><td>if true, then task with start date in the future will not be displayed</td></tr>
+                <tr><td>TITLE</td><td>Folder title</td></tr>
+                <tr><td>NAME</td><td>Name of the Outlook tasks folder (blank = default tasks folder)</td></tr>
+                <tr><td>LIMIT</td><td>Maximum number of tasks in this folder (0 means no maximum)</td></tr>
+                <tr><td>SORT</td><td>The sort order of the tasks</td></tr>
+                <tr><td>RESTRICT</td><td>Filter that is applied to the tasks collection</td></tr>
+                <tr><td>DISPLAY_PROPERTIES</td><td>Defines the task properties that will be displayed on the task card</td></tr>
+                <tr><td>REPORT</td><td>Settings for the status report</td></tr>
+                <tr><strong>NEXT_FOLDER</strong></tr>
+                <tr><td>ACTIVE</td><td>display this folder on the board or not</td></tr>
+                <tr><td>TITLE</td><td>Folder title</td></tr>
+                <tr><td>NAME</td><td>Name of the Outlook tasks folder (blank = default tasks folder)</td></tr>
+                <tr><td>LIMIT</td><td>Maximum number of tasks in this folder (0 means no maximum)</td></tr>
+                <tr><td>SORT</td><td>The sort order of the tasks</td></tr>
+                <tr><td>RESTRICT</td><td>Filter that is applied to the tasks collection</td></tr>
+                <tr><td>DISPLAY_PROPERTIES</td><td>Defines the task properties that will be displayed on the task card</td></tr>
+                <tr><td>REPORT</td><td>Settings for the status report</td></tr>
+                <tr><strong>INPROGRESS_FOLDER</strong></tr>
+                <tr><td>ACTIVE</td><td>display this folder on the board or not</td></tr>
+                <tr><td>TITLE</td><td>Folder title</td></tr>
+                <tr><td>NAME</td><td>Name of the Outlook tasks folder (blank = default tasks folder)</td></tr>
+                <tr><td>LIMIT</td><td>Maximum number of tasks in this folder (0 means no maximum)</td></tr>
+                <tr><td>SORT</td><td>The sort order of the tasks</td></tr>
+                <tr><td>RESTRICT</td><td>Filter that is applied to the tasks collection</td></tr>
+                <tr><td>DISPLAY_PROPERTIES</td><td>Defines the task properties that will be displayed on the task card</td></tr>
+                <tr><td>REPORT</td><td>Settings for the status report</td></tr>
+                <tr><strong>WAITING_FOLDER</strong></tr>
+                <tr><td>ACTIVE</td><td>display this folder on the board or not</td></tr>
+                <tr><td>TITLE</td><td>Folder title</td></tr>
+                <tr><td>NAME</td><td>Name of the Outlook tasks folder (blank = default tasks folder)</td></tr>
+                <tr><td>LIMIT</td><td>Maximum number of tasks in this folder (0 means no maximum)</td></tr>
+                <tr><td>SORT</td><td>The sort order of the tasks</td></tr>
+                <tr><td>RESTRICT</td><td>Filter that is applied to the tasks collection</td></tr>
+                <tr><td>DISPLAY_PROPERTIES</td><td>Defines the task properties that will be displayed on the task card</td></tr>
+                <tr><td>REPORT</td><td>Settings for the status report</td></tr>
+                <tr><strong>COMPLETED_FOLDER</strong></tr>
+                <tr><td>ACTIVE</td><td>display this folder on the board or not</td></tr>
+                <tr><td>TITLE</td><td>Folder title</td></tr>
+                <tr><td>NAME</td><td>Name of the Outlook tasks folder (blank = default tasks folder)</td></tr>
+                <tr><td>LIMIT</td><td>Maximum number of tasks in this folder (0 means no maximum)</td></tr>
+                <tr><td>SORT</td><td>The sort order of the tasks</td></tr>
+                <tr><td>RESTRICT</td><td>Filter that is applied to the tasks collection</td></tr>
+                <tr><td>DISPLAY_PROPERTIES</td><td>Defines the task properties that will be displayed on the task card</td></tr>
+                <tr><td>REPORT</td><td>Settings for the status report</td></tr>
+                <tr><strong>ARCHIVE_FOLDER</strong></tr>
+                <tr><td>NAME</td><td>Name of the Outlook tasks folder (blank = default tasks folder)</td></tr>
+                <tr><strong>OTHER SETTINGS</strong></tr>
+                <tr><td>TASKNOTE_EXCERPT</td><td>Number of characters that are displayed for the tasks details</td></tr>
+                <tr><td>TASK_TEMPLATE</td><td>Template to use for new tasks</td></tr>
+                <tr><td>DATE_FORMAT</td><td>Date format (must a valid JS date format)</td></tr>
+                <tr><td>USE_CATEGORY_COLORS</td><td>if true, then the Outlook category colors will be used</td></tr>
+                <tr><td>USE_CATEGORY_COLOR_FOOTERS</td><td>if true, then the Outlook category colors will be used for the entire footer line</td></tr>
+                <tr><td>SAVE_STATE</td><td>if true, then the filters will be save dand re-used when the app is restarted</td></tr>
+                <tr><td>PRIVACY_FILTER</td><td>if true, then you can use separate boards for private and publis tasks</td></tr>
+                <tr><td>STATUS</td><td>Tha value and descriptions for the task statuses. The text can be changed for the status report</td></tr>
+                <tr><td>COMPLETED</td><td>Define what to do with completed tasks after x days: NONE, HIDE, ARCHIVE or DELETE</td></tr>
+                <tr><td>AUTO_UPDATE</td><td>if true, then the board is updated immediately after adding or deleting tasks</td></tr>
+                </table>
+                    </section>
+    
     </div>
 
 
