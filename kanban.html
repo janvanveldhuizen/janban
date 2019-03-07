@@ -17,6 +17,7 @@
     <script src="lib/moment.min.js"></script>
     <script src="lib/minify.json.js"></script>
     <script src="lib/deep-diff-0.3.8.min.js"></script>
+    <script src="js/exchange.js"></script>
     <script src="js/app.js"></script>
 
 </head>
@@ -33,7 +34,7 @@
         <section id="headerbar" class="row">
             <div class="col-md-12">
                 <div class="input-group">
-                    <div class="input-group-addon" ng-click="setApplMode(0);">
+                    <div class="input-group-addon" ng-click="setAppMode();">
                         <strong>Outlook Taskboard</strong>
                     </div>
                     <div class="input-group-addon">
@@ -52,17 +53,17 @@
                         </button>
                     </div>
                     <div class="input-group-addon">
-                        <button class="btn btn-default btn-xs" aria-label="Config" type="button" ng-click="editConfig();"><span class="glyphicon glyphicon-wrench" aria-hidden="true"></span></button>
+                        <button class="btn btn-default btn-xs" aria-label="Config" type="button" ng-click="setConfigMode();"><span class="glyphicon glyphicon-wrench" aria-hidden="true"></span></button>
                     </div>
                     <div class="input-group-addon">
-                        <button class="btn btn-default btn-xs" aria-label="Help" ng-click="setApplMode(2);"><strong>?</strong></button>
+                        <button class="btn btn-default btn-xs" aria-label="Help" ng-click="setHelpMode();"><strong>?</strong></button>
                     </div>
                 </div>
             </div>
         </section>
 
         <!-- tasklanes section -->
-        <section ng-if="(applMode === 0)" class="row">
+        <section ng-if="(applMode === APP_MODE)" class="row">
 
             <!-- backlog lane -->
             <div ng-if="( config.BACKLOG_FOLDER.ACTIVE )" class="tasklane col-md-3 col-sm-4 col-xs-6" ng-class=" { 'col-lg-100' : numfolders === 1, 'col-lg-50' : numfolders === 2, 'col-lg-33' : numfolders === 3, 'col-lg-25': numfolders === 4, 'col-lg-20': numfolders === 5 }">
@@ -262,17 +263,17 @@
         </section>
 
         <!-- config section -->
-        <section ng-if="(applMode === 1)" class="row">
+        <section ng-if="(applMode === CONFIG_MODE)" class="row">
             <form ng-submit="submitConfig(configRaw)">
                 <textarea rows="25" cols="150" ng-model="configRaw"></textarea>
                 <br/>
                 <button id="submitconfig" class="btn btn-primary">Save</button>
-                <button id="cancelconfig" class="btn btn-default" type="reset" ng-click="setApplMode(0);">Cancel</button>
+                <button id="cancelconfig" class="btn btn-default" type="reset" ng-click="setAppMode();">Cancel</button>
             </form>
         </section>
     
         <!-- help section -->
-        <section ng-if="(applMode === 2)" class="row">
+        <section ng-if="(applMode === HELP_MODE)" class="row">
                 <h2>Configuration options:</h2>
                 <table>
                 <tr><strong>BACKLOG_FOLDER</strong></tr>
