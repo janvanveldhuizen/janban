@@ -172,6 +172,24 @@ tbApp.controller('taskboardController', function ($scope, $filter) {
         });
     };
 
+    $scope.submitConfig = function (editedConfig) {
+        var delta = DeepDiff.diff(editedConfig, $scope.configRaw);
+        if (delta){
+            try {
+                var newConfig = JSON.parse(JSON.minify(editedConfig));
+                $scope.config = newConfig;
+                $scope.saveConfig();
+                $scope.init();
+            }
+            catch (e) {
+                alert(e)
+                alert("I am afraid there is something wrong with the json structure of your configuration data. Please correct it.");
+                return;
+            }
+        }
+        $scope.applMode = 0;
+    }
+
     var getOutlookFolder = function (folderpath) {
         if (folderpath === undefined || folderpath === '') {
             // if folder path is not defined, return main Tasks folder
@@ -534,6 +552,7 @@ tbApp.controller('taskboardController', function ($scope, $filter) {
                     $scope.editConfig();
                 }
                 configFound = true;
+                $scope.configRaw = configItem.Body;
             }
         }
         if (!configFound) {
@@ -542,83 +561,6 @@ tbApp.controller('taskboardController', function ($scope, $filter) {
         }
     }
 
-    $scope.displayHelp = function () {
-        $scope.applMode = 2;
-        var mailItem, mailBody;
-        mailItem = outlookApp.CreateItem(0);
-        mailItem.Subject = "Outlook Kanban Help";
-        mailItem.To = "you@yourself.com";
-        mailItem.BodyFormat = 2;
-        mailBody = "<style>";
-        mailBody += "body { font-family: Calibri; font-size:11.0pt; } ";
-        mailBody += " </style>";
-        mailBody += "<body>";
-        mailBody += "<h2>Configuration options:</h2>";
-        mailBody += "<table>";
-        mailBody += "<tr><strong>BACKLOG_FOLDER</strong></tr>";
-        mailBody += "<tr><td>ACTIVE</td><td>display this folder on the board or not</td></tr>";
-        mailBody += "<tr><td>FILTER_ON_START_DATE</td><td>if true, then task with start date in the future will not be displayed</td></tr>";
-        mailBody += "<tr><td>TITLE</td><td>Folder title</td></tr>";
-        mailBody += "<tr><td>NAME</td><td>Name of the Outlook tasks folder (blank = default tasks folder)</td></tr>";
-        mailBody += "<tr><td>LIMIT</td><td>Maximum number of tasks in this folder (0 means no maximum)</td></tr>";
-        mailBody += "<tr><td>SORT</td><td>The sort order of the tasks</td></tr>";
-        mailBody += "<tr><td>RESTRICT</td><td>Filter that is applied to the tasks collection</td></tr>";
-        mailBody += "<tr><td>DISPLAY_PROPERTIES</td><td>Defines the task properties that will be displayed on the task card</td></tr>";
-        mailBody += "<tr><td>REPORT</td><td>Settings for the status report</td></tr>";
-        mailBody += "<tr><strong>NEXT_FOLDER</strong></tr>";
-        mailBody += "<tr><td>ACTIVE</td><td>display this folder on the board or not</td></tr>";
-        mailBody += "<tr><td>TITLE</td><td>Folder title</td></tr>";
-        mailBody += "<tr><td>NAME</td><td>Name of the Outlook tasks folder (blank = default tasks folder)</td></tr>";
-        mailBody += "<tr><td>LIMIT</td><td>Maximum number of tasks in this folder (0 means no maximum)</td></tr>";
-        mailBody += "<tr><td>SORT</td><td>The sort order of the tasks</td></tr>";
-        mailBody += "<tr><td>RESTRICT</td><td>Filter that is applied to the tasks collection</td></tr>";
-        mailBody += "<tr><td>DISPLAY_PROPERTIES</td><td>Defines the task properties that will be displayed on the task card</td></tr>";
-        mailBody += "<tr><td>REPORT</td><td>Settings for the status report</td></tr>";
-        mailBody += "<tr><strong>INPROGRESS_FOLDER</strong></tr>";
-        mailBody += "<tr><td>ACTIVE</td><td>display this folder on the board or not</td></tr>";
-        mailBody += "<tr><td>TITLE</td><td>Folder title</td></tr>";
-        mailBody += "<tr><td>NAME</td><td>Name of the Outlook tasks folder (blank = default tasks folder)</td></tr>";
-        mailBody += "<tr><td>LIMIT</td><td>Maximum number of tasks in this folder (0 means no maximum)</td></tr>";
-        mailBody += "<tr><td>SORT</td><td>The sort order of the tasks</td></tr>";
-        mailBody += "<tr><td>RESTRICT</td><td>Filter that is applied to the tasks collection</td></tr>";
-        mailBody += "<tr><td>DISPLAY_PROPERTIES</td><td>Defines the task properties that will be displayed on the task card</td></tr>";
-        mailBody += "<tr><td>REPORT</td><td>Settings for the status report</td></tr>";
-        mailBody += "<tr><strong>WAITING_FOLDER</strong></tr>";
-        mailBody += "<tr><td>ACTIVE</td><td>display this folder on the board or not</td></tr>";
-        mailBody += "<tr><td>TITLE</td><td>Folder title</td></tr>";
-        mailBody += "<tr><td>NAME</td><td>Name of the Outlook tasks folder (blank = default tasks folder)</td></tr>";
-        mailBody += "<tr><td>LIMIT</td><td>Maximum number of tasks in this folder (0 means no maximum)</td></tr>";
-        mailBody += "<tr><td>SORT</td><td>The sort order of the tasks</td></tr>";
-        mailBody += "<tr><td>RESTRICT</td><td>Filter that is applied to the tasks collection</td></tr>";
-        mailBody += "<tr><td>DISPLAY_PROPERTIES</td><td>Defines the task properties that will be displayed on the task card</td></tr>";
-        mailBody += "<tr><td>REPORT</td><td>Settings for the status report</td></tr>";
-        mailBody += "<tr><strong>COMPLETED_FOLDER</strong></tr>";
-        mailBody += "<tr><td>ACTIVE</td><td>display this folder on the board or not</td></tr>";
-        mailBody += "<tr><td>TITLE</td><td>Folder title</td></tr>";
-        mailBody += "<tr><td>NAME</td><td>Name of the Outlook tasks folder (blank = default tasks folder)</td></tr>";
-        mailBody += "<tr><td>LIMIT</td><td>Maximum number of tasks in this folder (0 means no maximum)</td></tr>";
-        mailBody += "<tr><td>SORT</td><td>The sort order of the tasks</td></tr>";
-        mailBody += "<tr><td>RESTRICT</td><td>Filter that is applied to the tasks collection</td></tr>";
-        mailBody += "<tr><td>DISPLAY_PROPERTIES</td><td>Defines the task properties that will be displayed on the task card</td></tr>";
-        mailBody += "<tr><td>REPORT</td><td>Settings for the status report</td></tr>";
-        mailBody += "<tr><strong>ARCHIVE_FOLDER</strong></tr>";
-        mailBody += "<tr><td>NAME</td><td>Name of the Outlook tasks folder (blank = default tasks folder)</td></tr>";
-        mailBody += "<tr><strong>OTHER SETTINGS</strong></tr>";
-        mailBody += "<tr><td>TASKNOTE_EXCERPT</td><td>Number of characters that are displayed for the tasks details</td></tr>";
-        mailBody += "<tr><td>TASK_TEMPLATE</td><td>Template to use for new tasks</td></tr>";
-        mailBody += "<tr><td>DATE_FORMAT</td><td>Date format (must a valid JS date format)</td></tr>";
-        mailBody += "<tr><td>USE_CATEGORY_COLORS</td><td>if true, then the Outlook category colors will be used</td></tr>";
-        mailBody += "<tr><td>USE_CATEGORY_COLOR_FOOTERS</td><td>if true, then the Outlook category colors will be used for the entire footer line</td></tr>";
-        mailBody += "<tr><td>SAVE_STATE</td><td>if true, then the filters will be save dand re-used when the app is restarted</td></tr>";
-        mailBody += "<tr><td>PRIVACY_FILTER</td><td>if true, then you can use separate boards for private and publis tasks</td></tr>";
-        mailBody += "<tr><td>STATUS</td><td>Tha value and descriptions for the task statuses. The text can be changed for the status report</td></tr>";
-        mailBody += "<tr><td>COMPLETED</td><td>Define what to do with completed tasks after x days: NONE, HIDE, ARCHIVE or DELETE</td></tr>";
-        mailBody += "<tr><td>AUTO_UPDATE</td><td>if true, then the board is updated immediately after adding or deleting tasks</td></tr>";
-        mailBody += "</table>";
-        mailBody += "</body>"
-        mailItem.HTMLBody = mailBody;
-        mailItem.Display();
-    }
 
     // this is only a proof-of-concept single page report in a draft email for weekly report
     // it will be improved later on
@@ -939,12 +881,12 @@ tbApp.controller('taskboardController', function ($scope, $filter) {
 
     $scope.editConfig = function () {
         $scope.applMode = 1;
-        var folder = outlookNS.GetDefaultFolder(11);
-        var configItems = folder.Items.Restrict('[Subject] = "KanbanConfig"');
-        var configItem = configItems(1);
-        configItem.Display();
-        // bind to taskitem write event on outlook and reload the page after the task is saved
-        eval("function configItem::Write (bStat) {window.location.reload(); return true;}");
+        // var folder = outlookNS.GetDefaultFolder(11);
+        // var configItems = folder.Items.Restrict('[Subject] = "KanbanConfig"');
+        // var configItem = configItems(1);
+        // configItem.Display();
+        // // bind to taskitem write event on outlook and reload the page after the task is saved
+        // eval("function configItem::Write (bStat) {window.location.reload(); return true;}");
     }
 
     $scope.makeDefaultConfig = function () {

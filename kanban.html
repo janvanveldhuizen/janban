@@ -34,7 +34,7 @@
             <div class="col-md-12">
                 <div class="input-group">
                     <div class="input-group-addon" ng-click="setApplMode(0);">
-                        <strong>Outlook Taskboard  applMode = {{applMode}}</strong>
+                        <strong>Outlook Taskboard</strong>
                     </div>
                     <div class="input-group-addon">
                         <button id="refreshbutton" class="btn btn-default btn-xs" aria-label="Refresh" type="button" ng-click="initTasks();"><span class="glyphicon glyphicon-refresh" aria-hidden="true"></span></button>
@@ -263,8 +263,13 @@
 
         <!-- config section -->
         <section ng-if="(applMode === 1)" class="row">
-                CONFIG
-            </section>
+            <form ng-submit="submitConfig(configRaw)">
+                <textarea rows="25" cols="150" ng-model="configRaw"></textarea>
+                <br/>
+                <button id="submitconfig" class="btn btn-primary">Save</button>
+                <button id="cancelconfig" class="btn btn-default" type="reset" ng-click="setApplMode(0);">Cancel</button>
+            </form>
+        </section>
     
         <!-- help section -->
         <section ng-if="(applMode === 2)" class="row">
