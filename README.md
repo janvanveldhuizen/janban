@@ -1,6 +1,6 @@
 # Outlook Taskboard aka **JanBan**
 
-_Note that this repository is hosted on Gitlab [https://gitlab/janware/janban]. The Github repository is only a mirror._
+_Note that this repository is hosted on [Gitlab](https://gitlab/janware/janban). The Github repository is only a mirror._
 _Please follow the Gitlab link to report issues or to do a pull request._
 
 Outlook Taskboard is a kanban board style view for Outlook Tasks.
