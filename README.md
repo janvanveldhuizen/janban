@@ -184,10 +184,10 @@ If there are some notes entered in the task, only first 200 chars are visible by
 // Task Note Excerpt Size
 // number of chars for each task note
 // 0 = makes no notes appear on the each task card
-'TASKNOTE_EXCERPT':    200,
+'TASKNOTE_MAXLEN':    200,
 ```
 
-The `TASKNOTE_EXCERPT` value can be updated to change the number of characters shown in the task board view.
+The `TASKNOTE_MAXLEN` value can be updated to change the number of characters shown in the task board view.
 
 Note: If the default task template used to create the task, only the first part of the task notes are visible. (until first the '###'' section).
 

@@ -37,18 +37,18 @@ function getOutlookCategories() {
     return { names: catNames, colors: catColors };
 }
 
-function getTaskFolder(folderpath) {
-    if (folderpath === undefined || folderpath === '') {
+function getTaskFolder(folderName) {
+    if (folderName === undefined || folderName === '') {
         // if folder path is not defined, return main Tasks folder
         var folder = outlookNS.GetDefaultFolder(13);
     } else {
         // if folder path is defined then find it, create it if it doesn't exist yet
         try {
-            var folder = outlookNS.GetDefaultFolder(13).Folders(folderpath);
+            var folder = outlookNS.GetDefaultFolder(13).Folders(folderName);
         }
         catch (e) {
-            outlookNS.GetDefaultFolder(13).Folders.Add(folderpath);
-            var folder = outlookNS.GetDefaultFolder(13).Folders(folderpath);
+            outlookNS.GetDefaultFolder(13).Folders.Add(folderName);
+            var folder = outlookNS.GetDefaultFolder(13).Folders(folderName);
         }
     }
     return folder;
@@ -58,7 +58,11 @@ function getJournalFolder(){
     return outlookNS.GetDefaultFolder(11);
 }
 
-function getTask(id){
+function getTaskItems(folderName) {
+    return getTaskFolder(folderName).Items;
+}
+
+function getTaskItem(id){
     return outlookNS.GetItemFromID(id);
 }
 
@@ -69,3 +73,39 @@ function newMailItem(){
 function newJournalItem(){
     return outlookApp.CreateItem(4);
 }
+
+function getJournalItem(subject){
+    var folder = getJournalFolder();
+    var configItems = folder.Items.Restrict('[Subject] = "' + subject + '"');
+    if (configItems.Count > 0) {
+        var configItem = configItems(1);
+        if (configItem.Body){
+            return configItem.Body;
+        }
+    }   
+    return null;
+}
+
+function saveJournalItem(subject, body){
+    var folder = getJournalFolder();
+    var configItems = folder.Items.Restrict('[Subject] = "' + subject + '"');
+    if (configItems.Count == 0) {
+        var configItem = newJournalItem();
+        configItem.Subject = subject;
+    }
+    else {
+        configItem = configItems(1);
+    }
+    configItem.Body = body;
+    configItem.Save();
+}
+    
+function getUserProperty(item, prop) {
+    var userprop = item.UserProperties(prop);
+    var value = '';
+    if (userprop != null) {
+        value = userprop.Value;
+    }
+    return value;
+};
+

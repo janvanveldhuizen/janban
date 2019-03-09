@@ -24,17 +24,17 @@
 
 <body ng-controller="taskboardController" ng-init="init()">
 
-    <div ng-if="!isBrowserSupported">
+    <div ng-show="!isBrowserSupported">
         <h1>Sorry, this app can only be run in Internet Explorer or as the Outlook Today home page.</h1>
     </div>
 
-    <div ng-if="isBrowserSupported" class="taskboard container-fluid">
+    <div ng-show="isBrowserSupported" class="taskboard container-fluid">
 
         <!-- header bar -->
         <section id="headerbar" class="row">
             <div class="col-md-12">
                 <div class="input-group">
-                    <div class="input-group-addon" ng-click="setAppMode();">
+                    <div class="input-group-addon" ng-click="switchToAppMode();">
                         <strong>Outlook Taskboard</strong>
                     </div>
                     <div class="input-group-addon">
@@ -53,10 +53,10 @@
                         </button>
                     </div>
                     <div class="input-group-addon">
-                        <button class="btn btn-default btn-xs" aria-label="Config" type="button" ng-click="setConfigMode();"><span class="glyphicon glyphicon-wrench" aria-hidden="true"></span></button>
+                        <button class="btn btn-default btn-xs" aria-label="Config" type="button" ng-click="switchToConfigMode();"><span class="glyphicon glyphicon-wrench" aria-hidden="true"></span></button>
                     </div>
                     <div class="input-group-addon">
-                        <button class="btn btn-default btn-xs" aria-label="Help" ng-click="setHelpMode();"><strong>?</strong></button>
+                        <button class="btn btn-default btn-xs" aria-label="Help" ng-click="switchToHelpMode();"><strong>?</strong></button>
                     </div>
                 </div>
             </div>
@@ -268,7 +268,7 @@
                 <textarea rows="25" cols="150" ng-model="configRaw"></textarea>
                 <br/>
                 <button id="submitconfig" class="btn btn-primary">Save</button>
-                <button id="cancelconfig" class="btn btn-default" type="reset" ng-click="setAppMode();">Cancel</button>
+                <button id="cancelconfig" class="btn btn-default" type="reset" ng-click="switchToAppMode();">Cancel</button>
             </form>
         </section>
     
@@ -283,7 +283,6 @@
                 <tr><td>NAME</td><td>Name of the Outlook tasks folder (blank = default tasks folder)</td></tr>
                 <tr><td>LIMIT</td><td>Maximum number of tasks in this folder (0 means no maximum)</td></tr>
                 <tr><td>SORT</td><td>The sort order of the tasks</td></tr>
-                <tr><td>RESTRICT</td><td>Filter that is applied to the tasks collection</td></tr>
                 <tr><td>DISPLAY_PROPERTIES</td><td>Defines the task properties that will be displayed on the task card</td></tr>
                 <tr><td>REPORT</td><td>Settings for the status report</td></tr>
                 <tr><strong>NEXT_FOLDER</strong></tr>
@@ -292,7 +291,6 @@
                 <tr><td>NAME</td><td>Name of the Outlook tasks folder (blank = default tasks folder)</td></tr>
                 <tr><td>LIMIT</td><td>Maximum number of tasks in this folder (0 means no maximum)</td></tr>
                 <tr><td>SORT</td><td>The sort order of the tasks</td></tr>
-                <tr><td>RESTRICT</td><td>Filter that is applied to the tasks collection</td></tr>
                 <tr><td>DISPLAY_PROPERTIES</td><td>Defines the task properties that will be displayed on the task card</td></tr>
                 <tr><td>REPORT</td><td>Settings for the status report</td></tr>
                 <tr><strong>INPROGRESS_FOLDER</strong></tr>
@@ -301,7 +299,6 @@
                 <tr><td>NAME</td><td>Name of the Outlook tasks folder (blank = default tasks folder)</td></tr>
                 <tr><td>LIMIT</td><td>Maximum number of tasks in this folder (0 means no maximum)</td></tr>
                 <tr><td>SORT</td><td>The sort order of the tasks</td></tr>
-                <tr><td>RESTRICT</td><td>Filter that is applied to the tasks collection</td></tr>
                 <tr><td>DISPLAY_PROPERTIES</td><td>Defines the task properties that will be displayed on the task card</td></tr>
                 <tr><td>REPORT</td><td>Settings for the status report</td></tr>
                 <tr><strong>WAITING_FOLDER</strong></tr>
@@ -310,7 +307,6 @@
                 <tr><td>NAME</td><td>Name of the Outlook tasks folder (blank = default tasks folder)</td></tr>
                 <tr><td>LIMIT</td><td>Maximum number of tasks in this folder (0 means no maximum)</td></tr>
                 <tr><td>SORT</td><td>The sort order of the tasks</td></tr>
-                <tr><td>RESTRICT</td><td>Filter that is applied to the tasks collection</td></tr>
                 <tr><td>DISPLAY_PROPERTIES</td><td>Defines the task properties that will be displayed on the task card</td></tr>
                 <tr><td>REPORT</td><td>Settings for the status report</td></tr>
                 <tr><strong>COMPLETED_FOLDER</strong></tr>
@@ -319,13 +315,12 @@
                 <tr><td>NAME</td><td>Name of the Outlook tasks folder (blank = default tasks folder)</td></tr>
                 <tr><td>LIMIT</td><td>Maximum number of tasks in this folder (0 means no maximum)</td></tr>
                 <tr><td>SORT</td><td>The sort order of the tasks</td></tr>
-                <tr><td>RESTRICT</td><td>Filter that is applied to the tasks collection</td></tr>
                 <tr><td>DISPLAY_PROPERTIES</td><td>Defines the task properties that will be displayed on the task card</td></tr>
                 <tr><td>REPORT</td><td>Settings for the status report</td></tr>
                 <tr><strong>ARCHIVE_FOLDER</strong></tr>
                 <tr><td>NAME</td><td>Name of the Outlook tasks folder (blank = default tasks folder)</td></tr>
                 <tr><strong>OTHER SETTINGS</strong></tr>
-                <tr><td>TASKNOTE_EXCERPT</td><td>Number of characters that are displayed for the tasks details</td></tr>
+                <tr><td>TASKNOTE_MAXLEN</td><td>Number of characters that are displayed for the tasks details</td></tr>
                 <tr><td>TASK_TEMPLATE</td><td>Template to use for new tasks</td></tr>
                 <tr><td>DATE_FORMAT</td><td>Date format (must a valid JS date format)</td></tr>
                 <tr><td>USE_CATEGORY_COLORS</td><td>if true, then the Outlook category colors will be used</td></tr>

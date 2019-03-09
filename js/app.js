@@ -8,15 +8,18 @@ tbApp.controller('taskboardController', function ($scope, $filter) {
     $scope.CONFIG_MODE = 1;
     $scope.HELP_MODE = 2;
 
-    $scope.setAppMode = function () {
+    const STATE_ID = "KanbanState";
+    const CONFIG_ID = "KanbanConfig";
+
+    $scope.switchToAppMode = function () {
         $scope.applMode = $scope.APP_MODE;
     }
 
-    $scope.setConfigMode = function () {
+    $scope.switchToConfigMode = function () {
         $scope.applMode = $scope.CONFIG_MODE;
     }
 
-    $scope.setHelpMode = function () {
+    $scope.switchToHelpMode = function () {
         $scope.applMode = $scope.HELP_MODE;
     }
 
@@ -28,25 +31,14 @@ tbApp.controller('taskboardController', function ($scope, $filter) {
             return;
         }
 
-        $scope.setAppMode();
-        $scope.getConfig();
-
-        var defaultConfig = $scope.makeDefaultConfig();
-        var delta = DeepDiff.diff($scope.config, defaultConfig);
-        if (delta) {
-            delta.forEach(function (change) {
-                if (change.kind === 'N' || change.kind === 'D') {
-                    DeepDiff.applyChange($scope.config, defaultConfig, change);
-                }
-            });
-            $scope.saveConfig();
-        }
+        $scope.switchToAppMode();
+        getConfig();
+        getState();
 
         $scope.usePrivate = $scope.config.PRIVACY_FILTER;
         $scope.useCategoryColors = $scope.config.USE_CATEGORY_COLORS;
         $scope.useCategoryColorFooters = $scope.config.USE_CATEGORY_COLOR_FOOTERS;
         $scope.outlookCategories = getOutlookCategories();
-        $scope.getState();
         $scope.initTasks();
 
         $scope.numfolders = 0;
@@ -98,7 +90,7 @@ tbApp.controller('taskboardController', function ($scope, $filter) {
                     };
 
                     // locate the task in outlook namespace by using unique entry id
-                    var taskitem = getTask(ui.item.sortable.model.entryID);
+                    var taskitem = getTaskItem(ui.item.sortable.model.entryID);
                     var itemChanged = false;
 
                     // set new status, if different
@@ -106,7 +98,7 @@ tbApp.controller('taskboardController', function ($scope, $filter) {
                         taskitem.Status = newstatus;
                         taskitem.Save();
                         itemChanged = true;
-                        ui.item.sortable.model.status = taskStatus(newstatus);
+                        ui.item.sortable.model.status = taskStatusText(newstatus);
                         ui.item.sortable.model.completeddate = new Date(taskitem.DateCompleted)
                     }
 
@@ -132,7 +124,7 @@ tbApp.controller('taskboardController', function ($scope, $filter) {
         $scope.$watchGroup(['search', 'private'], function (newValues, oldValues) {
             var search = newValues[0];
             $scope.applyFilters();
-            $scope.saveState();
+            saveState();
         });
     };
 
@@ -142,16 +134,15 @@ tbApp.controller('taskboardController', function ($scope, $filter) {
             try {
                 var newConfig = JSON.parse(JSON.minify(editedConfig));
                 $scope.config = newConfig;
-                $scope.saveConfig();
+                saveConfig();
                 $scope.init();
             }
             catch (e) {
-                alert(e)
                 alert("I am afraid there is something wrong with the json structure of your configuration data. Please correct it.");
                 return;
             }
         }
-        $scope.setAppMode();
+        $scope.switchToAppMode();
     }
 
 
@@ -185,14 +176,9 @@ tbApp.controller('taskboardController', function ($scope, $filter) {
         };
     };
 
-    var getTasksFromOutlook = function (path, restrict, sort, folderStatus) {
+    var getTasksFromOutlook = function (path, sort, folderStatus) {
         var i, array = [];
-        if (restrict === undefined || restrict == '') {
-            var tasks = getTaskFolder(path).Items;
-        }
-        else {
-            var tasks = getTaskFolder(path).Items.Restrict(restrict);
-        }
+        var tasks = getTaskItems(path);
 
         var count = tasks.Count;
         for (i = 1; i <= count; i++) {
@@ -206,10 +192,10 @@ tbApp.controller('taskboardController', function ($scope, $filter) {
                     duedate: new Date(task.DueDate),
                     sensitivity: task.Sensitivity,
                     categories: getCategoryStyles(task.Categories),
-                    notes: taskExcerpt(task.Body, $scope.config.TASKNOTE_EXCERPT),
-                    status: taskStatus(task.Status),
-                    oneNoteTaskID: getUserProp(tasks(i), "OneNoteTaskID"),
-                    oneNoteURL: getUserProp(tasks(i), "OneNoteURL"),
+                    notes: taskBodyNotes(task.Body, $scope.config.TASKNOTE_MAXLEN),
+                    status: taskStatusText(task.Status),
+                    oneNoteTaskID: getUserProperty(tasks(i), "OneNoteTaskID"),
+                    oneNoteURL: getUserProperty(tasks(i), "OneNoteURL"),
                     completeddate: new Date(task.DateCompleted),
                     percent: task.PercentComplete,
                     owner: task.Owner,
@@ -228,28 +214,11 @@ tbApp.controller('taskboardController', function ($scope, $filter) {
         return sortedTasks;
     };
 
-    // grabs values of user defined fields from outlook item object 
-    // currently used for getting onenote url info 
-    var getUserProp = function (item, prop) {
-        var userprop = item.UserProperties(prop);
-        var value = '';
-        if (userprop != null) {
-            value = userprop.Value;
-        }
-        return value;
-    };
-
-    // opens up onenote app and locates the page by using onenote uri 
     $scope.openOneNoteURL = function (url) {
         window.event.returnValue = false;
-        // try to open the link using msLaunchUri which does not create unsafe-link security warning 
-        // unfortunately this method is only available Win8+ 
         if (navigator.msLaunchUri) {
             navigator.msLaunchUri(url);
         } else {
-            // old window.open method, this creates unsafe-link warning if the link clicked via outlook app 
-            // there is a registry key to disable these warnings, but not recommended as it disables 
-            // the unsafe-link protection in entire outlook app 
             window.open(url, "_blank").close();
         }
         return nfalse;
@@ -257,11 +226,11 @@ tbApp.controller('taskboardController', function ($scope, $filter) {
 
     $scope.initTasks = function () {
         // get tasks from each outlook folder and populate model data
-        $scope.backlogTasks = getTasksFromOutlook($scope.config.BACKLOG_FOLDER.NAME, $scope.config.BACKLOG_FOLDER.RESTRICT, $scope.config.BACKLOG_FOLDER.SORT, $scope.config.STATUS.NOT_STARTED.VALUE);
-        $scope.inprogressTasks = getTasksFromOutlook($scope.config.INPROGRESS_FOLDER.NAME, $scope.config.INPROGRESS_FOLDER.RESTRICT, $scope.config.INPROGRESS_FOLDER.SORT, $scope.config.STATUS.IN_PROGRESS.VALUE);
-        $scope.nextTasks = getTasksFromOutlook($scope.config.NEXT_FOLDER.NAME, $scope.config.NEXT_FOLDER.RESTRICT, $scope.config.NEXT_FOLDER.SORT, $scope.config.STATUS.NOT_STARTED.VALUE);
-        $scope.waitingTasks = getTasksFromOutlook($scope.config.WAITING_FOLDER.NAME, $scope.config.WAITING_FOLDER.RESTRICT, $scope.config.WAITING_FOLDER.SORT, $scope.config.STATUS.WAITING.VALUE);
-        $scope.completedTasks = getTasksFromOutlook($scope.config.COMPLETED_FOLDER.NAME, $scope.config.COMPLETED_FOLDER.RESTRICT, $scope.config.COMPLETED_FOLDER.SORT, $scope.config.STATUS.COMPLETED.VALUE);
+        $scope.backlogTasks = getTasksFromOutlook($scope.config.BACKLOG_FOLDER.NAME, $scope.config.BACKLOG_FOLDER.SORT, $scope.config.STATUS.NOT_STARTED.VALUE);
+        $scope.inprogressTasks = getTasksFromOutlook($scope.config.INPROGRESS_FOLDER.NAME, $scope.config.INPROGRESS_FOLDER.SORT, $scope.config.STATUS.IN_PROGRESS.VALUE);
+        $scope.nextTasks = getTasksFromOutlook($scope.config.NEXT_FOLDER.NAME, $scope.config.NEXT_FOLDER.SORT, $scope.config.STATUS.NOT_STARTED.VALUE);
+        $scope.waitingTasks = getTasksFromOutlook($scope.config.WAITING_FOLDER.NAME, $scope.config.WAITING_FOLDER.SORT, $scope.config.STATUS.WAITING.VALUE);
+        $scope.completedTasks = getTasksFromOutlook($scope.config.COMPLETED_FOLDER.NAME, $scope.config.COMPLETED_FOLDER.SORT, $scope.config.STATUS.COMPLETED.VALUE);
 
         // copy the lists as the initial filter    
         $scope.filteredBacklogTasks = $scope.backlogTasks;
@@ -301,15 +270,15 @@ tbApp.controller('taskboardController', function ($scope, $filter) {
                 if (tasks[i].startdate.getFullYear() != 4501) {
                     var seconds = Date.secondsBetween(tasks[i].startdate, new Date());
                     if (seconds >= 0) {
-                        var taskitem = getTask(tasks[i].entryID);
+                        var taskitem = getTaskItem(tasks[i].entryID);
                         taskitem.Move(getTaskFolder($scope.config.NEXT_FOLDER.NAME));
                         movedTask = true;
                     }
                 };
             };
             if (movedTask) {
-                $scope.backlogTasks = getTasksFromOutlook($scope.config.BACKLOG_FOLDER.NAME, $scope.config.BACKLOG_FOLDER.RESTRICT, $scope.config.BACKLOG_FOLDER.SORT, $scope.config.STATUS.NOT_STARTED.VALUE);
-                $scope.nextTasks = getTasksFromOutlook($scope.config.NEXT_FOLDER.NAME, $scope.config.NEXT_FOLDER.RESTRICT, $scope.config.NEXT_FOLDER.SORT, $scope.config.STATUS.NOT_STARTED.VALUE);
+                $scope.backlogTasks = getTasksFromOutlook($scope.config.BACKLOG_FOLDER.NAME, $scope.config.BACKLOG_FOLDER.SORT, $scope.config.STATUS.NOT_STARTED.VALUE);
+                $scope.nextTasks = getTasksFromOutlook($scope.config.NEXT_FOLDER.NAME, $scope.config.NEXT_FOLDER.SORT, $scope.config.STATUS.NOT_STARTED.VALUE);
                 $scope.filteredBacklogTasks = $scope.backlogTasks;
                 $scope.filteredNextTasks = $scope.nextTasks;
             }
@@ -362,81 +331,6 @@ tbApp.controller('taskboardController', function ($scope, $filter) {
         }
     }
 
-    $scope.saveState = function () {
-        if ($scope.config.SAVE_STATE) {
-            var state = { "private": $scope.private, "search": $scope.search };
-
-            var folder = getJournalFolder();
-            var stateItems = folder.Items.Restrict('[Subject] = "KanbanState"');
-            if (stateItems.Count == 0) {
-                var stateItem = newJournalItem();
-                stateItem.Subject = "KanbanState";
-            }
-            else {
-                stateItem = stateItems(1);
-            }
-            stateItem.Body = JSON.stringify(state);
-            stateItem.Save();
-        }
-    }
-
-    $scope.saveConfig = function () {
-        var folder = getJournalFolder();
-        var configItems = folder.Items.Restrict('[Subject] = "KanbanConfig"');
-        if (configItems.Count == 0) {
-            var configItem = newJournalItem();
-            configItem.Subject = "KanbanConfig";
-        }
-        else {
-            configItem = configItems(1);
-        }
-        configItem.Body = JSON.stringify($scope.config, null, 2);
-        configItem.Save();
-    }
-
-    $scope.getState = function () {
-        // set default state
-        var state = { "private": false, "search": "" };
-
-        if ($scope.config.SAVE_STATE) {
-            var folder = getJournalFolder();
-            var stateItems = folder.Items.Restrict('[Subject] = "KanbanState"');
-            if (stateItems.Count > 0) {
-                var stateItem = stateItems(1);
-                if (stateItem.Body) {
-                    state = JSON.parse(stateItem.Body);
-                }
-            }
-        }
-
-        $scope.search = state.search;
-        $scope.private = state.private;
-    }
-
-    $scope.getConfig = function () {
-        var folder = getJournalFolder();
-        var configItems = folder.Items.Restrict('[Subject] = "KanbanConfig"');
-        var configFound = false;
-        if (configItems.Count > 0) {
-            var configItem = configItems(1);
-            if (configItem.Body) {
-                try {
-                    $scope.config = JSON.parse(JSON.minify(configItem.Body));
-                }
-                catch (e) {
-                    alert("I am afraid there is something wrong with the json structure of your configuration data. Please correct it.");
-                    $scope.setConfigpMode();
-                }
-                configFound = true;
-                $scope.configRaw = configItem.Body;
-            }
-        }
-        if (!configFound) {
-            $scope.config = $scope.makeDefaultConfig();
-            $scope.saveConfig();
-        }
-    }
-
 
     // this is only a proof-of-concept single page report in a draft email for weekly report
     // it will be improved later on
@@ -463,13 +357,13 @@ tbApp.controller('taskboardController', function ($scope, $filter) {
             for (i = 1; i <= count; i++) {
                 mailBody += "<li>"
                 if (tasks(i).Categories !== "") { mailBody += "[" + tasks(i).Categories + "] "; }
-                mailBody += "<strong>" + tasks(i).Subject + "</strong>" + " - <i>" + taskStatus(tasks(i).Status) + "</i>";
+                mailBody += "<strong>" + tasks(i).Subject + "</strong>" + " - <i>" + taskStatusText(tasks(i).Status) + "</i>";
                 if ($scope.config.COMPLETED_FOLDER.DISPLAY_PROPERTIES.TOTALWORK) { mailBody += " - " + tasks(i).TotalWork + " mn "; }
                 if (tasks(i).Importance == 2) { mailBody += "<font color=red> [H]</font>"; }
                 if (tasks(i).Importance == 0) { mailBody += "<font color=gray> [L]</font>"; }
                 var dueDate = new Date(tasks(i).DueDate);
                 if (moment(dueDate).isValid && moment(dueDate).year() != 4501) { mailBody += " [Due: " + moment(dueDate).format("DD-MMM") + "]"; }
-                if (taskExcerpt(tasks(i).Body, 10000)) { mailBody += "<br>" + "<font color=gray>" + taskExcerpt(tasks(i).Body, 10000) + "</font>"; }
+                if (taskBodyNotes(tasks(i).Body, 10000)) { mailBody += "<br>" + "<font color=gray>" + taskBodyNotes(tasks(i).Body, 10000) + "</font>"; }
                 mailBody += "</li>";
             }
             mailBody += "</ul>";
@@ -485,13 +379,13 @@ tbApp.controller('taskboardController', function ($scope, $filter) {
             for (i = 1; i <= count; i++) {
                 mailBody += "<li>"
                 if (tasks(i).Categories !== "") { mailBody += "[" + tasks(i).Categories + "] "; }
-                mailBody += "<strong>" + tasks(i).Subject + "</strong>" + " - <i>" + taskStatus(tasks(i).Status) + "</i>";
+                mailBody += "<strong>" + tasks(i).Subject + "</strong>" + " - <i>" + taskStatusText(tasks(i).Status) + "</i>";
                 if ($scope.config.INPROGRESS_FOLDER.DISPLAY_PROPERTIES.TOTALWORK) { mailBody += " - " + tasks(i).TotalWork + " mn "; }
                 if (tasks(i).Importance == 2) { mailBody += "<font color=red> [H]</font>"; }
                 if (tasks(i).Importance == 0) { mailBody += "<font color=gray> [L]</font>"; }
                 var dueDate = new Date(tasks(i).DueDate);
                 if (moment(dueDate).isValid && moment(dueDate).year() != 4501) { mailBody += " [Due: " + moment(dueDate).format("DD-MMM") + "]"; }
-                if (taskExcerpt(tasks(i).Body, 10000)) { mailBody += "<br>" + "<font color=gray>" + taskExcerpt(tasks(i).Body, 10000) + "</font>"; }
+                if (taskBodyNotes(tasks(i).Body, 10000)) { mailBody += "<br>" + "<font color=gray>" + taskBodyNotes(tasks(i).Body, 10000) + "</font>"; }
                 mailBody += "</li>";
             }
             mailBody += "</ul>";
@@ -507,13 +401,13 @@ tbApp.controller('taskboardController', function ($scope, $filter) {
             for (i = 1; i <= count; i++) {
                 mailBody += "<li>"
                 if (tasks(i).Categories !== "") { mailBody += "[" + tasks(i).Categories + "] "; }
-                mailBody += "<strong>" + tasks(i).Subject + "</strong>" + " - <i>" + taskStatus(tasks(i).Status) + "</i>";
+                mailBody += "<strong>" + tasks(i).Subject + "</strong>" + " - <i>" + taskStatusText(tasks(i).Status) + "</i>";
                 if ($scope.config.NEXT_FOLDER.DISPLAY_PROPERTIES.TOTALWORK) { mailBody += " - " + tasks(i).TotalWork + " mn "; }
                 if (tasks(i).Importance == 2) { mailBody += "<font color=red> [H]</font>"; }
                 if (tasks(i).Importance == 0) { mailBody += "<font color=gray> [L]</font>"; }
                 var dueDate = new Date(tasks(i).DueDate);
                 if (moment(dueDate).isValid && moment(dueDate).year() != 4501) { mailBody += " [Due: " + moment(dueDate).format("DD-MMM") + "]"; }
-                if (taskExcerpt(tasks(i).Body, 10000)) { mailBody += "<br>" + "<font color=gray>" + taskExcerpt(tasks(i).Body, 10000) + "</font>"; }
+                if (taskBodyNotes(tasks(i).Body, 10000)) { mailBody += "<br>" + "<font color=gray>" + taskBodyNotes(tasks(i).Body, 10000) + "</font>"; }
                 mailBody += "</li>";
             }
             mailBody += "</ul>";
@@ -529,13 +423,13 @@ tbApp.controller('taskboardController', function ($scope, $filter) {
             for (i = 1; i <= count; i++) {
                 mailBody += "<li>"
                 if (tasks(i).Categories !== "") { mailBody += "[" + tasks(i).Categories + "] "; }
-                mailBody += "<strong>" + tasks(i).Subject + "</strong>" + " - <i>" + taskStatus(tasks(i).Status) + "</i>";
+                mailBody += "<strong>" + tasks(i).Subject + "</strong>" + " - <i>" + taskStatusText(tasks(i).Status) + "</i>";
                 if ($scope.config.WAITING_FOLDER.DISPLAY_PROPERTIES.TOTALWORK) { mailBody += " - " + tasks(i).TotalWork + " mn "; }
                 if (tasks(i).Importance == 2) { mailBody += "<font color=red> [H]</font>"; }
                 if (tasks(i).Importance == 0) { mailBody += "<font color=gray> [L]</font>"; }
                 var dueDate = new Date(tasks(i).DueDate);
                 if (moment(dueDate).isValid && moment(dueDate).year() != 4501) { mailBody += " [Due: " + moment(dueDate).format("DD-MMM") + "]"; }
-                if (taskExcerpt(tasks(i).Body, 10000)) { mailBody += "<br>" + "<font color=gray>" + taskExcerpt(tasks(i).Body, 10000) + "</font>"; }
+                if (taskBodyNotes(tasks(i).Body, 10000)) { mailBody += "<br>" + "<font color=gray>" + taskBodyNotes(tasks(i).Body, 10000) + "</font>"; }
                 mailBody += "</li>";
             }
             mailBody += "</ul>";
@@ -551,13 +445,13 @@ tbApp.controller('taskboardController', function ($scope, $filter) {
             for (i = 1; i <= count; i++) {
                 mailBody += "<li>"
                 if (tasks(i).Categories !== "") { mailBody += "[" + tasks(i).Categories + "] "; }
-                mailBody += "<strong>" + tasks(i).Subject + "</strong>" + " - <i>" + taskStatus(tasks(i).Status) + "</i>";
+                mailBody += "<strong>" + tasks(i).Subject + "</strong>" + " - <i>" + taskStatusText(tasks(i).Status) + "</i>";
                 if ($scope.config.BACKLOG_FOLDER.DISPLAY_PROPERTIES.TOTALWORK) { mailBody += " - " + tasks(i).TotalWork + " mn "; }
                 if (tasks(i).Importance == 2) { mailBody += "<font color=red> [H]</font>"; }
                 if (tasks(i).Importance == 0) { mailBody += "<font color=gray> [L]</font>"; }
                 var dueDate = new Date(tasks(i).DueDate);
                 if (moment(dueDate).isValid && moment(dueDate).year() != 4501) { mailBody += " [Due: " + moment(dueDate).format("DD-MMM") + "]"; }
-                if (taskExcerpt(tasks(i).Body, 10000)) { mailBody += "<br>" + "<font color=gray>" + taskExcerpt(tasks(i).Body, 10000) + "</font>"; }
+                if (taskBodyNotes(tasks(i).Body, 10000)) { mailBody += "<br>" + "<font color=gray>" + taskBodyNotes(tasks(i).Body, 10000) + "</font>"; }
                 mailBody += "</li>";
             }
             mailBody += "</ul>";
@@ -573,30 +467,23 @@ tbApp.controller('taskboardController', function ($scope, $filter) {
 
     };
 
-    // grabs the summary part of the task until the first '###' text
-    // shortens the string by number of chars
-    // tries not to split words and adds ... at the end to give excerpt effect
-    var taskExcerpt = function (str, limit) {
-        if (str.indexOf('\r\n### ') > 0) {
-            str = str.substring(0, str.indexOf('\r\n###'));
-        }
-        // remove empty lines
+    var taskBodyNotes = function (str, limit) {
+        // remove empty lines, cut off text if length > limit
         str = str.replace(/^(?=\n)$|^\s*|\s*$|\n\n+/gm, '');
+        str = str.replace('\r\n', '<br>');
         if (str.length > limit) {
             str = str.substring(0, str.lastIndexOf(' ', limit));
-            str = str.replace('\r\n', '<br>');
-            //if (limit != 0) { str = str + "..." }
+            if (limit != 0) { str = str + "..." }
         };
         return str;
     };
 
-    var taskStatus = function (status) {
-        var str = '';
-        if (status == $scope.config.STATUS.NOT_STARTED.VALUE) { str = $scope.config.STATUS.NOT_STARTED.TEXT; }
-        if (status == $scope.config.STATUS.IN_PROGRESS.VALUE) { str = $scope.config.STATUS.IN_PROGRESS.TEXT; }
-        if (status == $scope.config.STATUS.WAITING.VALUE) { str = $scope.config.STATUS.WAITING.TEXT; }
-        if (status == $scope.config.STATUS.COMPLETED.VALUE) { str = $scope.config.STATUS.COMPLETED.TEXT; }
-        return str;
+    var taskStatusText = function (status) {
+        if (status == $scope.config.STATUS.NOT_STARTED.VALUE) { return $scope.config.STATUS.NOT_STARTED.TEXT; }
+        if (status == $scope.config.STATUS.IN_PROGRESS.VALUE) { return $scope.config.STATUS.IN_PROGRESS.TEXT; }
+        if (status == $scope.config.STATUS.WAITING.VALUE) { return $scope.config.STATUS.WAITING.TEXT; }
+        if (status == $scope.config.STATUS.COMPLETED.VALUE) { return $scope.config.STATUS.COMPLETED.TEXT; }
+        return '';
     };
 
     // create a new task under target folder
@@ -619,9 +506,6 @@ tbApp.controller('taskboardController', function ($scope, $filter) {
         // create a new task item object in outlook
         var taskitem = tasksfolder.Items.Add();
 
-        // add default task template to the task body
-        taskitem.Body = $scope.config.TASK_TEMPLATE;
-
         // set sensitivity according to the current filter
         if ($scope.config.PRIVACY_FILTER) {
             if ($scope.private) {
@@ -633,7 +517,7 @@ tbApp.controller('taskboardController', function ($scope, $filter) {
         taskitem.Display();
 
         if ($scope.config.AUTO_UPDATE) {
-            $scope.saveState();
+            saveState();
 
             // bind to taskitem write event on outlook and reload the page after the task is saved
             eval("function taskitem::Write (bStat) {window.location.reload();  return true;}");
@@ -650,10 +534,10 @@ tbApp.controller('taskboardController', function ($scope, $filter) {
     // opens up task item in outlook
     // refreshes the taskboard page when task item window closed
     $scope.editTask = function (item) {
-        var taskitem = getTask(item.entryID);
+        var taskitem = getTaskItem(item.entryID);
         taskitem.Display();
         if ($scope.config.AUTO_UPDATE) {
-            $scope.saveState();
+            saveState();
             // bind to taskitem write event on outlook and reload the page after the task is saved
             eval("function taskitem::Write (bStat) {window.location.reload(); return true;}");
             // bind to taskitem beforedelete event on outlook and reload the page after the task is deleted
@@ -669,7 +553,7 @@ tbApp.controller('taskboardController', function ($scope, $filter) {
         }
         if (doDelete) {
             // locate and delete the outlook task
-            var taskitem = getTask(item.entryID);
+            var taskitem = getTaskItem(item.entryID);
             taskitem.Delete();
 
             // locate and remove the item from the models
@@ -682,7 +566,7 @@ tbApp.controller('taskboardController', function ($scope, $filter) {
     // also removes it from the model data
     $scope.archiveTask = function (item, sourceArray, filteredSourceArray) {
         // locate the task in outlook namespace by using unique entry id
-        var taskitem = getTask(item.entryID);
+        var taskitem = getTaskItem(item.entryID);
 
         // move the task to the archive folder first (if it is not already in)
         var archivefolder = getTaskFolder($scope.config.ARCHIVE_FOLDER.NAME);
@@ -755,15 +639,13 @@ tbApp.controller('taskboardController', function ($scope, $filter) {
         return difference_ms / one_second;
     }
 
-    $scope.makeDefaultConfig = function () {
-        return {
-            "BACKLOG_FOLDER": {
+    const DEFAULT_CONFIG =  {
+           "BACKLOG_FOLDER": {
                 "ACTIVE": true,
                 "NAME": "",
                 "TITLE": "BACKLOG",
                 "LIMIT": 0,
                 "SORT": "duedate,-priority",
-                "RESTRICT": "",
                 "DISPLAY_PROPERTIES": {
                     "OWNER": false,
                     "PERCENT": false,
@@ -780,7 +662,6 @@ tbApp.controller('taskboardController', function ($scope, $filter) {
                 "TITLE": "NEXT",
                 "LIMIT": 20,
                 "SORT": "duedate,-priority",
-                "RESTRICT": "",
                 "DISPLAY_PROPERTIES": {
                     "OWNER": false,
                     "PERCENT": false,
@@ -796,7 +677,6 @@ tbApp.controller('taskboardController', function ($scope, $filter) {
                 "TITLE": "IN PROGRESS",
                 "LIMIT": 5,
                 "SORT": "-priority",
-                "RESTRICT": "",
                 "DISPLAY_PROPERTIES": {
                     "OWNER": false,
                     "PERCENT": false,
@@ -812,7 +692,6 @@ tbApp.controller('taskboardController', function ($scope, $filter) {
                 "TITLE": "WAITING",
                 "LIMIT": 0,
                 "SORT": "-priority",
-                "RESTRICT": "",
                 "DISPLAY_PROPERTIES": {
                     "OWNER": false,
                     "PERCENT": false,
@@ -828,7 +707,6 @@ tbApp.controller('taskboardController', function ($scope, $filter) {
                 "TITLE": "COMPLETED",
                 "LIMIT": 0,
                 "SORT": "-completeddate,-priority,subject",
-                "RESTRICT": "",
                 "DISPLAY_PROPERTIES": {
                     "OWNER": false,
                     "PERCENT": false,
@@ -842,8 +720,7 @@ tbApp.controller('taskboardController', function ($scope, $filter) {
             "ARCHIVE_FOLDER": {
                 "NAME": "Completed"
             },
-            "TASKNOTE_EXCERPT": 100,
-            "TASK_TEMPLATE": "\r\n\r\n### TODO:\r\n\r\n\r\n\r\n### STATUS:\r\n\r\n\r\n\r\n### ISSUES:\r\n\r\n\r\n\r\n### REFERENCE:\r\n\r\n\r\n\r\n",
+            "TASKNOTE_MAXLEN": 100,
             "DATE_FORMAT": "dd-MMM",
             "USE_CATEGORY_COLORS": true,
             "USE_CATEGORY_COLOR_FOOTERS": false,
@@ -873,8 +750,77 @@ tbApp.controller('taskboardController', function ($scope, $filter) {
             },
             "AUTO_UPDATE": true,
             "AUTO_START_TASKS": false
+        }
+    
+    var getState = function () {
+        var state = { "private": false, "search": "" }; // default state
 
-        };
+        if ($scope.config.SAVE_STATE) {
+            var stateRaw = getJournalItem(STATE_ID);
+            if (stateRaw !== null){
+                state = JSON.parse(stateRaw);
+            }
+        }
+
+        $scope.orgState = state;
+        $scope.search = state.search;
+        $scope.private = state.private;
+    }
+
+    var saveState = function () {
+        if ($scope.config.SAVE_STATE) {
+            var currState = { "private": $scope.private, "search": $scope.search };
+            if (DeepDiff.diff($scope.orgState, currState)) {
+                saveJournalItem(STATE_ID, JSON.stringify(currState));
+            }
+        }
+    }
+
+    var getConfig = function () {
+        $scope.orgConfig = {};
+        $scope.configRaw = getJournalItem(CONFIG_ID);
+        if ($scope.configRaw !== null){
+            try {
+                $scope.config = JSON.parse(JSON.minify($scope.configRaw));
+            }
+            catch (e) {
+                alert("I am afraid there is something wrong with the json structure of your configuration data. Please correct it.");
+                $scope.switchToConfigMode();
+                return;
+            }
+
+            // Newer versions of the app can have new config entries (or removed)
+            try {
+                var delta = DeepDiff.diff($scope.config, DEFAULT_CONFIG);
+                if (delta) {
+                    var isUpdated = false;
+                    delta.forEach(function (change) {
+                        if (change.kind === 'N' || change.kind === 'D') {
+                            DeepDiff.applyChange($scope.config, DEFAULT_CONFIG, change);
+                            isUpdated = true;
+                        }
+                    });
+                    if (isUpdated) {
+                        saveConfig();
+                    }
+                }
+                    
+            } catch (error) {
+                alert(error)
+            }
+    
+        }
+        else {
+            $scope.config = DEFAULT_CONFIG;
+            saveConfig();
+        }
+        $scope.orgConfig = $scope.config;
+    }
+
+    var saveConfig = function () {
+        if (DeepDiff.diff($scope.orgConfig, $scope.config)) {
+            saveJournalItem(CONFIG_ID, JSON.stringify($scope.config, null, 2));
+        }
     }
 
     var getCategoryStyles = function (csvCategories) {
