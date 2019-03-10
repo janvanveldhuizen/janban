@@ -4,23 +4,38 @@ var tbApp = angular.module('taskboardApp', ['ui.sortable']);
 
 tbApp.controller('taskboardController', function ($scope, $filter) {
 
-    $scope.APP_MODE = 0;
-    $scope.CONFIG_MODE = 1;
-    $scope.HELP_MODE = 2;
+    var applMode;
+    var outlookCategories;
+
+    const APP_MODE = 0;
+    const CONFIG_MODE = 1;
+    const HELP_MODE = 2;
 
     const STATE_ID = "KanbanState";
     const CONFIG_ID = "KanbanConfig";
 
     $scope.switchToAppMode = function () {
-        $scope.applMode = $scope.APP_MODE;
+        applMode = APP_MODE;
     }
 
     $scope.switchToConfigMode = function () {
-        $scope.applMode = $scope.CONFIG_MODE;
+        applMode = CONFIG_MODE;
     }
 
     $scope.switchToHelpMode = function () {
-        $scope.applMode = $scope.HELP_MODE;
+        applMode = HELP_MODE;
+    }
+
+    $scope.inAppMode = function () {
+        return applMode === APP_MODE;
+    }
+
+    $scope.inConfigMode = function () {
+        return applMode === CONFIG_MODE;
+    }
+
+    $scope.inHelpMode = function () {
+        return applMode === HELP_MODE;
     }
 
     $scope.init = function () {
@@ -35,18 +50,16 @@ tbApp.controller('taskboardController', function ($scope, $filter) {
         getConfig();
         getState();
 
-        $scope.usePrivate = $scope.config.PRIVACY_FILTER;
-        $scope.useCategoryColors = $scope.config.USE_CATEGORY_COLORS;
-        $scope.useCategoryColorFooters = $scope.config.USE_CATEGORY_COLOR_FOOTERS;
-        $scope.outlookCategories = getOutlookCategories();
+        outlookCategories = getOutlookCategories();
         $scope.initTasks();
 
-        $scope.numfolders = 0;
-        if ($scope.config.BACKLOG_FOLDER.ACTIVE) $scope.numfolders++;
-        if ($scope.config.NEXT_FOLDER.ACTIVE) $scope.numfolders++;
-        if ($scope.config.INPROGRESS_FOLDER.ACTIVE) $scope.numfolders++;
-        if ($scope.config.WAITING_FOLDER.ACTIVE) $scope.numfolders++;
-        if ($scope.config.COMPLETED_FOLDER.ACTIVE) $scope.numfolders++;
+        $scope.folders = 
+            { count: 0 };
+        if ($scope.config.BACKLOG_FOLDER.ACTIVE) $scope.folders.count++;
+        if ($scope.config.NEXT_FOLDER.ACTIVE) $scope.folders.count++;
+        if ($scope.config.INPROGRESS_FOLDER.ACTIVE) $scope.folders.count++;
+        if ($scope.config.WAITING_FOLDER.ACTIVE) $scope.folders.count++;
+        if ($scope.config.COMPLETED_FOLDER.ACTIVE) $scope.folders.count++;
 
         // ui-sortable options and events
         $scope.sortableOptions = {
@@ -121,7 +134,7 @@ tbApp.controller('taskboardController', function ($scope, $filter) {
         };
 
         // watch search filter and apply it
-        $scope.$watchGroup(['search', 'private'], function (newValues, oldValues) {
+        $scope.$watchGroup(['filter.search', 'filter.private'], function (newValues, oldValues) {
             var search = newValues[0];
             $scope.applyFilters();
             saveState();
@@ -286,12 +299,12 @@ tbApp.controller('taskboardController', function ($scope, $filter) {
     }
 
     $scope.applyFilters = function () {
-        if ($scope.search.length > 0) {
-            $scope.filteredBacklogTasks = $filter('filter')($scope.backlogTasks, $scope.search);
-            $scope.filteredNextTasks = $filter('filter')($scope.nextTasks, $scope.search);
-            $scope.filteredInprogressTasks = $filter('filter')($scope.inprogressTasks, $scope.search);
-            $scope.filteredWaitingTasks = $filter('filter')($scope.waitingTasks, $scope.search);
-            $scope.filteredCompletedTasks = $filter('filter')($scope.completedTasks, $scope.search);
+        if ($scope.filter.search.length > 0) {
+            $scope.filteredBacklogTasks = $filter('filter')($scope.backlogTasks, $scope.filter.search);
+            $scope.filteredNextTasks = $filter('filter')($scope.nextTasks, $scope.filter.search);
+            $scope.filteredInprogressTasks = $filter('filter')($scope.inprogressTasks, $scope.filter.search);
+            $scope.filteredWaitingTasks = $filter('filter')($scope.waitingTasks, $scope.filter.search);
+            $scope.filteredCompletedTasks = $filter('filter')($scope.completedTasks, $scope.filter.search);
         }
         else {
             $scope.filteredBacklogTasks = $scope.backlogTasks;
@@ -303,7 +316,7 @@ tbApp.controller('taskboardController', function ($scope, $filter) {
         // I think this can be written shorter, but for now it works
         if ($scope.config.PRIVACY_FILTER) {
             var sensitivityFilter = 0;
-            if ($scope.private == true) { sensitivityFilter = 2; }
+            if ($scope.filter.private == true) { sensitivityFilter = 2; }
             $scope.filteredBacklogTasks = $filter('filter')($scope.filteredBacklogTasks, function (task) { return task.sensitivity == sensitivityFilter });
             $scope.filteredNextTasks = $filter('filter')($scope.filteredNextTasks, function (task) { return task.sensitivity == sensitivityFilter });
             $scope.filteredInprogressTasks = $filter('filter')($scope.filteredInprogressTasks, function (task) { return task.sensitivity == sensitivityFilter });
@@ -508,7 +521,7 @@ tbApp.controller('taskboardController', function ($scope, $filter) {
 
         // set sensitivity according to the current filter
         if ($scope.config.PRIVACY_FILTER) {
-            if ($scope.private) {
+            if ($scope.filter.private) {
                 taskitem.Sensitivity = 2;
             }
         }
@@ -593,8 +606,8 @@ tbApp.controller('taskboardController', function ($scope, $filter) {
     };
     
     $scope.getFooterStyle = function (categories) {
-        if ($scope.useCategoryColorFooters) {
-            if ((categories !== '') && $scope.useCategoryColors) {
+        if ($scope.config.USE_CATEGORY_COLOR_FOOTERS) {
+            if ((categories !== '') && $scope.config.USE_CATEGORY_COLORS) {
                 // Copy category style
                 if (categories.length == 1) {
                     return categories[0].style;
@@ -763,13 +776,15 @@ tbApp.controller('taskboardController', function ($scope, $filter) {
         }
 
         $scope.orgState = state;
-        $scope.search = state.search;
-        $scope.private = state.private;
+        $scope.filter = 
+            {   private: state.private,
+                search:  state.search         
+            };
     }
 
     var saveState = function () {
         if ($scope.config.SAVE_STATE) {
-            var currState = { "private": $scope.private, "search": $scope.search };
+            var currState = { "private": $scope.filter.private, "search": $scope.filter.search };
             if (DeepDiff.diff($scope.orgState, currState)) {
                 saveJournalItem(STATE_ID, JSON.stringify(currState));
             }
@@ -832,8 +847,8 @@ tbApp.controller('taskboardController', function ($scope, $filter) {
         ];
     
         var getColor = function (category) {
-            var c = $scope.outlookCategories.names.indexOf(category);
-            var i = $scope.outlookCategories.colors[c];        
+            var c = outlookCategories.names.indexOf(category);
+            var i = outlookCategories.colors[c];        
             if (i == -1) {
                 return '#4f4f4f';
             }
@@ -860,7 +875,7 @@ tbApp.controller('taskboardController', function ($scope, $filter) {
         for (i = 0; i < categories.length; i++) {
             categories[i] = categories[i].trim();
             if (categories[i].length > 0) {
-                if ($scope.useCategoryColors) {
+                if ($scope.config.USE_CATEGORY_COLORS) {
                     catStyles[i] = {
                         label: categories[i], style: { "background-color": getColor(categories[i]), color: getContrastYIQ(getColor(categories[i])) }
                     }

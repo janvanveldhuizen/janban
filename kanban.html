@@ -24,11 +24,11 @@
 
 <body ng-controller="taskboardController" ng-init="init()">
 
-    <div ng-show="!isBrowserSupported">
+    <div ng-if="!isBrowserSupported">
         <h1>Sorry, this app can only be run in Internet Explorer or as the Outlook Today home page.</h1>
     </div>
 
-    <div ng-show="isBrowserSupported" class="taskboard container-fluid">
+    <div ng-if="isBrowserSupported" class="taskboard container-fluid">
 
         <!-- header bar -->
         <section id="headerbar" class="row">
@@ -40,16 +40,16 @@
                     <div class="input-group-addon">
                         <button id="refreshbutton" class="btn btn-default btn-xs" aria-label="Refresh" type="button" ng-click="initTasks();"><span class="glyphicon glyphicon-refresh" aria-hidden="true"></span></button>
                     </div>
-                    <div ng-show="(search != '')" class="input-group-addon">
-                        <button class="btn btn-default btn-xs" aria-label="Clear" type="button" ng-click="search = ''"><span class="glyphicon glyphicon-remove" aria-hidden="true"></span></button>
+                    <div ng-show="(filter.search != '')" class="input-group-addon">
+                        <button class="btn btn-default btn-xs" aria-label="Clear" type="button" ng-click="filter.search = ''"><span class="glyphicon glyphicon-remove" aria-hidden="true"></span></button>
                     </div>
-                    <input type="text" name="search" ng-model="search" class="form-control" placeholder="Filter" />
+                    <input type="text" name="search" ng-model="filter.search" class="form-control" placeholder="Filter" />
                     <div class="input-group-addon">
                         <button class="btn btn-default btn-xs" aria-label="Report" type="button" ng-click="createReport();"><span class="glyphicon glyphicon-list-alt" aria-hidden="true"></span></button>
                     </div>
-                    <div ng-show="usePrivate" class="input-group-addon">
-                        <button class="btn btn-default btn-xs" ng-model="private" aria-label="Private" type="button" ng-click="private = !private">
-                            <span ng-class=" { 'glyphicon-lock' : private, 'glyphicon-globe' : !private } " class="glyphicon" aria-hidden="true"></span>
+                    <div ng-show="config.PRIVACY_FILTER" class="input-group-addon">
+                        <button class="btn btn-default btn-xs" ng-model="filter.private" aria-label="Private" type="button" ng-click="filter.private = !filter.private">
+                            <span ng-class=" { 'glyphicon-lock' : filter.private, 'glyphicon-globe' : !filter.private } " class="glyphicon" aria-hidden="true"></span>
                         </button>
                     </div>
                     <div class="input-group-addon">
@@ -63,10 +63,10 @@
         </section>
 
         <!-- tasklanes section -->
-        <section ng-if="(applMode === APP_MODE)" class="row">
+        <section ng-if="inAppMode()" class="row">
 
             <!-- backlog lane -->
-            <div ng-if="( config.BACKLOG_FOLDER.ACTIVE )" class="tasklane col-md-3 col-sm-4 col-xs-6" ng-class=" { 'col-lg-100' : numfolders === 1, 'col-lg-50' : numfolders === 2, 'col-lg-33' : numfolders === 3, 'col-lg-25': numfolders === 4, 'col-lg-20': numfolders === 5 }">
+            <div ng-if="( config.BACKLOG_FOLDER.ACTIVE )" class="tasklane col-md-3 col-sm-4 col-xs-6" ng-class=" { 'col-lg-100' : folders.count === 1, 'col-lg-50' : folders.count === 2, 'col-lg-33' : folders.count === 3, 'col-lg-25': folders.count === 4, 'col-lg-20': folders.count === 5 }">
                 <div class="panel panel-default">
                     <header class="panel-heading-todo">
                         <h5>{{ config.BACKLOG_FOLDER.TITLE }}
@@ -81,18 +81,18 @@
                             ng-dblclick="editTask(task)">
                             <header class="panel-heading">
                                 {{ task.subject }}
-                                <span ng-show="(task.duedate | date:'yyyy' ) != '4501'" ng-class="isOverdue(task.duedate)" class="pull-right">(Due: {{ task.duedate | date:config.DATE_FORMAT }}) </span>
+                                <span ng-if="(task.duedate | date:'yyyy' ) != '4501'" ng-class="isOverdue(task.duedate)" class="pull-right">(Due: {{ task.duedate | date:config.DATE_FORMAT }}) </span>
                             </header>
                             <div class="panel-body"> {{ task.notes }} </div>
                             <footer class="text-right" ng-style="getFooterStyle(task.categories)">
-                                <div ng-if="( config.BACKLOG_FOLDER.DISPLAY_PROPERTIES.OWNER )"><span class="glyphicon glyphicon-user"></span> {{ task.owner }} </div>
-                                <div ng-if="( config.BACKLOG_FOLDER.DISPLAY_PROPERTIES.PERCENT )" class="pull-right"> {{ task.percent }}%</div>
-                                <div ng-if="(task.categories != '')" class="pull-left"><span class="glyphicon glyphicon-tag"></span>
+                                <div ng-show="( config.BACKLOG_FOLDER.DISPLAY_PROPERTIES.OWNER )"><span class="glyphicon glyphicon-user"></span> {{ task.owner }} </div>
+                                <div ng-show="( config.BACKLOG_FOLDER.DISPLAY_PROPERTIES.PERCENT )" class="pull-right"> {{ task.percent }}%</div>
+                                <div ng-show="(task.categories != '')" class="pull-left"><span class="glyphicon glyphicon-tag"></span>
                                     <span ng-repeat="cat in task.categories"><strong ng-style="cat.style">{{ cat.label }}</strong>&nbsp;</span>
                                 </div>
-                                <div ng-if="( config.BACKLOG_FOLDER.DISPLAY_PROPERTIES.TOTALWORK )" ><span class="glyphicon glyphicon-time"></span> {{ task.totalwork }} </div>
+                                <div ng-show="( config.BACKLOG_FOLDER.DISPLAY_PROPERTIES.TOTALWORK )" ><span class="glyphicon glyphicon-time"></span> {{ task.totalwork }} </div>
                                 <span class="btn-group btn-group-xs">
-                                    <button ng-if="(task.oneNoteURL != '')" class="btn btn-default btn-xs" aria-label="OneNote" type="button" ng-click="openOneNoteURL(task.oneNoteURL)"><span class="glyphicon glyphicon-book" aria-hidden="true"></span></button>
+                                    <button ng-show="(task.oneNoteURL != '')" class="btn btn-default btn-xs" aria-label="OneNote" type="button" ng-click="openOneNoteURL(task.oneNoteURL)"><span class="glyphicon glyphicon-book" aria-hidden="true"></span></button>
                                 <button class="btn btn-default btn-xs" aria-label="Edit" type="button" ng-click="editTask(task)"><span class="glyphicon glyphicon-edit" aria-hidden="true"></span></button>
                                 <button class="btn btn-default btn-xs" aria-label="Delete" type="button" ng-click="deleteTask(task,backlogTasks,filteredBacklogTasks, true)"><span class="glyphicon glyphicon-trash" aria-hidden="true"></span></button>
                                 </span>
@@ -105,7 +105,7 @@
 
 
             <!-- next lane -->
-            <div ng-if="( config.NEXT_FOLDER.ACTIVE )" class="tasklane col-md-3 col-sm-4 col-xs-6" ng-class=" { 'col-lg-100' : numfolders === 1, 'col-lg-50' : numfolders === 2, 'col-lg-33' : numfolders === 3, 'col-lg-25': numfolders === 4, 'col-lg-20': numfolders === 5 }">
+            <div ng-if="( config.NEXT_FOLDER.ACTIVE )" class="tasklane col-md-3 col-sm-4 col-xs-6" ng-class=" { 'col-lg-100' : folders.count === 1, 'col-lg-50' : folders.count === 2, 'col-lg-33' : folders.count === 3, 'col-lg-25': folders.count === 4, 'col-lg-20': folders.count === 5 }">
                 <div class="panel panel-default">
                     <header class="panel-heading-next">
                         <h5>{{ config.NEXT_FOLDER.TITLE }}
@@ -121,7 +121,7 @@
                             ng-dblclick="editTask(task)">
                             <header class="panel-heading">
                                 {{ task.subject }}
-                                <span ng-show="(task.duedate | date:'yyyy' ) != '4501'" ng-class="isOverdue(task.duedate)" class="pull-right">(Due: {{ task.duedate | date:config.DATE_FORMAT }}) </span>
+                                <span ng-if="(task.duedate | date:'yyyy' ) != '4501'" ng-class="isOverdue(task.duedate)" class="pull-right">(Due: {{ task.duedate | date:config.DATE_FORMAT }}) </span>
                             </header>
                             <div class="panel-body"> {{ task.notes }} </div>
                             <footer class="text-right" ng-style="getFooterStyle(task.categories)">
@@ -144,7 +144,7 @@
             <!-- next lane -->
 
             <!-- inprogress lane -->
-            <div ng-if="( config.INPROGRESS_FOLDER.ACTIVE )" class="tasklane col-md-3 col-sm-4 col-xs-6" ng-class=" { 'col-lg-100' : numfolders === 1, 'col-lg-50' : numfolders === 2, 'col-lg-33' : numfolders === 3, 'col-lg-25': numfolders === 4, 'col-lg-20': numfolders === 5 }">
+            <div ng-if="( config.INPROGRESS_FOLDER.ACTIVE )" class="tasklane col-md-3 col-sm-4 col-xs-6" ng-class=" { 'col-lg-100' : folders.count === 1, 'col-lg-50' : folders.count === 2, 'col-lg-33' : folders.count === 3, 'col-lg-25': folders.count === 4, 'col-lg-20': folders.count === 5 }">
                 <div class="panel panel-default">
                     <header class="panel-heading-progress">
                         <h5>{{ config.INPROGRESS_FOLDER.TITLE }}
@@ -158,7 +158,7 @@
                             ng-dblclick="editTask(task)">
                             <header class="panel-heading">
                                 {{ task.subject }}
-                                <span ng-show="(task.duedate | date:'yyyy' ) != '4501'" ng-class="isOverdue(task.duedate)" class="pull-right">(Due: {{ task.duedate | date:config.DATE_FORMAT }}) </span>
+                                <span ng-if="(task.duedate | date:'yyyy' ) != '4501'" ng-class="isOverdue(task.duedate)" class="pull-right">(Due: {{ task.duedate | date:config.DATE_FORMAT }}) </span>
                             </header>
                             <div class="panel-body"> {{ task.notes }} </div>
                             <footer class="text-right" ng-style="getFooterStyle(task.categories)">
@@ -184,7 +184,7 @@
             <div class="clearfix visible-sm-block"></div>
 
             <!-- waiting lane -->
-            <div ng-if="( config.WAITING_FOLDER.ACTIVE )" class="tasklane col-md-3 col-sm-4 col-xs-6" ng-class=" { 'col-lg-100' : numfolders === 1, 'col-lg-50' : numfolders === 2, 'col-lg-33' : numfolders === 3, 'col-lg-25': numfolders === 4, 'col-lg-20': numfolders === 5 }">
+            <div ng-if="( config.WAITING_FOLDER.ACTIVE )" class="tasklane col-md-3 col-sm-4 col-xs-6" ng-class=" { 'col-lg-100' : folders.count === 1, 'col-lg-50' : folders.count === 2, 'col-lg-33' : folders.count === 3, 'col-lg-25': folders.count === 4, 'col-lg-20': folders.count === 5 }">
                 <div class="panel panel-default">
                     <header class="panel-heading-waiting">
                         <h5>{{ config.WAITING_FOLDER.TITLE }}
@@ -199,7 +199,7 @@
                             ng-dblclick="editTask(task)">
                             <header class="panel-heading">
                                 {{ task.subject }}
-                                <span ng-show="(task.duedate | date:'yyyy' ) != '4501'" ng-class="isOverdue(task.duedate)" class="pull-right">(Due: {{ task.duedate | date:config.DATE_FORMAT }}) </span>
+                                <span ng-if="(task.duedate | date:'yyyy' ) != '4501'" ng-class="isOverdue(task.duedate)" class="pull-right">(Due: {{ task.duedate | date:config.DATE_FORMAT }}) </span>
                             </header>
                             <div class="panel-body"> {{ task.notes }} </div>
                             <footer class="text-right" ng-style="getFooterStyle(task.categories)">
@@ -223,7 +223,7 @@
             <!-- waiting lane -->
 
             <!-- completed lane -->
-            <div ng-if="( config.COMPLETED_FOLDER.ACTIVE )" class="tasklane col-md-3 col-sm-4 col-xs-6" ng-class=" { 'col-lg-100' : numfolders === 1, 'col-lg-50' : numfolders === 2, 'col-lg-33' : numfolders === 3, 'col-lg-25': numfolders === 4, 'col-lg-20': numfolders === 5 }">
+            <div ng-if="( config.COMPLETED_FOLDER.ACTIVE )" class="tasklane col-md-3 col-sm-4 col-xs-6" ng-class=" { 'col-lg-100' : folders.count === 1, 'col-lg-50' : folders.count === 2, 'col-lg-33' : folders.count === 3, 'col-lg-25': folders.count === 4, 'col-lg-20': folders.count === 5 }">
                 <div class="panel panel-default">
                     <header class="panel-heading-completed">
                         <h5>{{ config.COMPLETED_FOLDER.TITLE }}
@@ -233,7 +233,7 @@
                         </h5>
                     </header>
                     <ul id="completedList" ui-sortable="sortableOptions" ng-model="completedTasks" class="panel-body tasklist list-unstyled">
-                        <li ng-repeat="task in filteredCompletedTasks | filter:search" class="task panel task-completed">
+                        <li ng-repeat="task in filteredCompletedTasks" class="task panel task-completed">
                             <header class="panel-heading">
                                 {{ task.subject }}
                                 <span class="pull-right">(Completed: {{ task.completeddate | date:config.DATE_FORMAT }}) </span>
@@ -263,7 +263,7 @@
         </section>
 
         <!-- config section -->
-        <section ng-if="(applMode === CONFIG_MODE)" class="row">
+        <section ng-if="(inConfigMode())" class="row">
             <form ng-submit="submitConfig(configRaw)">
                 <textarea rows="25" cols="150" ng-model="configRaw"></textarea>
                 <br/>
@@ -273,7 +273,7 @@
         </section>
     
         <!-- help section -->
-        <section ng-if="(applMode === HELP_MODE)" class="row">
+        <section ng-if="(inHelpMode())" class="row">
                 <h2>Configuration options:</h2>
                 <table>
                 <tr><strong>BACKLOG_FOLDER</strong></tr>
