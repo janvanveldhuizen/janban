@@ -3,6 +3,8 @@
 var outlookApp;
 var outlookNS;
 
+const SENSITIVITY = { olNormal: 0, olPrivate: 2 };
+
 function checkBrowser() {
     var isBrowserSupported
     if (window.external !== undefined && window.external.OutlookApplication !== undefined) {

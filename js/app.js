@@ -14,6 +14,12 @@ tbApp.controller('taskboardController', function ($scope, $filter) {
     const STATE_ID = "KanbanState";
     const CONFIG_ID = "KanbanConfig";
 
+    $scope.privacyFilter = 
+        { all:     { text : "Both", value : 0 },
+          private: { text : "Private", value: 1 },
+          public:  { text : "Work", value: 2 }
+        };
+
     $scope.switchToAppMode = function () {
         applMode = APP_MODE;
     }
@@ -157,7 +163,6 @@ tbApp.controller('taskboardController', function ($scope, $filter) {
         }
         $scope.switchToAppMode();
     }
-
 
     // borrowed from http://stackoverflow.com/a/30446887/942100
     var fieldSorter = function (fields) {
@@ -313,10 +318,12 @@ tbApp.controller('taskboardController', function ($scope, $filter) {
             $scope.filteredWaitingTasks = $scope.waitingTasks;
             $scope.filteredCompletedTasks = $scope.completedTasks;
         }
+
         // I think this can be written shorter, but for now it works
-        if ($scope.config.PRIVACY_FILTER) {
-            var sensitivityFilter = 0;
-            if ($scope.filter.private == true) { sensitivityFilter = 2; }
+        var sensitivityFilter;
+        if ($scope.filter.private != $scope.privacyFilter.all.value) {
+            if ($scope.filter.private == $scope.privacyFilter.private.value) { sensitivityFilter = SENSITIVITY.olPrivate; }
+            if ($scope.filter.private == $scope.privacyFilter.public.value) { sensitivityFilter = SENSITIVITY.olNormal; }
             $scope.filteredBacklogTasks = $filter('filter')($scope.filteredBacklogTasks, function (task) { return task.sensitivity == sensitivityFilter });
             $scope.filteredNextTasks = $filter('filter')($scope.filteredNextTasks, function (task) { return task.sensitivity == sensitivityFilter });
             $scope.filteredInprogressTasks = $filter('filter')($scope.filteredInprogressTasks, function (task) { return task.sensitivity == sensitivityFilter });
@@ -520,10 +527,8 @@ tbApp.controller('taskboardController', function ($scope, $filter) {
         var taskitem = tasksfolder.Items.Add();
 
         // set sensitivity according to the current filter
-        if ($scope.config.PRIVACY_FILTER) {
-            if ($scope.filter.private) {
-                taskitem.Sensitivity = 2;
-            }
+        if ($scope.filter.private == $scope.privacyFilter.private.value) {
+            taskitem.Sensitivity = SENSITIVITY.olPrivate;
         }
 
         // display outlook task item window
@@ -738,7 +743,6 @@ tbApp.controller('taskboardController', function ($scope, $filter) {
             "USE_CATEGORY_COLORS": true,
             "USE_CATEGORY_COLOR_FOOTERS": false,
             "SAVE_STATE": true,
-            "PRIVACY_FILTER": true,
             "STATUS": {
                 "NOT_STARTED": {
                     "VALUE": 0,
@@ -766,7 +770,7 @@ tbApp.controller('taskboardController', function ($scope, $filter) {
         }
     
     var getState = function () {
-        var state = { "private": false, "search": "" }; // default state
+        var state = { "private": 0, "search": "" }; // default state
 
         if ($scope.config.SAVE_STATE) {
             var stateRaw = getJournalItem(STATE_ID);
@@ -774,6 +778,10 @@ tbApp.controller('taskboardController', function ($scope, $filter) {
                 state = JSON.parse(stateRaw);
             }
         }
+
+        // handle backwards compatibility
+        if (state.private === true) state.private = $scope.privacyFilter.private.value;
+        if (state.private === false) state.private = $scope.privacyFilter.public.value;
 
         $scope.orgState = state;
         $scope.filter = 

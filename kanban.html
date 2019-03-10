@@ -25,9 +25,9 @@
 <body ng-controller="taskboardController" ng-init="init()">
 
     <div ng-if="!isBrowserSupported">
-        <h1>Sorry, this app can only be run in Internet Explorer or as the Outlook Today home page.</h1>
+        <h1>Sorry, this app can only be run in Internet Explorer or as the home page of a tasks folder in Outlook</h1>
     </div>
-
+        
     <div ng-if="isBrowserSupported" class="taskboard container-fluid">
 
         <!-- header bar -->
@@ -47,10 +47,13 @@
                     <div class="input-group-addon">
                         <button class="btn btn-default btn-xs" aria-label="Report" type="button" ng-click="createReport();"><span class="glyphicon glyphicon-list-alt" aria-hidden="true"></span></button>
                     </div>
-                    <div ng-show="config.PRIVACY_FILTER" class="input-group-addon">
-                        <button class="btn btn-default btn-xs" ng-model="filter.private" aria-label="Private" type="button" ng-click="filter.private = !filter.private">
-                            <span ng-class=" { 'glyphicon-lock' : filter.private, 'glyphicon-globe' : !filter.private } " class="glyphicon" aria-hidden="true"></span>
-                        </button>
+                    <div class="input-group-addon">
+                            <span class="glyphicon" ng-class="{ 'glyphicon-globe' : filter.private == privacyFilter.all.value, 'glyphicon-lock' : filter.private == privacyFilter.private.value, 'glyphicon-briefcase' : filter.private == privacyFilter.public.value }" aria-hidden="true"></span>                                  
+                            <select class="btn btn-default btn-xs" ng-model="filter.private"> 
+                            <option value={{privacyFilter.all.value}}>{{privacyFilter.all.text}}</option>
+                            <option value={{privacyFilter.private.value}}>{{privacyFilter.private.text}}</option>
+                            <option value={{privacyFilter.public.value}}>{{privacyFilter.public.text}}</option>
+                        </select>
                     </div>
                     <div class="input-group-addon">
                         <button class="btn btn-default btn-xs" aria-label="Config" type="button" ng-click="switchToConfigMode();"><span class="glyphicon glyphicon-wrench" aria-hidden="true"></span></button>
