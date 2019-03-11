@@ -1,7 +1,14 @@
 # Outlook Taskboard aka **JanBan**
 
+In case you found this repository on Github:
 _Note that this repository is hosted on [Gitlab](https://gitlab/janware/janban). The Github repository is only a mirror._
 _Please follow the Gitlab link to report issues or to do a pull request._
+
+Recent changes:
+- Added scrollbar to tasklists to make it easier to move cards from long lists
+- Changed the privacy filter
+- Changed the config editor (still needs to be turned into a user-friendly form)
+
 
 Outlook Taskboard is a kanban board style view for Outlook Tasks.
 
