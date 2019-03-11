@@ -1,13 +1,13 @@
 .taskboard {
     width: 100%;
-    height: calc(100vh - 103px);
+    height: 100vh;
     font: 400 12px/1.6 "Segoe UI", Tahoma, Arial, sans-serif;
 }
 
 .container-fluid {
     padding-left: 15px;
     padding-right: 20px;
-    overflow-y: scroll;
+    overflow-y: auto;
 }
 
 .mainBody {
@@ -39,10 +39,6 @@
 
 #headerbar .btn-default, .task .btn-default  { background: transparent; border: none;}
 
-.tasklane {
-    height: calc(100vh - 103px);
-}
-
 .tasklane header h5 {
     margin-top:  5px;
     margin-bottom: 10px;
@@ -53,6 +49,7 @@
 .tasklist {
     background-color: #f5f5f5;
     margin-bottom: 0px;
+    height: calc(100vh - 137px);
     overflow-y: auto;
     overflow-x: hidden;
 }
