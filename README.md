@@ -10,6 +10,10 @@ Recent changes:
 - Changed the config editor (still needs to be turned into a user-friendly form)
 
 
+Old Readme:
+
+
+
 Outlook Taskboard is a kanban board style view for Outlook Tasks.
 
 I found the original Kanban board implemented by Evren Varol. I looked at the forks and liked the 
