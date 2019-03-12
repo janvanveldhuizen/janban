@@ -282,7 +282,32 @@
     
         <!-- help section -->
         <section ng-if="(inHelpMode())" class="row">
-                <h2>Configuration options:</h2>
+            <div class="col-sm-6 col-sm-offset-3">
+                <div class="panel panel-default">
+                    <header class="panel-heading-waiting  text-center"><strong>About...</strong></header>
+                    <form ng-submit="switchToAppMode()">
+                        <div class="panel-about">
+                            JanBan Task Board version 2019.3.11.2
+                            <br/>
+                            <br/>
+                            A Kanban style taskboard for managing your Outlook tasks.<br/>
+                            Refactored and taken to the next level by <a href="https://papasmurf.nl/jan/" target="_blank"><strong><i>Jan van Veldhuizen</i></strong></a>.<br/>    
+                            <br/>
+                            <a href="https://gitlab.com/janware/janban" target="_blank">View on Gitlab</a><br/>
+                            <br/>
+                            Credits:<br/>
+                            <a href="https://github.com/evrenvarol/outlook-taskboard" target="_blank"><strong><i>Evren Varol</i></strong></a>, for developing the very first version of the Kanban board
+                            <br/>
+                            <a href="https://github.com/Shrekmachine" target="_blank"><strong><i>Shrekmachine</i></strong></a> and 
+                            <a href="https://github.com/BillyMcSkintos" target="_blank"><strong><i>BillyMcSkintos</i></strong></a>, for following my developement and doing a lot of useful suggestions
+                        </div>
+                        <div class="text-center">
+                            <button id="back" class="btn btn-default">Ok</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            <!-- <h2>Configuration options:</h2>
                 <table>
                 <tr><strong>BACKLOG_FOLDER</strong></tr>
                 <tr><td>ACTIVE</td><td>display this folder on the board or not</td></tr>
@@ -338,7 +363,7 @@
                 <tr><td>STATUS</td><td>Tha value and descriptions for the task statuses. The text can be changed for the status report</td></tr>
                 <tr><td>COMPLETED</td><td>Define what to do with completed tasks after x days: NONE, HIDE, ARCHIVE or DELETE</td></tr>
                 <tr><td>AUTO_UPDATE</td><td>if true, then the board is updated immediately after adding or deleting tasks</td></tr>
-                </table>
+                </table> -->
                     </section>
     
     </div>
