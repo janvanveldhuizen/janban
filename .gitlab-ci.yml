@@ -1,12 +1,12 @@
-before_script:
-  - apt-get install -y zip
+# before_script:
+#   - apt-get install -y zip
 
 zip:
   script:
-    - zip janban *.* 
+    - tar -cvzf janban.tar.gz *.* 
   artifacts:
     paths: 
-    - janban.zip
+    - janban.tar.gz
     expire_in: 1 week
 
 # FTP-gebruikersnaam: gitlab@janware.nl / ^;y}l6;Y#Uhj
