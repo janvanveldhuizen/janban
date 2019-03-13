@@ -3,7 +3,7 @@
 
 zip:
   script:
-    - tar -cvzf janban.tar.gz .
+    - tar -cvzf janban.tar.gz . --exclude=janban.tar.gz --exclude=.*
   artifacts:
     paths: 
     - janban.tar.gz
