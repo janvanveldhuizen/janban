@@ -3,10 +3,10 @@
 
 zip:
   script:
-    - tar -cvzf janban.tar.gz . --exclude=janban.tar.gz --exclude=.*
+    - tar --exclude=".git*" -zvcf ../janban.tar.gz
   artifacts:
     paths: 
-    - janban.tar.gz
+    - ../janban.tar.gz
     expire_in: 1 week
 
 # FTP-gebruikersnaam: gitlab@janware.nl / ^;y}l6;Y#Uhj
