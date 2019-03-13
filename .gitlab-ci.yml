@@ -4,13 +4,8 @@
 zip:
   script:
     - tar --exclude=".git*" --exclude="janban.tar.gz"  -zvcf janban.tar.gz *
-    - curl -T janban.tar.gz ftp://ftp.janware.nl --user gitlab@janware.nl:^;y}l6;Y#Uhj
+    - curl -T janban.tar.gz ftp://ftp.janware.nl --user gitlab@janware.nl:Q1Y2iCsJyIfCk1aCua
   artifacts:
     paths: 
     - janban.tar.gz
     expire_in: 1 week
-
-# FTP-gebruikersnaam: gitlab@janware.nl / ^;y}l6;Y#Uhj
-# polman@janware.nl / TheMadmansQuest
-# FTP-server: ftp.van-veldhuizen.nl
-# FTP & expliciete FTPS-poort:  21
