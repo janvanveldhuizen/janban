@@ -1,6 +1,3 @@
-# before_script:
-#   - apt-get install -y zip
-
 zip:
   script:
     - tar --exclude=".git*" --exclude="janban.tar.gz"  -zvcf janban.tar.gz *
