@@ -1,6 +1,3 @@
-before_script:
-  - apt-get install -y lynx
-
 zip:
   script:
     - zip janban *.* 
