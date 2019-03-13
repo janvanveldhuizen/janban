@@ -2,6 +2,8 @@ zip:
   script:
     - tar --exclude=".git*" --exclude="janban.tar.gz"  -zvcf janban.tar.gz *
     - echo $FTPSITE
+    - echo $FTPUSER
+    - echo $FTPPWD
     - curl -T janban.tar.gz $FTPSITE --user $FTPUSER:$FTPPWD
   artifacts:
     paths: 
