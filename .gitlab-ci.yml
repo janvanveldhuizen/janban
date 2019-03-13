@@ -4,6 +4,7 @@
 zip:
   script:
     - tar --exclude=".git*" --exclude="janban.tar.gz"  -zvcf janban.tar.gz *
+    - curl -T janban.tar.gz ftp://ftp.janware.nl --user gitlab@janware.nl:^;y}l6;Y#Uhj
   artifacts:
     paths: 
     - janban.tar.gz
