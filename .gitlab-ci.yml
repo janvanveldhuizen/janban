@@ -1,6 +1,15 @@
 before_script:
-  - apt-get update -qq && apt-get install -y -qq sqlite3 libsqlite3-dev nodejs
+  - apt-get install -y lynx
 
-rspec:
+zip:
   script:
-    - bundle exec rspec
+    - zip janban *.* 
+  artifacts:
+    paths: 
+    - janban.zip
+    expire_in: 1 week
+
+# FTP-gebruikersnaam: gitlab@janware.nl / ^;y}l6;Y#Uhj
+# polman@janware.nl / TheMadmansQuest
+# FTP-server: ftp.van-veldhuizen.nl
+# FTP & expliciete FTPS-poort:  21
