@@ -6,7 +6,7 @@ zip:
     - tar --exclude=".git*" --exclude="janban.tar.gz"  -zvcf janban.tar.gz *
   artifacts:
     paths: 
-    - ../janban.tar.gz
+    - janban.tar.gz
     expire_in: 1 week
 
 # FTP-gebruikersnaam: gitlab@janware.nl / ^;y}l6;Y#Uhj
