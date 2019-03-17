@@ -11,6 +11,8 @@ version:
   image: registry.gitlab.com/juhani/go-semrel-gitlab:v0.20.0
   script:
     - release next-version --allow-current > .next-version
+    - release changelog
+    - release commit-and-tag CHANGELOG.md release_info
   artifacts:
     paths:
     - .next-version
@@ -23,19 +25,11 @@ deploy:
     - master
     - develop
     - release-1.0.1
-  image: registry.gitlab.com/juhani/go-semrel-gitlab:v0.20.0
   script:
-    - release -v
-    - release changelog
-    - release commit-and-tag CHANGELOG.md release_info
-    - release --ci-commit-tag v$RELEASE_VERSION add-download-link -n release -u $RELEASE_URL -d "$RELEASE_DESC"
- 
-
-    - curl -O https://juhani.gitlab.io/go-semrel-gitlab/download/v0.20.0/release
-    - chmod +x release
+    - RELEASE_VERSION=$(<.next-version)
     - tar --exclude=".git*" --exclude="janban.tar.gz"  -zvcf janban.tar.gz *
     - curl -T janban.tar.gz $FTPSITE --user $FTPUSER:$FTPPWD
-    - echo "1.0.1" > version
+    - echo "RELEASE_VERSION=$(<.next-version)" >> version
     - curl -T version $FTPSITE --user $FTPUSER:$FTPPWD
   artifacts:
     paths: 
