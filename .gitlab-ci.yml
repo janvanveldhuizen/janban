@@ -1,7 +1,12 @@
 zip:
+  only:
+    - master
+    - develop
   script:
     - tar --exclude=".git*" --exclude="janban.tar.gz"  -zvcf janban.tar.gz *
     - curl -T janban.tar.gz $FTPSITE --user $FTPUSER:$FTPPWD
+    - echo "$CI_PIPELINE_ID" > version
+    - curl -T version $FTPSITE --user $FTPUSER:$FTPPWD
   artifacts:
     paths: 
     - janban.tar.gz
