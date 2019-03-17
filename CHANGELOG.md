@@ -2,6 +2,13 @@
 
 <!--- next entry here -->
 
+## 1.0.0
+2019-03-17
+
+### Fixes
+
+- **gitlab-ci:** implemented semantic versioning (5c3d455deab784218458550295bc90d63738d18c)
+
 ## 0.1.0
 2019-03-17
 
