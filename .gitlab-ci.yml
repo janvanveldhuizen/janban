@@ -6,8 +6,6 @@ version:
   stage: version
   only:
     - master
-    - develop
-    - release-1.0.1
   image: registry.gitlab.com/juhani/go-semrel-gitlab:v0.20.0
   script:
     - release next-version --allow-current > .next-version
@@ -23,8 +21,6 @@ deploy:
   stage: deploy
   only:
     - master
-    - develop
-    - release-1.0.1
   script:
     - tar --exclude=".git*" --exclude="janban.tar.gz"  -zvcf janban.tar.gz *
     - echo "$(<.next-version)" >> version
