@@ -7,7 +7,7 @@
 
 ### Features
 
-- **gitlab-ci:** separate uploads from xip and version file (868067acba76857a44310dc3a3279a46852c1da8)
+- **gitlab-ci:** separate uploads for zip and version file (868067acba76857a44310dc3a3279a46852c1da8)
 
 ## 0.0.3
 2019-03-17
