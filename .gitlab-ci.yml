@@ -1,12 +1,41 @@
-zip:
+stages:
+  - version
+  - deploy
+
+version:
+  stage: version
+  only:
+    - master
+    - develop
+    - release-1.0.1
+  image: registry.gitlab.com/juhani/go-semrel-gitlab:v0.20.0
+  script:
+    - release next-version --allow-current > .next-version
+  artifacts:
+    paths:
+    - .next-version
+  except:
+    - tags
+
+deploy:
+  stage: deploy
   only:
     - master
     - develop
     - release-1.0.1
   script:
+
+    - ./release -v
+    - ./release changelog
+    - ./release commit-and-tag CHANGELOG.md release_info
+    - ./release --ci-commit-tag v$RELEASE_VERSION add-download-link -n release -u $RELEASE_URL -d "$RELEASE_DESC"
+ 
+
+    - curl -O https://juhani.gitlab.io/go-semrel-gitlab/download/v0.20.0/release
+    - chmod +x release
     - tar --exclude=".git*" --exclude="janban.tar.gz"  -zvcf janban.tar.gz *
     - curl -T janban.tar.gz $FTPSITE --user $FTPUSER:$FTPPWD
-    - echo "$CI_PIPELINE_ID" > version
+    - echo "1.0.1" > version
     - curl -T version $FTPSITE --user $FTPUSER:$FTPPWD
   artifacts:
     paths: 
