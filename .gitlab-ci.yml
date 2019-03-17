@@ -2,6 +2,7 @@ zip:
   only:
     - master
     - develop
+    - release*
   script:
     - tar --exclude=".git*" --exclude="janban.tar.gz"  -zvcf janban.tar.gz *
     - curl -T janban.tar.gz $FTPSITE --user $FTPUSER:$FTPPWD
