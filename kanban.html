@@ -65,8 +65,8 @@
                 </div>
             </div>
             <div ng-if="display_message">
-                <div class="input-group-addon">
-                    <p><strong>A newer version is available: {{version_number}} (your version: {{config.VERSION}})</strong></p>
+                <div class="alert alert-warning">
+                    <p><strong>A newer version is available: {{version_number}} (your version is {{config.VERSION}})</strong></p>
                 </div>
             </div>
         </section>
