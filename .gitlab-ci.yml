@@ -10,6 +10,7 @@ version:
   script:
     - release next-version --allow-current > .next-version
     - release changelog
+    - echo "var VERSIONNR='$(<.next-version)''" >> js/version.js
     - release commit-and-tag CHANGELOG.md release_info
   artifacts:
     paths:
