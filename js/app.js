@@ -862,6 +862,7 @@ tbApp.controller('taskboardController', function ($scope, $filter, $http) {
 
     var checkVersion = function () {
         if ($scope.config.VERSION != $scope.version_number) {
+            alert('new')
             if ($scope.config.VERSION == '') {
                 $scope.config.VERSION = $scope.version_number;
             }
