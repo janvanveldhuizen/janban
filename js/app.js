@@ -852,7 +852,7 @@ tbApp.controller('taskboardController', function ($scope, $filter, $http) {
     }
 
     var getVersion = function () {
-        $http.get(VERSION_URL,{headers:{'Cache-Control': 'no-cache'}})
+        $http.get(VERSION_URL,{headers:{'Cache-Control': 'no-cache','Pragma': 'no-cache'}})
             .then(function(response) {
                 $scope.version_number = response.data;
                 $scope.version_number = $scope.version_number.replace(/\n|\r/g, "");
