@@ -856,6 +856,7 @@ tbApp.controller('taskboardController', function ($scope, $filter, $http) {
             .then(function(response) {
                 $scope.version_number = response.data;
                 $scope.version_number = $scope.version_number.replace(/\n|\r/g, "");
+                alert(response.data)
                 checkVersion();
             });
     };
