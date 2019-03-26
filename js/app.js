@@ -852,13 +852,11 @@ tbApp.controller('taskboardController', function ($scope, $filter, $http) {
     }
 
     var getVersion = function () {
-        alert($scope.version_number)
-        $http.get(VERSION_URL)
+        var url = VERSION_URL + "&random=" + Math.random() // trick to bypass the http cache
+        $http.get(url)
             .then(function(response) {
                 $scope.version_number = response.data;
-                alert($scope.version_number)
                 $scope.version_number = $scope.version_number.replace(/\n|\r/g, "");
-                alert(response.data)
                 checkVersion();
             });
     };
