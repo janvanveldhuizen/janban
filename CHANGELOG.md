@@ -2,6 +2,13 @@
 
 <!--- next entry here -->
 
+## 1.0.3
+2019-03-26
+
+### Fixes
+
+- **version:** display message if new version is available (5ff23579282054b0c6c9b7b41ccd0b47524d4d03)
+
 ## 1.0.2
 2019-03-26
 
