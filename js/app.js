@@ -846,6 +846,7 @@ tbApp.controller('taskboardController', function ($scope, $filter, $http) {
             saveConfig();
         }
     }
+    
 
     var saveConfig = function () {
         saveJournalItem(CONFIG_ID, JSON.stringify($scope.config, null, 2));
