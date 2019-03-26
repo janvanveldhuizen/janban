@@ -3,46 +3,10 @@
 <!--- next entry here -->
 
 ## 1.0.1
-2019-03-26
-
-### Fixes
-
-- **gitlab-ci:** implemented semantic versioning (39bfeec52460c48b9c70818ee379afcdcd6f1083)
-- **changelog:** removed v0.* history (dbc3174d31b8f7f24d1d6a11b7147b0baf4e82b5)
-- **version:** added version check (9bf8d532e2bf5d721cf20a00201da50cbc570125)
-
-## 1.0.1
-2019-03-26
-
-### Fixes
-
-- **gitlab-ci:** implemented semantic versioning (39bfeec52460c48b9c70818ee379afcdcd6f1083)
-- **changelog:** removed v0.* history (dbc3174d31b8f7f24d1d6a11b7147b0baf4e82b5)
-- **version:** added version check (9bf8d532e2bf5d721cf20a00201da50cbc570125)
-
-## 1.0.1
-2019-03-24
-
-### Fixes
-
-- **gitlab-ci:** implemented semantic versioning (39bfeec52460c48b9c70818ee379afcdcd6f1083)
-- **changelog:** removed v0.* history (dbc3174d31b8f7f24d1d6a11b7147b0baf4e82b5)
-- **test:** test version nr (da122d0b2cb670bee3f2ba3f1f05806eb2d22ac2)
-
-## 1.0.1
-2019-03-24
-
-### Fixes
-
-- **gitlab-ci:** implemented semantic versioning (39bfeec52460c48b9c70818ee379afcdcd6f1083)
-- **changelog:** removed v0.* history (dbc3174d31b8f7f24d1d6a11b7147b0baf4e82b5)
-
-## 1.0.1
 2019-03-17
 
 ### Fixes
 
-- **gitlab-ci:** implemented semantic versioning (39bfeec52460c48b9c70818ee379afcdcd6f1083)
 - **changelog:** removed v0.* history (dbc3174d31b8f7f24d1d6a11b7147b0baf4e82b5)
 
 ## 1.0.0
