@@ -852,11 +852,8 @@ tbApp.controller('taskboardController', function ($scope, $filter, $http) {
     }
 
     var getVersion = function () {
-        var url = VERSION_URL + "&random=" + Math.random() // trick to bypass the http cache
-        alert(url)
-        $http.get(url)
+        $http.get(VERSION_URL,{headers:{'Cache-Control': 'no-cache'}})
             .then(function(response) {
-                alert(response.data)
                 $scope.version_number = response.data;
                 $scope.version_number = $scope.version_number.replace(/\n|\r/g, "");
                 checkVersion();
@@ -865,7 +862,6 @@ tbApp.controller('taskboardController', function ($scope, $filter, $http) {
 
     var checkVersion = function () {
         if ($scope.config.VERSION != $scope.version_number) {
-            alert('new')
             if ($scope.config.VERSION == '') {
                 $scope.config.VERSION = $scope.version_number;
             }
