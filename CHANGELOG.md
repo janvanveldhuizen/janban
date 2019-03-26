@@ -2,6 +2,13 @@
 
 <!--- next entry here -->
 
+## 1.0.2
+2019-03-26
+
+### Fixes
+
+- **changelog:** fixed changelog and release numbering (1752204abb4ced678645a795f20bcfcbb7daf96b)
+
 ## 1.0.1
 2019-03-17
 
