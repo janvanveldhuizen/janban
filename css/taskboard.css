@@ -38,20 +38,19 @@
     color: #555;
 }
 
-.tasklist-default {
+.tasklist {
     background-color: #f5f5f5;
     margin-bottom: 0px;
-    height: calc(100vh - 137px);
     overflow-y: auto;
     overflow-x: hidden;
 }
 
+.tasklist-default {
+    height: calc(100vh - 137px);
+}
+
 .tasklist-message {
-    background-color: #f5f5f5;
-    margin-bottom: 0px;
-    height: calc(100vh - 165px);
-    overflow-y: auto;
-    overflow-x: hidden;
+    height: calc(100vh - 168px);
 }
 
 li.task {

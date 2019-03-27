@@ -59,7 +59,7 @@ tbApp.controller('taskboardController', function ($scope, $filter, $http) {
         $scope.switchToAppMode();
         getConfig();
         getState();
-        getVersion();
+        // getVersion();
         
         outlookCategories = getOutlookCategories();
         $scope.initTasks();

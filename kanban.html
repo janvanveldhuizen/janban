@@ -83,7 +83,7 @@
                             </span>
                         </h5>
                     </header>
-                    <ul id="backlogList" ui-sortable="sortableOptions" ng-model="filteredBacklogTasks" ng-class=" { 'tasklist-default' : !display_message, 'tasklist-message' : display_message }" class="panel-body list-unstyled">
+                    <ul id="backlogList" ui-sortable="sortableOptions" ng-model="filteredBacklogTasks" ng-class=" { 'tasklist-default' : !display_message, 'tasklist-message' : display_message }" class="panel-body list-unstyled tasklist">
                         <li ng-repeat="task in filteredBacklogTasks" class="task panel" ng-class=" { 'task-low' : task.priority === 0, 'task-medium' : task.priority === 1, 'task-high' : task.priority === 2, 'task-private': task.sensitivity === 2 }"
                             ng-dblclick="editTask(task)">
                             <header class="panel-heading">
@@ -124,7 +124,7 @@
                             </span>
                         </h5>
                     </header>
-                    <ul id="nextList" ui-sortable="sortableOptions" ng-model="filteredNextTasks" ng-class=" { 'tasklist-default' : !display_message, 'tasklist-message' : display_message }" class="panel-body list-unstyled">
+                    <ul id="nextList" ui-sortable="sortableOptions" ng-model="filteredNextTasks" ng-class=" { 'tasklist-default' : !display_message, 'tasklist-message' : display_message }" class="panel-body list-unstyled tasklist">
                         <li ng-repeat="task in filteredNextTasks" class="task panel" ng-class=" { 'task-low' : task.priority === 0, 'task-medium' : task.priority === 1, 'task-high' : task.priority === 2, 'task-private': task.sensitivity === 2 }"
                             ng-dblclick="editTask(task)">
                             <header class="panel-heading">
@@ -162,7 +162,7 @@
                             </span>
                         </h5>
                     </header>
-                    <ul id="inprogressList" ui-sortable="sortableOptions" ng-model="filteredInprogressTasks" ng-class=" { 'tasklist-default' : !display_message, 'tasklist-message' : display_message }" class="panel-body list-unstyled">
+                    <ul id="inprogressList" ui-sortable="sortableOptions" ng-model="filteredInprogressTasks" ng-class=" { 'tasklist-default' : !display_message, 'tasklist-message' : display_message }" class="panel-body list-unstyled tasklist">
                         <li ng-repeat="task in filteredInprogressTasks" class="task panel" ng-class=" { 'task-low' : task.priority === 0, 'task-medium' : task.priority === 1, 'task-high' : task.priority === 2, 'task-private': task.sensitivity === 2 }"
                             ng-dblclick="editTask(task)">
                             <header class="panel-heading">
@@ -204,7 +204,7 @@
                             </span>
                         </h5>
                     </header>
-                    <ul id="waitingList" ui-sortable="sortableOptions" ng-model="filteredWaitingTasks" ng-class=" { 'tasklist-default' : !display_message, 'tasklist-message' : display_message }" class="panel-body list-unstyled">
+                    <ul id="waitingList" ui-sortable="sortableOptions" ng-model="filteredWaitingTasks" ng-class=" { 'tasklist-default' : !display_message, 'tasklist-message' : display_message }" class="panel-body list-unstyled tasklist">
                         <li ng-repeat="task in filteredWaitingTasks" class="task panel" ng-class=" { 'task-low' : task.priority === 0, 'task-medium' : task.priority === 1, 'task-high' : task.priority === 2, 'task-private': task.sensitivity === 2 }"
                             ng-dblclick="editTask(task)">
                             <header class="panel-heading">
@@ -243,7 +243,7 @@
                             </span>
                         </h5>
                     </header>
-                    <ul id="completedList" ui-sortable="sortableOptions" ng-model="completedTasks" ng-class=" { 'tasklist-default' : !display_message, 'tasklist-message' : display_message }" class="panel-body list-unstyled">
+                    <ul id="completedList" ui-sortable="sortableOptions" ng-model="completedTasks" ng-class=" { 'tasklist-default' : !display_message, 'tasklist-message' : display_message }" class="panel-body list-unstyled tasklist">
                         <li ng-repeat="task in filteredCompletedTasks" class="task panel task-completed">
                             <header class="panel-heading">
                                 {{ task.subject }}
