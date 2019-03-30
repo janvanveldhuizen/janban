@@ -89,7 +89,8 @@
                             ng-dblclick="editTask(task)">
                             <header class="panel-heading">
                                 {{ task.subject }}
-                                <span ng-if="(task.duedate | date:'yyyy' ) != '4501'" ng-class="isOverdue(task.duedate)" class="pull-right">(Due: {{ task.duedate | date:config.DATE_FORMAT }}) </span>
+                                <span ng-if="(folder.type != 4 && (task.duedate | date:'yyyy' ) != '4501')" ng-class="isOverdue(task.duedate)" class="pull-right">(Due: {{ task.duedate | date:config.DATE_FORMAT }}) </span>
+                                <span ng-if="folder.type == 4" class="pull-right">(Completed: {{ task.completeddate | date:config.DATE_FORMAT }}) </span>
                             </header>
                             <div class="panel-body"> {{ task.notes }} </div>
                             <footer class="text-right" ng-style="getFooterStyle(task.categories)">
