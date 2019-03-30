@@ -71,20 +71,21 @@
 
         <!-- tasklanes section -->
         <section ng-if="inAppMode()" class="row">
-
-            <!-- backlog lane -->
-            <div ng-if="( config.BACKLOG_FOLDER.ACTIVE )" class="tasklane col-md-3 col-sm-4 col-xs-6" ng-class=" { 'col-lg-100' : folders.count === 1, 'col-lg-50' : folders.count === 2, 'col-lg-33' : folders.count === 3, 'col-lg-25': folders.count === 4, 'col-lg-20': folders.count === 5 }">
+            <div ng-repeat="folder in taskFolders" ng-if="( folder.display )" class="tasklane col-md-3 col-sm-4 col-xs-6" ng-class=" { 'col-lg-100' : folders.count === 1, 'col-lg-50' : folders.count === 2, 'col-lg-33' : folders.count === 3, 'col-lg-25': folders.count === 4, 'col-lg-20': folders.count === 5 }">
                 <div class="panel panel-default">
-                    <header class="panel-heading-todo">
-                        <h5>{{ config.BACKLOG_FOLDER.TITLE }}
-                            <span class="pull-right">
-                                <button class="btn btn-default btn-xs" aria-label="Add" type="button" ng-click="addTask('backlog');"><span class="glyphicon glyphicon-plus" aria-hidden="true"></span></button>
-                            <span class="label label-info">{{ backlogTasks.length }}</span>
-                            </span>
-                        </h5>
-                    </header>
-                    <ul id="backlogList" ui-sortable="sortableOptions" ng-model="filteredBacklogTasks" ng-class=" { 'tasklist-default' : !display_message, 'tasklist-message' : display_message }" class="panel-body list-unstyled tasklist">
-                        <li ng-repeat="task in filteredBacklogTasks" class="task panel" ng-class=" { 'task-low' : task.priority === 0, 'task-medium' : task.priority === 1, 'task-high' : task.priority === 2, 'task-private': task.sensitivity === 2 }"
+                    <header ng-class="{ 'panel-heading-todo' : folder.type == 0, 'panel-heading-next' : folder.type == 1, 'panel-heading-progress' : folder.type == 2, 'panel-heading-waiting' : folder.type == 3,'panel-heading-completed' : folder.type == 4 }">
+                        <h5>{{ folder.title }} 
+                                <span class="pull-right">
+                                    <button ng-if="( folder.allowAdd && (folder.limit == 0 || folder.tasks.length < folder.limit ))" class="btn btn-default btn-xs" aria-label="Add" type="button" ng-click="addTask(folder.type);">
+                                        <span class="glyphicon glyphicon-plus" aria-hidden="true"></span>
+                                    </button>
+                                    <span class="label label-info">{{ folder.tasks.length }}</span> 
+                                    <span ng-if="( folder.limit > 0 )" class="label label-primary">{{ folder.limit }}</span>
+                                </span>
+                            </h5>
+                        </header>
+                    <ul id="folder-{{folder.type}}" ui-sortable="sortableOptions" ng-model="folder.filteredTasks" ng-class=" { 'tasklist-default' : !display_message, 'tasklist-message' : display_message }" class="panel-body list-unstyled tasklist">
+                        <li ng-repeat="task in folder.filteredTasks" class="task panel" ng-class=" {  'task-completed': folder.type == 4 , 'task-low' : task.priority === 0, 'task-medium' : task.priority === 1, 'task-high' : task.priority === 2, 'task-private': task.sensitivity === 2 }"
                             ng-dblclick="editTask(task)">
                             <header class="panel-heading">
                                 {{ task.subject }}
@@ -92,186 +93,23 @@
                             </header>
                             <div class="panel-body"> {{ task.notes }} </div>
                             <footer class="text-right" ng-style="getFooterStyle(task.categories)">
-                                <div ng-show="( config.BACKLOG_FOLDER.DISPLAY_PROPERTIES.OWNER )"><span class="glyphicon glyphicon-user"></span> {{ task.owner }} </div>
-                                <div ng-show="( config.BACKLOG_FOLDER.DISPLAY_PROPERTIES.PERCENT )" class="pull-right"> {{ task.percent }}%</div>
+                                <div ng-if="( folder.displayOwner )"><span class="glyphicon glyphicon-user"></span> {{ task.owner }} </div>
+                                <div ng-if="( folder.displayPercent )" class="pull-right"> {{ task.percent }}%</div>
                                 <div ng-show="( filter.private == privacyFilter.all.value && task.sensitivity == 2 )" class="glyphicon glyphicon-lock"></div>
-                                <div ng-show="(task.categories != '')" class="pull-left"><span class="glyphicon glyphicon-tag"></span>
+                                <div ng-if="(task.categories != '')" class="pull-left"><span class="glyphicon glyphicon-tag"></span>
                                     <span ng-repeat="cat in task.categories"><strong ng-style="cat.style">{{ cat.label }}</strong>&nbsp;</span>
                                 </div>
-                                <div ng-show="( config.BACKLOG_FOLDER.DISPLAY_PROPERTIES.TOTALWORK )" ><span class="glyphicon glyphicon-time"></span> {{ task.totalwork }} </div>
+                                <div ng-if="( folder.displayTotalWork )" ><span class="glyphicon glyphicon-time"></span> {{ task.totalwork }} </div>
                                 <span class="btn-group btn-group-xs">
                                     <button ng-show="(task.oneNoteURL != '')" class="btn btn-default btn-xs" aria-label="OneNote" type="button" ng-click="openOneNoteURL(task.oneNoteURL)"><span class="glyphicon glyphicon-book" aria-hidden="true"></span></button>
-                                <button class="btn btn-default btn-xs" aria-label="Edit" type="button" ng-click="editTask(task)"><span class="glyphicon glyphicon-edit" aria-hidden="true"></span></button>
-                                <button class="btn btn-default btn-xs" aria-label="Delete" type="button" ng-click="deleteTask(task,backlogTasks,filteredBacklogTasks, true)"><span class="glyphicon glyphicon-trash" aria-hidden="true"></span></button>
+                                <button ng-if="folder.allowEdit" class="btn btn-default btn-xs" aria-label="Edit" type="button" ng-click="editTask(task)"><span class="glyphicon glyphicon-edit" aria-hidden="true"></span></button>
+                                <button class="btn btn-default btn-xs" aria-label="Delete" type="button" ng-click="deleteTask(task,folder.tasks,folder.filteredTasks, true)"><span class="glyphicon glyphicon-trash" aria-hidden="true"></span></button>
                                 </span>
                             </footer>
                         </li>
                     </ul>
                 </div>
             </div>
-            <!-- backlog lane  -->
-
-
-            <!-- next lane -->
-            <div ng-if="( config.NEXT_FOLDER.ACTIVE )" class="tasklane col-md-3 col-sm-4 col-xs-6" ng-class=" { 'col-lg-100' : folders.count === 1, 'col-lg-50' : folders.count === 2, 'col-lg-33' : folders.count === 3, 'col-lg-25': folders.count === 4, 'col-lg-20': folders.count === 5 }">
-                <div class="panel panel-default">
-                    <header class="panel-heading-next">
-                        <h5>{{ config.NEXT_FOLDER.TITLE }}
-                            <span class="pull-right">
-                                <button ng-if="( config.NEXT_FOLDER.LIMIT == 0 || nextTasks.length < config.NEXT_FOLDER.LIMIT )" class="btn btn-default btn-xs" aria-label="Add" type="button" ng-click="addTask('next');"><span class="glyphicon glyphicon-plus" aria-hidden="true"></span></button>
-                            <span class="label label-info">{{ nextTasks.length }}</span> <span ng-if="( config.NEXT_FOLDER.LIMIT > 0 )"
-                                class="label label-primary">{{ config.NEXT_FOLDER.LIMIT }}</span>
-                            </span>
-                        </h5>
-                    </header>
-                    <ul id="nextList" ui-sortable="sortableOptions" ng-model="filteredNextTasks" ng-class=" { 'tasklist-default' : !display_message, 'tasklist-message' : display_message }" class="panel-body list-unstyled tasklist">
-                        <li ng-repeat="task in filteredNextTasks" class="task panel" ng-class=" { 'task-low' : task.priority === 0, 'task-medium' : task.priority === 1, 'task-high' : task.priority === 2, 'task-private': task.sensitivity === 2 }"
-                            ng-dblclick="editTask(task)">
-                            <header class="panel-heading">
-                                {{ task.subject }}
-                                <span ng-if="(task.duedate | date:'yyyy' ) != '4501'" ng-class="isOverdue(task.duedate)" class="pull-right">(Due: {{ task.duedate | date:config.DATE_FORMAT }}) </span>
-                            </header>
-                            <div class="panel-body"> {{ task.notes }} </div>
-                            <footer class="text-right" ng-style="getFooterStyle(task.categories)">
-                                <div ng-if="( config.NEXT_FOLDER.DISPLAY_PROPERTIES.OWNER )"><span class="glyphicon glyphicon-user"></span> {{ task.owner }} </div>
-                                <div ng-if="( config.NEXT_FOLDER.DISPLAY_PROPERTIES.PERCENT )" class="pull-right"> {{ task.percent }}%</div>
-                                <div ng-show="( filter.private == privacyFilter.all.value && task.sensitivity == 2 )" class="glyphicon glyphicon-lock"></div>
-                                <div ng-if="(task.categories != '')" class="pull-left"><span class="glyphicon glyphicon-tag"></span>
-                                    <span ng-repeat="cat in task.categories"><strong ng-style="cat.style">{{ cat.label }}</strong>&nbsp;</span>
-                                </div>
-                                <div ng-if="( config.NEXT_FOLDER.DISPLAY_PROPERTIES.TOTALWORK )" ><span class="glyphicon glyphicon-time"></span> {{ task.totalwork }} </div>
-                                <span class="btn-group btn-group-xs">
-                                    <button ng-if="(task.oneNoteURL != '')" class="btn btn-default btn-xs" aria-label="OneNote" type="button" ng-click="openOneNoteURL(task.oneNoteURL)"><span class="glyphicon glyphicon-book" aria-hidden="true"></span></button>
-                                <button class="btn btn-default btn-xs" aria-label="Edit" type="button" ng-click="editTask(task)"><span class="glyphicon glyphicon-edit" aria-hidden="true"></span></button>
-                                <button class="btn btn-default btn-xs" aria-label="Delete" type="button" ng-click="deleteTask(task,nextTasks,filteredNextTasks, true)"><span class="glyphicon glyphicon-trash" aria-hidden="true"></span></button>
-                                </span>
-                            </footer>
-                        </li>
-                    </ul>
-                </div>
-            </div>
-            <!-- next lane -->
-
-            <!-- inprogress lane -->
-            <div ng-if="( config.INPROGRESS_FOLDER.ACTIVE )" class="tasklane col-md-3 col-sm-4 col-xs-6" ng-class=" { 'col-lg-100' : folders.count === 1, 'col-lg-50' : folders.count === 2, 'col-lg-33' : folders.count === 3, 'col-lg-25': folders.count === 4, 'col-lg-20': folders.count === 5 }">
-                <div class="panel panel-default">
-                    <header class="panel-heading-progress">
-                        <h5>{{ config.INPROGRESS_FOLDER.TITLE }}
-                            <span class="pull-right">
-                                <span class="label label-info">{{ inprogressTasks.length }}</span>                            <span ng-if="( config.INPROGRESS_FOLDER.LIMIT > 0 )" class="label label-primary">{{ config.INPROGRESS_FOLDER.LIMIT }}</span>
-                            </span>
-                        </h5>
-                    </header>
-                    <ul id="inprogressList" ui-sortable="sortableOptions" ng-model="filteredInprogressTasks" ng-class=" { 'tasklist-default' : !display_message, 'tasklist-message' : display_message }" class="panel-body list-unstyled tasklist">
-                        <li ng-repeat="task in filteredInprogressTasks" class="task panel" ng-class=" { 'task-low' : task.priority === 0, 'task-medium' : task.priority === 1, 'task-high' : task.priority === 2, 'task-private': task.sensitivity === 2 }"
-                            ng-dblclick="editTask(task)">
-                            <header class="panel-heading">
-                                {{ task.subject }}
-                                <span ng-if="(task.duedate | date:'yyyy' ) != '4501'" ng-class="isOverdue(task.duedate)" class="pull-right">(Due: {{ task.duedate | date:config.DATE_FORMAT }}) </span>
-                            </header>
-                            <div class="panel-body"> {{ task.notes }} </div>
-                            <footer class="text-right" ng-style="getFooterStyle(task.categories)">
-                                <div ng-if="( config.INPROGRESS_FOLDER.DISPLAY_PROPERTIES.OWNER )"><span class="glyphicon glyphicon-user"></span> {{ task.owner }} </div>
-                                <div ng-if="( config.INPROGRESS_FOLDER.DISPLAY_PROPERTIES.PERCENT )" class="pull-right"> {{ task.percent }}%</div>
-                                <div ng-show="( filter.private == privacyFilter.all.value && task.sensitivity == 2 )" class="glyphicon glyphicon-lock"></div>
-                                <div ng-if="(task.categories != '')" class="pull-left"><span class="glyphicon glyphicon-tag"></span>
-                                    <span ng-repeat="cat in task.categories"><strong ng-style="cat.style">{{ cat.label }}</strong>&nbsp;</span>
-                                </div>
-                                <div ng-if="( config.INPROGRESS_FOLDER.DISPLAY_PROPERTIES.TOTALWORK )" ><span class="glyphicon glyphicon-time"></span> {{ task.totalwork }} </div>
-                                <span class="btn-group btn-group-xs">
-                                        <button ng-if="(task.oneNoteURL != '')" class="btn btn-default btn-xs" aria-label="OneNote" type="button" ng-click="openOneNoteURL(task.oneNoteURL)"><span class="glyphicon glyphicon-book" aria-hidden="true"></span></button>
-                                <button class="btn btn-default btn-xs" aria-label="Edit" type="button" ng-click="editTask(task)"><span class="glyphicon glyphicon-edit" aria-hidden="true"></span></button>
-                                <button class="btn btn-default btn-xs" aria-label="Delete" type="button" ng-click="deleteTask(task,inprogressTasks,filteredInprogressTasks, true)"><span class="glyphicon glyphicon-trash" aria-hidden="true"></span></button>
-                                </span>
-                            </footer>
-
-                        </li>
-                    </ul>
-                </div>
-            </div>
-            <!-- inprogress lane -->
-
-            <div class="clearfix visible-sm-block"></div>
-
-            <!-- waiting lane -->
-            <div ng-if="( config.WAITING_FOLDER.ACTIVE )" class="tasklane col-md-3 col-sm-4 col-xs-6" ng-class=" { 'col-lg-100' : folders.count === 1, 'col-lg-50' : folders.count === 2, 'col-lg-33' : folders.count === 3, 'col-lg-25': folders.count === 4, 'col-lg-20': folders.count === 5 }">
-                <div class="panel panel-default">
-                    <header class="panel-heading-waiting">
-                        <h5>{{ config.WAITING_FOLDER.TITLE }}
-                            <span class="pull-right">
-                                <span class="label label-info">{{ waitingTasks.length }}</span>
-                            <span ng-if="( config.WAITING_FOLDER.LIMIT > 0 )" class="label label-primary">{{ config.WAITING_FOLDER.LIMIT }}</span>
-                            </span>
-                        </h5>
-                    </header>
-                    <ul id="waitingList" ui-sortable="sortableOptions" ng-model="filteredWaitingTasks" ng-class=" { 'tasklist-default' : !display_message, 'tasklist-message' : display_message }" class="panel-body list-unstyled tasklist">
-                        <li ng-repeat="task in filteredWaitingTasks" class="task panel" ng-class=" { 'task-low' : task.priority === 0, 'task-medium' : task.priority === 1, 'task-high' : task.priority === 2, 'task-private': task.sensitivity === 2 }"
-                            ng-dblclick="editTask(task)">
-                            <header class="panel-heading">
-                                {{ task.subject }}
-                                <span ng-if="(task.duedate | date:'yyyy' ) != '4501'" ng-class="isOverdue(task.duedate)" class="pull-right">(Due: {{ task.duedate | date:config.DATE_FORMAT }}) </span>
-                            </header>
-                            <div class="panel-body"> {{ task.notes }} </div>
-                            <footer class="text-right" ng-style="getFooterStyle(task.categories)">
-                                <div ng-if="( config.WAITING_FOLDER.DISPLAY_PROPERTIES.OWNER )"><span class="glyphicon glyphicon-user"></span> {{ task.owner }} </div>
-                                <div ng-if="( config.WAITING_FOLDER.DISPLAY_PROPERTIES.PERCENT )" class="pull-right"> {{ task.percent }}%</div>
-                                <div ng-show="( filter.private == privacyFilter.all.value && task.sensitivity == 2 )" class="glyphicon glyphicon-lock"></div>
-                                <div ng-if="(task.categories != '')" class="pull-left"><span class="glyphicon glyphicon-tag"></span>
-                                    <span ng-repeat="cat in task.categories"><strong ng-style="cat.style">{{ cat.label }}</strong>&nbsp;</span>
-                                </div>
-                                <div ng-if="( config.WAITING_FOLDER.DISPLAY_PROPERTIES.TOTALWORK )" ><span class="glyphicon glyphicon-time"></span> {{ task.totalwork }} </div>
-                                <span class="btn-group btn-group-xs">
-                                        <button ng-if="(task.oneNoteURL != '')" class="btn btn-default btn-xs" aria-label="OneNote" type="button" ng-click="openOneNoteURL(task.oneNoteURL)"><span class="glyphicon glyphicon-book" aria-hidden="true"></span></button>
-                                <button class="btn btn-default btn-xs" aria-label="Edit" type="button" ng-click="editTask(task)"><span class="glyphicon glyphicon-edit" aria-hidden="true"></span></button>
-                                <button class="btn btn-default btn-xs" aria-label="Delete" type="button" ng-click="deleteTask(task,waitingTasks,filteredWaitingTasks, true)"><span class="glyphicon glyphicon-trash" aria-hidden="true"></span></button>
-                                </span>
-                            </footer>
-
-                        </li>
-                    </ul>
-                </div>
-            </div>
-            <!-- waiting lane -->
-
-            <!-- completed lane -->
-            <div ng-if="( config.COMPLETED_FOLDER.ACTIVE )" class="tasklane col-md-3 col-sm-4 col-xs-6" ng-class=" { 'col-lg-100' : folders.count === 1, 'col-lg-50' : folders.count === 2, 'col-lg-33' : folders.count === 3, 'col-lg-25': folders.count === 4, 'col-lg-20': folders.count === 5 }">
-                <div class="panel panel-default">
-                    <header class="panel-heading-completed">
-                        <h5>{{ config.COMPLETED_FOLDER.TITLE }}
-                            <span class="pull-right">
-                                <span class="label label-info">{{ completedTasks.length }}</span>
-                            </span>
-                        </h5>
-                    </header>
-                    <ul id="completedList" ui-sortable="sortableOptions" ng-model="completedTasks" ng-class=" { 'tasklist-default' : !display_message, 'tasklist-message' : display_message }" class="panel-body list-unstyled tasklist">
-                        <li ng-repeat="task in filteredCompletedTasks" class="task panel task-completed">
-                            <header class="panel-heading">
-                                {{ task.subject }}
-                                <span class="pull-right">(Completed: {{ task.completeddate | date:config.DATE_FORMAT }}) </span>
-                            </header>
-                            <div class="panel-body"> {{ task.notes }} </div>
-                            <footer class="text-right" ng-style="getFooterStyle(task.categories)">
-                                <div ng-if="( config.COMPLETED_FOLDER.DISPLAY_PROPERTIES.OWNER )"><span class="glyphicon glyphicon-user"></span> {{ task.owner }} </div>
-                                <div ng-if="( config.COMPLETED_FOLDER.DISPLAY_PROPERTIES.PERCENT )" class="pull-right"> {{ task.percent }}%</div>
-                                <div ng-show="( filter.private == privacyFilter.all.value && task.sensitivity == 2 )" class="glyphicon glyphicon-lock"></div>
-                                <div ng-if="(task.categories != '')" class="pull-left"><span class="glyphicon glyphicon-tag"></span>
-                                    <span ng-repeat="cat in task.categories"><strong ng-style="cat.style">{{ cat.label }}</strong>&nbsp;</span>
-                                </div>
-                                <div ng-if="( config.COMPLETED_FOLDER.DISPLAY_PROPERTIES.TOTALWORK )" ><span class="glyphicon glyphicon-time"></span> {{ task.totalwork }} </div>
-                                <span class="btn-group btn-group-xs">
-                                        <button ng-if="(task.oneNoteURL != '')" class="btn btn-default btn-xs" aria-label="OneNote" type="button" ng-click="openOneNoteURL(task.oneNoteURL)"><span class="glyphicon glyphicon-book" aria-hidden="true"></span></button>
-                                <button class="btn btn-default btn-xs" aria-label="Archive" type="button" ng-click="archiveTask(task,completedTasks,filteredCompletedTasks)"><span class="glyphicon glyphicon-ok" aria-hidden="true"></span></button>
-                                <button ng-if="( config.COMPLETED_FOLDER.EDITABLE )" class="btn btn-default btn-xs" aria-label="Edit" type="button" ng-click="editTask(task)"><span class="glyphicon glyphicon-edit" aria-hidden="true"></span></button>
-                                <button class="btn btn-default btn-xs" aria-label="Delete" type="button" ng-click="deleteTask(task,completedTasks,filteredCompletedTasks, true)"><span class="glyphicon glyphicon-trash" aria-hidden="true"></span></button>
-                                </span>
-                            </footer>
-
-                        </li>
-                    </ul>
-                </div>
-            </div>
-            <!-- completed lane -->
-
         </section>
 
         <!-- config section -->
@@ -291,7 +129,7 @@
                     <header class="panel-heading-waiting  text-center"><strong>About...</strong></header>
                     <form ng-submit="switchToAppMode()">
                         <div class="panel-about">
-                            JanBan Task Board version 2019.3.11.2
+                            JanBan Task Board version {{config.VERSION}}
                             <br/>
                             <br/>
                             A Kanban style taskboard for managing your Outlook tasks.<br/>
