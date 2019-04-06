@@ -78,11 +78,10 @@ tbApp.controller('taskboardController', function ($scope, $filter, $http) {
         applyConfig();
         $scope.initTasks();
 
-        $scope.folders = 
-            { count: 0 };
+        $scope.displayFolderCount = 0;
         $scope.taskFolders.forEach( function(folder) {
-            if (folder.display) $scope.folders.count++;
-        } );
+            if (folder.display) $scope.displayFolderCount++;
+        });
 
         // ui-sortable options and events
         $scope.sortableOptions = {
@@ -257,7 +256,7 @@ tbApp.controller('taskboardController', function ($scope, $filter, $http) {
         } else {
             window.open(url, "_blank").close();
         }
-        return nfalse;
+        return false;
     }
 
     $scope.initTasks = function () {
@@ -667,90 +666,80 @@ tbApp.controller('taskboardController', function ($scope, $filter, $http) {
     }
 
     var applyConfig = function() {
-        for (var i = 0; i < 5; i++) {
-            switch(i) {
-                case BACKLOG:
-                    $scope.taskFolders[i].type = BACKLOG;
-                    $scope.taskFolders[i].initialStatus = $scope.config.STATUS.NOT_STARTED.VALUE;
-                    $scope.taskFolders[i].display = $scope.config.BACKLOG_FOLDER.ACTIVE;
-                    $scope.taskFolders[i].name = $scope.config.BACKLOG_FOLDER.NAME;
-                    $scope.taskFolders[i].title = $scope.config.BACKLOG_FOLDER.TITLE;
-                    $scope.taskFolders[i].limit = $scope.config.BACKLOG_FOLDER.LIMIT;
-                    $scope.taskFolders[i].sort = $scope.config.BACKLOG_FOLDER.SORT;
-                    $scope.taskFolders[i].displayOwner = $scope.config.BACKLOG_FOLDER.DISPLAY_PROPERTIES.OWNER;
-                    $scope.taskFolders[i].displayPercent = $scope.config.BACKLOG_FOLDER.DISPLAY_PROPERTIES.PERCENT;
-                    $scope.taskFolders[i].displayTotalWork = $scope.config.BACKLOG_FOLDER.DISPLAY_PROPERTIES.TOTALWORK;
-                    $scope.taskFolders[i].filterOnStartDate = $scope.config.BACKLOG_FOLDER.FILTER_ON_START_DATE;
-                    $scope.taskFolders[i].displayInReport = $scope.config.BACKLOG_FOLDER.REPORT.DISPLAY;
-                    $scope.taskFolders[i].allowAdd = true;
-                    $scope.taskFolders[i].allowEdit = true;
-                    break;
-                case SPRINT:
-                    $scope.taskFolders[i].type = SPRINT;
-                    $scope.taskFolders[i].initialStatus = $scope.config.STATUS.NOT_STARTED.VALUE;
-                    $scope.taskFolders[i].display = $scope.config.NEXT_FOLDER.ACTIVE;
-                    $scope.taskFolders[i].name = $scope.config.NEXT_FOLDER.NAME;
-                    $scope.taskFolders[i].title = $scope.config.NEXT_FOLDER.TITLE;
-                    $scope.taskFolders[i].limit = $scope.config.NEXT_FOLDER.LIMIT;
-                    $scope.taskFolders[i].sort = $scope.config.NEXT_FOLDER.SORT;
-                    $scope.taskFolders[i].displayOwner = $scope.config.NEXT_FOLDER.DISPLAY_PROPERTIES.OWNER;
-                    $scope.taskFolders[i].displayPercent = $scope.config.NEXT_FOLDER.DISPLAY_PROPERTIES.PERCENT;
-                    $scope.taskFolders[i].displayTotalWork = $scope.config.NEXT_FOLDER.DISPLAY_PROPERTIES.TOTALWORK;
-                    $scope.taskFolders[i].filterOnStartDate = $scope.config.NEXT_FOLDER.FILTER_ON_START_DATE;
-                    $scope.taskFolders[i].displayInReport = $scope.config.NEXT_FOLDER.REPORT.DISPLAY;
-                    $scope.taskFolders[i].allowAdd = true;
-                    $scope.taskFolders[i].allowEdit = true;
-                    break;
-                case DOING:
-                    $scope.taskFolders[i].type = DOING;
-                    $scope.taskFolders[i].initialStatus = $scope.config.STATUS.IN_PROGRESS.VALUE;
-                    $scope.taskFolders[i].display = $scope.config.INPROGRESS_FOLDER.ACTIVE;
-                    $scope.taskFolders[i].name = $scope.config.INPROGRESS_FOLDER.NAME;
-                    $scope.taskFolders[i].title = $scope.config.INPROGRESS_FOLDER.TITLE;
-                    $scope.taskFolders[i].limit = $scope.config.INPROGRESS_FOLDER.LIMIT;
-                    $scope.taskFolders[i].sort = $scope.config.INPROGRESS_FOLDER.SORT;
-                    $scope.taskFolders[i].displayOwner = $scope.config.INPROGRESS_FOLDER.DISPLAY_PROPERTIES.OWNER;
-                    $scope.taskFolders[i].displayPercent = $scope.config.INPROGRESS_FOLDER.DISPLAY_PROPERTIES.PERCENT;
-                    $scope.taskFolders[i].displayTotalWork = $scope.config.INPROGRESS_FOLDER.DISPLAY_PROPERTIES.TOTALWORK;
-                    $scope.taskFolders[i].filterOnStartDate = $scope.config.INPROGRESS_FOLDER.FILTER_ON_START_DATE;
-                    $scope.taskFolders[i].displayInReport = $scope.config.INPROGRESS_FOLDER.REPORT.DISPLAY;
-                    $scope.taskFolders[i].allowAdd = false;
-                    $scope.taskFolders[i].allowEdit = true;
-                    break;
-                case WAITING:
-                    $scope.taskFolders[i].type = WAITING;
-                    $scope.taskFolders[i].initialStatus = $scope.config.STATUS.WAITING.VALUE;
-                    $scope.taskFolders[i].display = $scope.config.WAITING_FOLDER.ACTIVE;
-                    $scope.taskFolders[i].name = $scope.config.WAITING_FOLDER.NAME;
-                    $scope.taskFolders[i].title = $scope.config.WAITING_FOLDER.TITLE;
-                    $scope.taskFolders[i].limit = $scope.config.WAITING_FOLDER.LIMIT;
-                    $scope.taskFolders[i].sort = $scope.config.WAITING_FOLDER.SORT;
-                    $scope.taskFolders[i].displayOwner = $scope.config.WAITING_FOLDER.DISPLAY_PROPERTIES.OWNER;
-                    $scope.taskFolders[i].displayPercent = $scope.config.WAITING_FOLDER.DISPLAY_PROPERTIES.PERCENT;
-                    $scope.taskFolders[i].displayTotalWork = $scope.config.WAITING_FOLDER.DISPLAY_PROPERTIES.TOTALWORK;
-                    $scope.taskFolders[i].filterOnStartDate = $scope.config.WAITING_FOLDER.FILTER_ON_START_DATE;
-                    $scope.taskFolders[i].displayInReport = $scope.config.WAITING_FOLDER.REPORT.DISPLAY;
-                    $scope.taskFolders[i].allowAdd = false;
-                    $scope.taskFolders[i].allowEdit = true;
-                    break;
-                case DONE:
-                    $scope.taskFolders[i].type = DONE;
-                    $scope.taskFolders[i].initialStatus = $scope.config.STATUS.COMPLETED.VALUE;
-                    $scope.taskFolders[i].display = $scope.config.COMPLETED_FOLDER.ACTIVE;
-                    $scope.taskFolders[i].name = $scope.config.COMPLETED_FOLDER.NAME;
-                    $scope.taskFolders[i].title = $scope.config.COMPLETED_FOLDER.TITLE;
-                    $scope.taskFolders[i].limit = $scope.config.COMPLETED_FOLDER.LIMIT;
-                    $scope.taskFolders[i].sort = $scope.config.COMPLETED_FOLDER.SORT;
-                    $scope.taskFolders[i].displayOwner = $scope.config.COMPLETED_FOLDER.DISPLAY_PROPERTIES.OWNER;
-                    $scope.taskFolders[i].displayPercent = $scope.config.COMPLETED_FOLDER.DISPLAY_PROPERTIES.PERCENT;
-                    $scope.taskFolders[i].displayTotalWork = $scope.config.COMPLETED_FOLDER.DISPLAY_PROPERTIES.TOTALWORK;
-                    $scope.taskFolders[i].filterOnStartDate = $scope.config.COMPLETED_FOLDER.FILTER_ON_START_DATE;
-                    $scope.taskFolders[i].displayInReport = $scope.config.COMPLETED_FOLDER.REPORT.DISPLAY;
-                    $scope.taskFolders[i].allowAdd = false;
-                    $scope.taskFolders[i].allowEdit = false;
-                    break;
-            }
-        }
+        $scope.taskFolders[BACKLOG].type = BACKLOG;
+        $scope.taskFolders[BACKLOG].initialStatus = $scope.config.STATUS.NOT_STARTED.VALUE;
+        $scope.taskFolders[BACKLOG].display = $scope.config.BACKLOG_FOLDER.ACTIVE;
+        $scope.taskFolders[BACKLOG].name = $scope.config.BACKLOG_FOLDER.NAME;
+        $scope.taskFolders[BACKLOG].title = $scope.config.BACKLOG_FOLDER.TITLE;
+        $scope.taskFolders[BACKLOG].limit = $scope.config.BACKLOG_FOLDER.LIMIT;
+        $scope.taskFolders[BACKLOG].sort = $scope.config.BACKLOG_FOLDER.SORT;
+        $scope.taskFolders[BACKLOG].displayOwner = $scope.config.BACKLOG_FOLDER.DISPLAY_PROPERTIES.OWNER;
+        $scope.taskFolders[BACKLOG].displayPercent = $scope.config.BACKLOG_FOLDER.DISPLAY_PROPERTIES.PERCENT;
+        $scope.taskFolders[BACKLOG].displayTotalWork = $scope.config.BACKLOG_FOLDER.DISPLAY_PROPERTIES.TOTALWORK;
+        $scope.taskFolders[BACKLOG].filterOnStartDate = $scope.config.BACKLOG_FOLDER.FILTER_ON_START_DATE;
+        $scope.taskFolders[BACKLOG].displayInReport = $scope.config.BACKLOG_FOLDER.REPORT.DISPLAY;
+        $scope.taskFolders[BACKLOG].allowAdd = true;
+        $scope.taskFolders[BACKLOG].allowEdit = true;
+
+        $scope.taskFolders[SPRINT].type = SPRINT;
+        $scope.taskFolders[SPRINT].initialStatus = $scope.config.STATUS.NOT_STARTED.VALUE;
+        $scope.taskFolders[SPRINT].display = $scope.config.NEXT_FOLDER.ACTIVE;
+        $scope.taskFolders[SPRINT].name = $scope.config.NEXT_FOLDER.NAME;
+        $scope.taskFolders[SPRINT].title = $scope.config.NEXT_FOLDER.TITLE;
+        $scope.taskFolders[SPRINT].limit = $scope.config.NEXT_FOLDER.LIMIT;
+        $scope.taskFolders[SPRINT].sort = $scope.config.NEXT_FOLDER.SORT;
+        $scope.taskFolders[SPRINT].displayOwner = $scope.config.NEXT_FOLDER.DISPLAY_PROPERTIES.OWNER;
+        $scope.taskFolders[SPRINT].displayPercent = $scope.config.NEXT_FOLDER.DISPLAY_PROPERTIES.PERCENT;
+        $scope.taskFolders[SPRINT].displayTotalWork = $scope.config.NEXT_FOLDER.DISPLAY_PROPERTIES.TOTALWORK;
+        $scope.taskFolders[SPRINT].filterOnStartDate = $scope.config.NEXT_FOLDER.FILTER_ON_START_DATE;
+        $scope.taskFolders[SPRINT].displayInReport = $scope.config.NEXT_FOLDER.REPORT.DISPLAY;
+        $scope.taskFolders[SPRINT].allowAdd = true;
+        $scope.taskFolders[SPRINT].allowEdit = true;
+
+        $scope.taskFolders[DOING].type = DOING;
+        $scope.taskFolders[DOING].initialStatus = $scope.config.STATUS.IN_PROGRESS.VALUE;
+        $scope.taskFolders[DOING].display = $scope.config.INPROGRESS_FOLDER.ACTIVE;
+        $scope.taskFolders[DOING].name = $scope.config.INPROGRESS_FOLDER.NAME;
+        $scope.taskFolders[DOING].title = $scope.config.INPROGRESS_FOLDER.TITLE;
+        $scope.taskFolders[DOING].limit = $scope.config.INPROGRESS_FOLDER.LIMIT;
+        $scope.taskFolders[DOING].sort = $scope.config.INPROGRESS_FOLDER.SORT;
+        $scope.taskFolders[DOING].displayOwner = $scope.config.INPROGRESS_FOLDER.DISPLAY_PROPERTIES.OWNER;
+        $scope.taskFolders[DOING].displayPercent = $scope.config.INPROGRESS_FOLDER.DISPLAY_PROPERTIES.PERCENT;
+        $scope.taskFolders[DOING].displayTotalWork = $scope.config.INPROGRESS_FOLDER.DISPLAY_PROPERTIES.TOTALWORK;
+        $scope.taskFolders[DOING].filterOnStartDate = $scope.config.INPROGRESS_FOLDER.FILTER_ON_START_DATE;
+        $scope.taskFolders[DOING].displayInReport = $scope.config.INPROGRESS_FOLDER.REPORT.DISPLAY;
+        $scope.taskFolders[DOING].allowAdd = false;
+        $scope.taskFolders[DOING].allowEdit = true;
+
+        $scope.taskFolders[WAITING].type = WAITING;
+        $scope.taskFolders[WAITING].initialStatus = $scope.config.STATUS.WAITING.VALUE;
+        $scope.taskFolders[WAITING].display = $scope.config.WAITING_FOLDER.ACTIVE;
+        $scope.taskFolders[WAITING].name = $scope.config.WAITING_FOLDER.NAME;
+        $scope.taskFolders[WAITING].title = $scope.config.WAITING_FOLDER.TITLE;
+        $scope.taskFolders[WAITING].limit = $scope.config.WAITING_FOLDER.LIMIT;
+        $scope.taskFolders[WAITING].sort = $scope.config.WAITING_FOLDER.SORT;
+        $scope.taskFolders[WAITING].displayOwner = $scope.config.WAITING_FOLDER.DISPLAY_PROPERTIES.OWNER;
+        $scope.taskFolders[WAITING].displayPercent = $scope.config.WAITING_FOLDER.DISPLAY_PROPERTIES.PERCENT;
+        $scope.taskFolders[WAITING].displayTotalWork = $scope.config.WAITING_FOLDER.DISPLAY_PROPERTIES.TOTALWORK;
+        $scope.taskFolders[WAITING].filterOnStartDate = $scope.config.WAITING_FOLDER.FILTER_ON_START_DATE;
+        $scope.taskFolders[WAITING].displayInReport = $scope.config.WAITING_FOLDER.REPORT.DISPLAY;
+        $scope.taskFolders[WAITING].allowAdd = false;
+        $scope.taskFolders[WAITING].allowEdit = true;
+
+        $scope.taskFolders[DONE].type = DONE;
+        $scope.taskFolders[DONE].initialStatus = $scope.config.STATUS.COMPLETED.VALUE;
+        $scope.taskFolders[DONE].display = $scope.config.COMPLETED_FOLDER.ACTIVE;
+        $scope.taskFolders[DONE].name = $scope.config.COMPLETED_FOLDER.NAME;
+        $scope.taskFolders[DONE].title = $scope.config.COMPLETED_FOLDER.TITLE;
+        $scope.taskFolders[DONE].limit = $scope.config.COMPLETED_FOLDER.LIMIT;
+        $scope.taskFolders[DONE].sort = $scope.config.COMPLETED_FOLDER.SORT;
+        $scope.taskFolders[DONE].displayOwner = $scope.config.COMPLETED_FOLDER.DISPLAY_PROPERTIES.OWNER;
+        $scope.taskFolders[DONE].displayPercent = $scope.config.COMPLETED_FOLDER.DISPLAY_PROPERTIES.PERCENT;
+        $scope.taskFolders[DONE].displayTotalWork = $scope.config.COMPLETED_FOLDER.DISPLAY_PROPERTIES.TOTALWORK;
+        $scope.taskFolders[DONE].filterOnStartDate = $scope.config.COMPLETED_FOLDER.FILTER_ON_START_DATE;
+        $scope.taskFolders[DONE].displayInReport = $scope.config.COMPLETED_FOLDER.REPORT.DISPLAY;
+        $scope.taskFolders[DONE].allowAdd = false;
+        $scope.taskFolders[DONE].allowEdit = false;
 };
 
     const DEFAULT_CONFIG =  {
