@@ -2,6 +2,13 @@
 
 <!--- next entry here -->
 
+## 1.0.5
+2019-04-06
+
+### Fixes
+
+- **tasklanes:** tasklanes are now an array (84491149fbfb66bed766221f76d2ecd654059d14)
+
 ## 1.0.4
 2019-03-27
 
