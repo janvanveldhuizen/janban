@@ -16,6 +16,12 @@ tbApp.controller('taskboardController', function ($scope, $filter, $http) {
     const STATE_ID = "KanbanState";
     const CONFIG_ID = "KanbanConfig";
 
+    const BACKLOG = 0;
+    const SPRINT = 1;
+    const DOING = 2;
+    const WAITING = 3;
+    const DONE = 4;
+    
     $scope.privacyFilter = 
         { all:     { text : "Both", value : 0 },
           private: { text : "Private", value: 1 },
@@ -23,6 +29,13 @@ tbApp.controller('taskboardController', function ($scope, $filter, $http) {
         };
     $scope.display_message = false;
 
+    $scope.taskFolders = [
+        { type: 0},
+        { type: 1},
+        { type: 2},
+        { type: 3},
+        { type: 4}
+    ];
 
     $scope.switchToAppMode = function () {
         applMode = APP_MODE;
@@ -59,19 +72,16 @@ tbApp.controller('taskboardController', function ($scope, $filter, $http) {
         $scope.switchToAppMode();
         getConfig();
         getState();
-        // getVersion();
+        getVersion();
         
         outlookCategories = getOutlookCategories();
+        applyConfig();
         $scope.initTasks();
 
-        $scope.folders = 
-            { count: 0 };
-        if ($scope.config.BACKLOG_FOLDER.ACTIVE) $scope.folders.count++;
-        if ($scope.config.NEXT_FOLDER.ACTIVE) $scope.folders.count++;
-        if ($scope.config.INPROGRESS_FOLDER.ACTIVE) $scope.folders.count++;
-        if ($scope.config.WAITING_FOLDER.ACTIVE) $scope.folders.count++;
-        if ($scope.config.COMPLETED_FOLDER.ACTIVE) $scope.folders.count++;
-
+        $scope.displayFolderCount = 0;
+        $scope.taskFolders.forEach( function(folder) {
+            if (folder.display) $scope.displayFolderCount++;
+        });
 
         // ui-sortable options and events
         $scope.sortableOptions = {
@@ -91,24 +101,25 @@ tbApp.controller('taskboardController', function ($scope, $filter, $http) {
                         $scope.initTasks();
                         ui.item.sortable.cancel();
                 } else {
+                    //TODO dit kan korter
                     switch (ui.item.sortable.droptarget[0].id) {
-                        case 'backlogList':
+                        case 'folder-'+BACKLOG:
                             var tasksfolder = getTaskFolder($scope.config.BACKLOG_FOLDER.NAME);
                             var newstatus = $scope.config.STATUS.NOT_STARTED.VALUE;
                             break;
-                        case 'nextList':
+                        case 'folder-'+SPRINT:
                             var tasksfolder = getTaskFolder($scope.config.NEXT_FOLDER.NAME);
                             var newstatus = $scope.config.STATUS.NOT_STARTED.VALUE;
                             break;
-                        case 'inprogressList':
+                        case 'folder-'+DOING:
                             var tasksfolder = getTaskFolder($scope.config.INPROGRESS_FOLDER.NAME);
                             var newstatus = $scope.config.STATUS.IN_PROGRESS.VALUE;
                             break;
-                        case 'waitingList':
+                        case 'folder-'+WAITING:
                             var tasksfolder = getTaskFolder($scope.config.WAITING_FOLDER.NAME);
                             var newstatus = $scope.config.STATUS.WAITING.VALUE;
                             break;
-                        case 'completedList':
+                        case 'folder-'+DONE:
                             var tasksfolder = getTaskFolder($scope.config.COMPLETED_FOLDER.NAME);
                             var newstatus = $scope.config.STATUS.COMPLETED.VALUE;
                             break;
@@ -245,23 +256,15 @@ tbApp.controller('taskboardController', function ($scope, $filter, $http) {
         } else {
             window.open(url, "_blank").close();
         }
-        return nfalse;
+        return false;
     }
 
     $scope.initTasks = function () {
         // get tasks from each outlook folder and populate model data
-        $scope.backlogTasks = getTasksFromOutlook($scope.config.BACKLOG_FOLDER.NAME, $scope.config.BACKLOG_FOLDER.SORT, $scope.config.STATUS.NOT_STARTED.VALUE);
-        $scope.inprogressTasks = getTasksFromOutlook($scope.config.INPROGRESS_FOLDER.NAME, $scope.config.INPROGRESS_FOLDER.SORT, $scope.config.STATUS.IN_PROGRESS.VALUE);
-        $scope.nextTasks = getTasksFromOutlook($scope.config.NEXT_FOLDER.NAME, $scope.config.NEXT_FOLDER.SORT, $scope.config.STATUS.NOT_STARTED.VALUE);
-        $scope.waitingTasks = getTasksFromOutlook($scope.config.WAITING_FOLDER.NAME, $scope.config.WAITING_FOLDER.SORT, $scope.config.STATUS.WAITING.VALUE);
-        $scope.completedTasks = getTasksFromOutlook($scope.config.COMPLETED_FOLDER.NAME, $scope.config.COMPLETED_FOLDER.SORT, $scope.config.STATUS.COMPLETED.VALUE);
-
-        // copy the lists as the initial filter    
-        $scope.filteredBacklogTasks = $scope.backlogTasks;
-        $scope.filteredInprogressTasks = $scope.inprogressTasks;
-        $scope.filteredNextTasks = $scope.nextTasks;
-        $scope.filteredWaitingTasks = $scope.waitingTasks;
-        $scope.filteredCompletedTasks = $scope.completedTasks;
+        $scope.taskFolders.forEach(function(taskFolder){
+            taskFolder.tasks = getTasksFromOutlook(taskFolder.name, taskFolder.sort, taskFolder.initialStatus);
+            taskFolder.filteredTasks = taskFolder.tasks;
+        });
 
         // then apply the current filters for search and sensitivity
         $scope.applyFilters();
@@ -269,16 +272,16 @@ tbApp.controller('taskboardController', function ($scope, $filter, $http) {
         // clean up Completed Tasks
         if ($scope.config.COMPLETED.ACTION == 'ARCHIVE' || $scope.config.COMPLETED.ACTION == 'DELETE') {
             var i;
-            var tasks = $scope.completedTasks;
+            var tasks = $scope.taskFolders[DONE].tasks;
             var count = tasks.length;
             for (i = 0; i < count; i++) {
                 var days = Date.daysBetween(tasks[i].completeddate, new Date());
                 if (days > $scope.config.COMPLETED.AFTER_X_DAYS) {
                     if ($scope.config.COMPLETED.ACTION == 'ARCHIVE') {
-                        $scope.archiveTask(tasks[i], $scope.completedTasks, $scope.filteredCompletedTasks);
+                        $scope.archiveTask(tasks[i], $scope.taskFolders[DONE].tasks, $scope.taskFolders[DONE].filteredTasks);
                     }
                     if ($scope.config.COMPLETED.ACTION == 'DELETE') {
-                        $scope.deleteTask(tasks[i], $scope.completedTasks, $scope.filteredCompletedTasks, false);
+                        $scope.deleteTask(tasks[i], $scope.taskFolders[DONE].tasks, $scope.taskFolders[DONE].filteredTasks, false);
                     }
                 };
             };
@@ -288,41 +291,38 @@ tbApp.controller('taskboardController', function ($scope, $filter, $http) {
         if ($scope.config.AUTO_START_TASKS) {
             var i;
             var movedTask = false;
-            var tasks = $scope.backlogTasks;
+            var tasks = $scope.taskFolders[BACKLOG].tasks;
             var count = tasks.length;
             for (i = 0; i < count; i++) {
                 if (tasks[i].startdate.getFullYear() != 4501) {
                     var seconds = Date.secondsBetween(tasks[i].startdate, new Date());
                     if (seconds >= 0) {
                         var taskitem = getTaskItem(tasks[i].entryID);
-                        taskitem.Move(getTaskFolder($scope.config.NEXT_FOLDER.NAME));
+                        taskitem.Move(getTaskFolder($scope.taskFolders[SPRINT].name));
                         movedTask = true;
                     }
                 };
             };
             if (movedTask) {
-                $scope.backlogTasks = getTasksFromOutlook($scope.config.BACKLOG_FOLDER.NAME, $scope.config.BACKLOG_FOLDER.SORT, $scope.config.STATUS.NOT_STARTED.VALUE);
-                $scope.nextTasks = getTasksFromOutlook($scope.config.NEXT_FOLDER.NAME, $scope.config.NEXT_FOLDER.SORT, $scope.config.STATUS.NOT_STARTED.VALUE);
-                $scope.filteredBacklogTasks = $scope.backlogTasks;
-                $scope.filteredNextTasks = $scope.nextTasks;
+                // TODO: why read all the task when onlya few items are moved
+                $scope.taskFolders[BACKLOG].tasks = getTasksFromOutlook($scope.taskFolders[BACKLOG].name, $scope.taskFolders[BACKLOG].sort, $scope.taskFolders[BACKLOG].initialStatus);
+                $scope.taskFolders[SPRINT].tasks = getTasksFromOutlook($scope.taskFolders[SPRINT].name, $scope.taskFolders[SPRINT].sort, $scope.taskFolders[SPRINT].initialStatus);
+                $scope.taskFolders[BACKLOG].filteredTasks = $scope.taskFolders[BACKLOG].tasks;
+                $scope.taskFolders[SPRINT].filteredTasks = $scope.taskFolders[SPRINT].tasks;
             }
         };
     }
 
     $scope.applyFilters = function () {
         if ($scope.filter.search.length > 0) {
-            $scope.filteredBacklogTasks = $filter('filter')($scope.backlogTasks, $scope.filter.search);
-            $scope.filteredNextTasks = $filter('filter')($scope.nextTasks, $scope.filter.search);
-            $scope.filteredInprogressTasks = $filter('filter')($scope.inprogressTasks, $scope.filter.search);
-            $scope.filteredWaitingTasks = $filter('filter')($scope.waitingTasks, $scope.filter.search);
-            $scope.filteredCompletedTasks = $filter('filter')($scope.completedTasks, $scope.filter.search);
+            $scope.taskFolders.forEach(function(taskFolder){
+                taskFolder.filteredTasks = $filter('filter')(taskFolder.tasks, $scope.filter.search);
+            });
         }
         else {
-            $scope.filteredBacklogTasks = $scope.backlogTasks;
-            $scope.filteredInprogressTasks = $scope.inprogressTasks;
-            $scope.filteredNextTasks = $scope.nextTasks;
-            $scope.filteredWaitingTasks = $scope.waitingTasks;
-            $scope.filteredCompletedTasks = $scope.completedTasks;
+            $scope.taskFolders.forEach(function(taskFolder){
+                taskFolder.filteredTasks = taskFolder.tasks;
+            });
         }
 
         // I think this can be written shorter, but for now it works
@@ -330,27 +330,27 @@ tbApp.controller('taskboardController', function ($scope, $filter, $http) {
         if ($scope.filter.private != $scope.privacyFilter.all.value) {
             if ($scope.filter.private == $scope.privacyFilter.private.value) { sensitivityFilter = SENSITIVITY.olPrivate; }
             if ($scope.filter.private == $scope.privacyFilter.public.value) { sensitivityFilter = SENSITIVITY.olNormal; }
-            $scope.filteredBacklogTasks = $filter('filter')($scope.filteredBacklogTasks, function (task) { return task.sensitivity == sensitivityFilter });
-            $scope.filteredNextTasks = $filter('filter')($scope.filteredNextTasks, function (task) { return task.sensitivity == sensitivityFilter });
-            $scope.filteredInprogressTasks = $filter('filter')($scope.filteredInprogressTasks, function (task) { return task.sensitivity == sensitivityFilter });
-            $scope.filteredWaitingTasks = $filter('filter')($scope.filteredWaitingTasks, function (task) { return task.sensitivity == sensitivityFilter });
-            $scope.filteredCompletedTasks = $filter('filter')($scope.filteredCompletedTasks, function (task) { return task.sensitivity == sensitivityFilter });
+            $scope.taskFolders.forEach(function(taskFolder){
+                taskFolder.filteredTasks = $filter('filter')(taskFolder.filteredTasks, function (task) { return task.sensitivity == sensitivityFilter });
+            });
         }
 
-        // filter backlog on start date
-        if ($scope.config.BACKLOG_FOLDER.FILTER_ON_START_DATE) {
-            $scope.filteredBacklogTasks = $filter('filter')($scope.filteredBacklogTasks, function (task) {
-                if (task.startdate.getFullYear() != 4501) {
-                    var days = Date.daysBetween(task.startdate, new Date());
-                    return days >= 0;
-                }
-                else return true; // always show tasks not having start date
-            });
-        };
+        // filter on start date
+        $scope.taskFolders.forEach(function(taskFolder){
+            if (taskFolder.filterOnStartDate === true){
+                taskFolder.filteredTasks = $filter('filter')(taskFolder.filteredTasks, function (task) { 
+                    if (task.startdate.getFullYear() != 4501) {
+                        var days = Date.daysBetween(task.startdate, new Date());
+                        return days >= 0;
+                    }
+                    else return true; // always show tasks not having start date
+                    });
+            }
+        });
 
         // filter completed tasks if the HIDE options is configured
         if ($scope.config.COMPLETED.ACTION == 'HIDE') {
-            $scope.filteredCompletedTasks = $filter('filter')($scope.filteredCompletedTasks, function (task) {
+            $scope.taskFolders[DONE].filteredTasks = $filter('filter')($scope.taskFolders[DONE].filteredTasks, function (task) {
                 var days = Date.daysBetween(task.completeddate, new Date());
                 return days < $scope.config.COMPLETED.AFTER_X_DAYS;
             });
@@ -516,17 +516,17 @@ tbApp.controller('taskboardController', function ($scope, $filter, $http) {
     $scope.addTask = function (target) {
         // set the parent folder to target defined
         switch (target) {
-            case 'backlog':
-                var tasksfolder = getTaskFolder($scope.config.BACKLOG_FOLDER.NAME);
+            case 'BACKLOG':
+                var tasksfolder = getTaskFolder($scope.taskFolders[BACKLOG].name);
                 break;
-            case 'inprogress':
-                var tasksfolder = getTaskFolder($scope.config.INPROGRESS_FOLDER.NAME);
+            case 'SPRINT':
+                var tasksfolder = getTaskFolder($scope.taskFolders[SPRINT].name);
                 break;
-            case 'next':
-                var tasksfolder = getTaskFolder($scope.config.NEXT_FOLDER.NAME);
+            case 'DOING':
+                var tasksfolder = getTaskFolder($scope.taskFolders[DOING].name);
                 break;
-            case 'waiting':
-                var tasksfolder = getTaskFolder($scope.config.WAITING_FOLDER.NAME);
+            case 'WAITING':
+                var tasksfolder = getTaskFolder($scope.taskFolders[WAITING].name);
                 break;
         };
         // create a new task item object in outlook
@@ -558,6 +558,7 @@ tbApp.controller('taskboardController', function ($scope, $filter, $http) {
     // opens up task item in outlook
     // refreshes the taskboard page when task item window closed
     $scope.editTask = function (item) {
+        if (item.status == $scope.config.STATUS.COMPLETED.TEXT) return;
         var taskitem = getTaskItem(item.entryID);
         taskitem.Display();
         if ($scope.config.AUTO_UPDATE) {
@@ -664,8 +665,86 @@ tbApp.controller('taskboardController', function ($scope, $filter, $http) {
         return difference_ms / one_second;
     }
 
+    var applyConfig = function() {
+        $scope.taskFolders[BACKLOG].type = BACKLOG;
+        $scope.taskFolders[BACKLOG].initialStatus = $scope.config.STATUS.NOT_STARTED.VALUE;
+        $scope.taskFolders[BACKLOG].display = $scope.config.BACKLOG_FOLDER.ACTIVE;
+        $scope.taskFolders[BACKLOG].name = $scope.config.BACKLOG_FOLDER.NAME;
+        $scope.taskFolders[BACKLOG].title = $scope.config.BACKLOG_FOLDER.TITLE;
+        $scope.taskFolders[BACKLOG].limit = $scope.config.BACKLOG_FOLDER.LIMIT;
+        $scope.taskFolders[BACKLOG].sort = $scope.config.BACKLOG_FOLDER.SORT;
+        $scope.taskFolders[BACKLOG].displayOwner = $scope.config.BACKLOG_FOLDER.DISPLAY_PROPERTIES.OWNER;
+        $scope.taskFolders[BACKLOG].displayPercent = $scope.config.BACKLOG_FOLDER.DISPLAY_PROPERTIES.PERCENT;
+        $scope.taskFolders[BACKLOG].displayTotalWork = $scope.config.BACKLOG_FOLDER.DISPLAY_PROPERTIES.TOTALWORK;
+        $scope.taskFolders[BACKLOG].filterOnStartDate = $scope.config.BACKLOG_FOLDER.FILTER_ON_START_DATE;
+        $scope.taskFolders[BACKLOG].displayInReport = $scope.config.BACKLOG_FOLDER.REPORT.DISPLAY;
+        $scope.taskFolders[BACKLOG].allowAdd = true;
+        $scope.taskFolders[BACKLOG].allowEdit = true;
+
+        $scope.taskFolders[SPRINT].type = SPRINT;
+        $scope.taskFolders[SPRINT].initialStatus = $scope.config.STATUS.NOT_STARTED.VALUE;
+        $scope.taskFolders[SPRINT].display = $scope.config.NEXT_FOLDER.ACTIVE;
+        $scope.taskFolders[SPRINT].name = $scope.config.NEXT_FOLDER.NAME;
+        $scope.taskFolders[SPRINT].title = $scope.config.NEXT_FOLDER.TITLE;
+        $scope.taskFolders[SPRINT].limit = $scope.config.NEXT_FOLDER.LIMIT;
+        $scope.taskFolders[SPRINT].sort = $scope.config.NEXT_FOLDER.SORT;
+        $scope.taskFolders[SPRINT].displayOwner = $scope.config.NEXT_FOLDER.DISPLAY_PROPERTIES.OWNER;
+        $scope.taskFolders[SPRINT].displayPercent = $scope.config.NEXT_FOLDER.DISPLAY_PROPERTIES.PERCENT;
+        $scope.taskFolders[SPRINT].displayTotalWork = $scope.config.NEXT_FOLDER.DISPLAY_PROPERTIES.TOTALWORK;
+        $scope.taskFolders[SPRINT].filterOnStartDate = $scope.config.NEXT_FOLDER.FILTER_ON_START_DATE;
+        $scope.taskFolders[SPRINT].displayInReport = $scope.config.NEXT_FOLDER.REPORT.DISPLAY;
+        $scope.taskFolders[SPRINT].allowAdd = true;
+        $scope.taskFolders[SPRINT].allowEdit = true;
+
+        $scope.taskFolders[DOING].type = DOING;
+        $scope.taskFolders[DOING].initialStatus = $scope.config.STATUS.IN_PROGRESS.VALUE;
+        $scope.taskFolders[DOING].display = $scope.config.INPROGRESS_FOLDER.ACTIVE;
+        $scope.taskFolders[DOING].name = $scope.config.INPROGRESS_FOLDER.NAME;
+        $scope.taskFolders[DOING].title = $scope.config.INPROGRESS_FOLDER.TITLE;
+        $scope.taskFolders[DOING].limit = $scope.config.INPROGRESS_FOLDER.LIMIT;
+        $scope.taskFolders[DOING].sort = $scope.config.INPROGRESS_FOLDER.SORT;
+        $scope.taskFolders[DOING].displayOwner = $scope.config.INPROGRESS_FOLDER.DISPLAY_PROPERTIES.OWNER;
+        $scope.taskFolders[DOING].displayPercent = $scope.config.INPROGRESS_FOLDER.DISPLAY_PROPERTIES.PERCENT;
+        $scope.taskFolders[DOING].displayTotalWork = $scope.config.INPROGRESS_FOLDER.DISPLAY_PROPERTIES.TOTALWORK;
+        $scope.taskFolders[DOING].filterOnStartDate = $scope.config.INPROGRESS_FOLDER.FILTER_ON_START_DATE;
+        $scope.taskFolders[DOING].displayInReport = $scope.config.INPROGRESS_FOLDER.REPORT.DISPLAY;
+        $scope.taskFolders[DOING].allowAdd = false;
+        $scope.taskFolders[DOING].allowEdit = true;
+
+        $scope.taskFolders[WAITING].type = WAITING;
+        $scope.taskFolders[WAITING].initialStatus = $scope.config.STATUS.WAITING.VALUE;
+        $scope.taskFolders[WAITING].display = $scope.config.WAITING_FOLDER.ACTIVE;
+        $scope.taskFolders[WAITING].name = $scope.config.WAITING_FOLDER.NAME;
+        $scope.taskFolders[WAITING].title = $scope.config.WAITING_FOLDER.TITLE;
+        $scope.taskFolders[WAITING].limit = $scope.config.WAITING_FOLDER.LIMIT;
+        $scope.taskFolders[WAITING].sort = $scope.config.WAITING_FOLDER.SORT;
+        $scope.taskFolders[WAITING].displayOwner = $scope.config.WAITING_FOLDER.DISPLAY_PROPERTIES.OWNER;
+        $scope.taskFolders[WAITING].displayPercent = $scope.config.WAITING_FOLDER.DISPLAY_PROPERTIES.PERCENT;
+        $scope.taskFolders[WAITING].displayTotalWork = $scope.config.WAITING_FOLDER.DISPLAY_PROPERTIES.TOTALWORK;
+        $scope.taskFolders[WAITING].filterOnStartDate = $scope.config.WAITING_FOLDER.FILTER_ON_START_DATE;
+        $scope.taskFolders[WAITING].displayInReport = $scope.config.WAITING_FOLDER.REPORT.DISPLAY;
+        $scope.taskFolders[WAITING].allowAdd = false;
+        $scope.taskFolders[WAITING].allowEdit = true;
+
+        $scope.taskFolders[DONE].type = DONE;
+        $scope.taskFolders[DONE].initialStatus = $scope.config.STATUS.COMPLETED.VALUE;
+        $scope.taskFolders[DONE].display = $scope.config.COMPLETED_FOLDER.ACTIVE;
+        $scope.taskFolders[DONE].name = $scope.config.COMPLETED_FOLDER.NAME;
+        $scope.taskFolders[DONE].title = $scope.config.COMPLETED_FOLDER.TITLE;
+        $scope.taskFolders[DONE].limit = $scope.config.COMPLETED_FOLDER.LIMIT;
+        $scope.taskFolders[DONE].sort = $scope.config.COMPLETED_FOLDER.SORT;
+        $scope.taskFolders[DONE].displayOwner = $scope.config.COMPLETED_FOLDER.DISPLAY_PROPERTIES.OWNER;
+        $scope.taskFolders[DONE].displayPercent = $scope.config.COMPLETED_FOLDER.DISPLAY_PROPERTIES.PERCENT;
+        $scope.taskFolders[DONE].displayTotalWork = $scope.config.COMPLETED_FOLDER.DISPLAY_PROPERTIES.TOTALWORK;
+        $scope.taskFolders[DONE].filterOnStartDate = $scope.config.COMPLETED_FOLDER.FILTER_ON_START_DATE;
+        $scope.taskFolders[DONE].displayInReport = $scope.config.COMPLETED_FOLDER.REPORT.DISPLAY;
+        $scope.taskFolders[DONE].allowAdd = false;
+        $scope.taskFolders[DONE].allowEdit = false;
+};
+
     const DEFAULT_CONFIG =  {
-           "BACKLOG_FOLDER": {
+            "BACKLOG_FOLDER": {
+                "TYPE": BACKLOG,
                 "ACTIVE": true,
                 "NAME": "",
                 "TITLE": "BACKLOG",
@@ -682,6 +761,7 @@ tbApp.controller('taskboardController', function ($scope, $filter, $http) {
                 }
             },
             "NEXT_FOLDER": {
+                "TYPE": "SPRINT",
                 "ACTIVE": true,
                 "NAME": "Kanban",
                 "TITLE": "NEXT",
@@ -692,11 +772,13 @@ tbApp.controller('taskboardController', function ($scope, $filter, $http) {
                     "PERCENT": false,
                     "TOTALWORK": false
                 },
+                "FILTER_ON_START_DATE": undefined,
                 "REPORT": {
                     "DISPLAY": true
                 }
             },
             "INPROGRESS_FOLDER": {
+                "TYPE": "DOING",
                 "ACTIVE": true,
                 "NAME": "Kanban",
                 "TITLE": "IN PROGRESS",
@@ -707,11 +789,13 @@ tbApp.controller('taskboardController', function ($scope, $filter, $http) {
                     "PERCENT": false,
                     "TOTALWORK": false
                 },
+                "FILTER_ON_START_DATE": undefined,
                 "REPORT": {
                     "DISPLAY": true
                 }
             },
             "WAITING_FOLDER": {
+                "TYPE": "WAITING",
                 "ACTIVE": true,
                 "NAME": "Kanban",
                 "TITLE": "WAITING",
@@ -722,11 +806,13 @@ tbApp.controller('taskboardController', function ($scope, $filter, $http) {
                     "PERCENT": false,
                     "TOTALWORK": false
                 },
+                "FILTER_ON_START_DATE": undefined,
                 "REPORT": {
                     "DISPLAY": true
                 }
             },
             "COMPLETED_FOLDER": {
+                "TYPE": "DONE",
                 "ACTIVE": true,
                 "NAME": "Kanban",
                 "TITLE": "COMPLETED",
@@ -737,10 +823,10 @@ tbApp.controller('taskboardController', function ($scope, $filter, $http) {
                     "PERCENT": false,
                     "TOTALWORK": false
                 },
+                "FILTER_ON_START_DATE": undefined,
                 "REPORT": {
                     "DISPLAY": true
                 },
-                "EDITABLE": true
             },
             "ARCHIVE_FOLDER": {
                 "NAME": "Completed"
@@ -808,7 +894,7 @@ tbApp.controller('taskboardController', function ($scope, $filter, $http) {
     }
 
     var getConfig = function () {
-        // $scope.orgConfig = {};
+        $scope.previousConfig = null;
         $scope.configRaw = getJournalItem(CONFIG_ID);
         if ($scope.configRaw !== null){
             try {
@@ -819,27 +905,8 @@ tbApp.controller('taskboardController', function ($scope, $filter, $http) {
                 $scope.switchToConfigMode();
                 return;
             }
-
-            // Newer versions of the app can have new config entries (or removed)
-            try {
-                var delta = DeepDiff.diff($scope.config, DEFAULT_CONFIG);
-                if (delta) {
-                    var isUpdated = false;
-                    delta.forEach(function (change) {
-                        if (change.kind === 'N' || change.kind === 'D') {
-                            DeepDiff.applyChange($scope.config, DEFAULT_CONFIG, change);
-                            isUpdated = true;
-                        }
-                    });
-                    if (isUpdated) {
-                        saveConfig();
-                    }
-                }
-                    
-            } catch (error) {
-                alert(error)
-            }
-    
+            updateConfig();
+            migrateConfig();
         }
         else {
             $scope.config = DEFAULT_CONFIG;
@@ -847,9 +914,40 @@ tbApp.controller('taskboardController', function ($scope, $filter, $http) {
         }
     }
     
-
     var saveConfig = function () {
         saveJournalItem(CONFIG_ID, JSON.stringify($scope.config, null, 2));
+    }
+
+    var updateConfig = function () {
+        try {
+            // Check for added or removed key entries in the config
+            var delta = DeepDiff.diff($scope.config, DEFAULT_CONFIG);
+            if (delta) {
+                var isUpdated = false;
+                $scope.previousConfig = $scope.config;
+                delta.forEach(function (change) {
+                    if (change.kind === 'N' || change.kind === 'D') {
+                        DeepDiff.applyChange($scope.config, DEFAULT_CONFIG, change);
+                        isUpdated = true;
+                    }
+                });
+                if (isUpdated) {
+                    saveConfig();
+                    // as long as we need configraw...
+                    $scope.configRaw = getJournalItem(CONFIG_ID);
+                }
+            }
+        } catch (error) {
+            alert("Sorry, an error occured while updating the config: " + error)
+        }
+    }
+
+    var migrateConfig = function () {
+        try {
+        }
+        catch (error) {
+            alert("Sorry, an error occured while migrating the config: " + error)
+        }
     }
 
     var getVersion = function () {
