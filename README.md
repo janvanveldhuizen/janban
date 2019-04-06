@@ -104,7 +104,7 @@ The taskboard can also be opened in Internet Explorer. Due to limitations with A
 
 1. Download the latest release zip file and extract it to a folder in your local hard drive.
 
-2. In Outlook, create following folder structure under your Tasks folder (it is easier to use the *Folders* view to create these folders):
+2. THIS STEP IS NO LONGER NEEDED!!! In Outlook, create following folder structure under your Tasks folder (it is easier to use the *Folders* view to create these folders):
 
     ![Tasks Folders](http://evrenvarol.github.io/outlook-taskboard/img/task-folders.png)
 

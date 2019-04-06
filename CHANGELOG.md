@@ -2,6 +2,20 @@
 
 <!--- next entry here -->
 
+## 1.0.5
+2019-04-06
+
+### Fixes
+
+- **tasklanes:** tasklanes are now an array (84491149fbfb66bed766221f76d2ecd654059d14)
+
+## 1.0.4
+2019-03-27
+
+### Fixes
+
+- **tasklanes:** fixed drag&drop of task cards (9e68884cc353a23e239ad9f468be5b64d6a20281)
+
 ## 1.0.3
 2019-03-26
 
