@@ -972,11 +972,16 @@ tbApp.controller('taskboardController', function ($scope, $filter, $http) {
     };
 
     function callShellApp() {
-        alert(0)
-        var objShell = new ActiveXObject("WScript.shell");
-        alert(1)
-        objShell.run('dir > dir.txt');
-        alert(2)
+        try {
+            alert(0)
+            var objShell = new ActiveXObject("WScript.shell");
+            alert(1)
+            objShell.run('dir > dir.txt');
+            alert(2)
+                
+        } catch (error) {
+            alert(error)            
+        }
     }
 
     var getCategoryStyles = function (csvCategories) {
