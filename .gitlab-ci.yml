@@ -6,6 +6,7 @@ deploy:
   image: debian:jessie
   only:
     - master
+    - develop
   script:
     - apt-get -u update 
     - apt-get -y install zip unzip curl
