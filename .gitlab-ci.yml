@@ -3,7 +3,7 @@ stages:
 
 deploy:
   stage: deploy
-  image: ubuntu
+  image: kramos/alpine-zip
   only:
     - master
     - develop
