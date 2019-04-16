@@ -1,29 +1,13 @@
 stages:
-  - version
   - deploy
-
-version:
-  stage: version
-  only:
-    - master
-  image: registry.gitlab.com/juhani/go-semrel-gitlab:v0.20.0
-  script:
-    - release next-version --allow-current > .next-version
-    - release changelog
-    - echo "var VERSIONNR='$(<.next-version)''" >> js/version.js
-    - release commit-and-tag CHANGELOG.md release_info
-  artifacts:
-    paths:
-    - .next-version
-  except:
-    - tags
 
 deploy:
   stage: deploy
   only:
     - master
+    - develop
   script:
-    - tar --exclude=".git*" --exclude="janban.tar.gz"  -zvcf janban.tar.gz *
-    - echo "$(<.next-version)" >> version
-    - curl -T janban.tar.gz $FTPSITE --user $FTPUSER:$FTPPWD
+    - apt-get install zip
+    - zip -r janban.zip *
+    - curl -T janban.zip $FTPSITE --user $FTPUSER:$FTPPWD
     - curl -T version $FTPSITE --user $FTPUSER:$FTPPWD
