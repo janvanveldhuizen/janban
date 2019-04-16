@@ -1,3 +1,3 @@
 @echo off
-IF exist %USERPROFILE%\janban ( echo janban exists ) ELSE ( mkdir %USERPROFILE%\janban && echo janban created)
-pause
+if not exist %USERPROFILE%\janban (mkdir %USERPROFILE%\janban)
+robocopy /mir . %USERPROFILE%\janban 
