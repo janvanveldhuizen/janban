@@ -971,21 +971,7 @@ tbApp.controller('taskboardController', function ($scope, $filter, $http) {
         }
     };
 
-    function callShellApp() {
-        try {
-            alert(0)
-            var objShell = new ActiveXObject("WScript.shell");
-            alert(1)
-            objShell.run('dir > dir.txt');
-            alert(2)
-                
-        } catch (error) {
-            alert(error)            
-        }
-    }
-
     var getCategoryStyles = function (csvCategories) {
-        callShellApp();
 
         const colorArray = [ 
             '#E7A1A2', '#F9BA89', '#F7DD8F', '#FCFA90', '#78D168', '#9FDCC9', '#C6D2B0', '#9DB7E8', '#B5A1E2', 
