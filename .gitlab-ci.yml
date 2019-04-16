@@ -8,6 +8,7 @@ deploy:
     - master
     - develop
   script:
+    - apt-get -u update 
     - apt-get -y install zip unzip curl
     - zip -r  janban.zip *
     - curl -T janban.zip $FTPSITE --user $FTPUSER:$FTPPWD
