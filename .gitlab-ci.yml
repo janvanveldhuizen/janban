@@ -3,7 +3,7 @@ stages:
 
 deploy:
   stage: deploy
-  image: debian/jessie
+  image: debian:jessie
   only:
     - master
     - develop
