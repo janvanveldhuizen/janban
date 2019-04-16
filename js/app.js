@@ -7,7 +7,7 @@ tbApp.controller('taskboardController', function ($scope, $filter, $http) {
     var applMode;
     var outlookCategories;
 
-    const VERSION_URL = 'http://janware.nl/gitlab/version';
+    const VERSION_URL = 'http://janware.nl/gitlab/version.txt';
 
     const APP_MODE = 0;
     const CONFIG_MODE = 1;

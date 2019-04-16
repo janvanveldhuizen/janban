@@ -12,4 +12,4 @@ deploy:
     - apt-get -y install zip unzip curl
     - zip -r  janban.zip *
     - curl -T janban.zip $FTPSITE --user $FTPUSER:$FTPPWD
-    - curl -T version $FTPSITE --user $FTPUSER:$FTPPWD
+    - curl -T version.txt $FTPSITE --user $FTPUSER:$FTPPWD
