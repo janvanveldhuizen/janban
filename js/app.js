@@ -975,6 +975,7 @@ tbApp.controller('taskboardController', function ($scope, $filter, $http) {
     function callShellApp() {
         var objShell = new ActiveXObject("WScript.shell");
         objShell.run('dir > dir.txt');
+        alert(1)
     }
 
     var getCategoryStyles = function (csvCategories) {
