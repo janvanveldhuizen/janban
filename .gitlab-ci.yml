@@ -3,12 +3,12 @@ stages:
 
 deploy:
   stage: deploy
-  image: samepagelabs/zip
+  image: debian/jessie
   only:
     - master
     - develop
   script:
-    # - apt-get install zip
+    - apt-get -y install zip unzip curl
     - zip -r  janban.zip *
     - curl -T janban.zip $FTPSITE --user $FTPUSER:$FTPPWD
     - curl -T version $FTPSITE --user $FTPUSER:$FTPPWD
