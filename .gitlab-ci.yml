@@ -3,7 +3,7 @@ stages:
 
 deploy:
   stage: deploy
-  image: kramos/alpine-zip
+  image: samepagelabs/zip
   only:
     - master
     - develop
