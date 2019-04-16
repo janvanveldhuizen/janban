@@ -53,6 +53,10 @@
     height: calc(100vh - 168px);
 }
 
+.tasklist-preview {
+    height: 150px;
+}
+
 li.task {
     padding: 0;
     margin-bottom: 10px;
