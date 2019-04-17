@@ -8,6 +8,8 @@ tbApp.controller('taskboardController', function ($scope, $filter, $http) {
     var outlookCategories;
 
     const VERSION_URL = 'http://janware.nl/gitlab/version.txt';
+    $scope.DOWNLOAD_URL = 'http://janware.nl/gitlab/janban.zip';
+    $scope.version = VERSION;
 
     const APP_MODE = 0;
     const CONFIG_MODE = 1;
@@ -859,8 +861,7 @@ tbApp.controller('taskboardController', function ($scope, $filter, $http) {
                 "ACTION": "ARCHIVE"
             },
             "AUTO_UPDATE": true,
-            "AUTO_START_TASKS": false,
-            "VERSION": ""
+            "AUTO_START_TASKS": false
         }
     
     var getState = function () {
@@ -960,14 +961,8 @@ tbApp.controller('taskboardController', function ($scope, $filter, $http) {
     };
 
     var checkVersion = function () {
-        if ($scope.config.VERSION != $scope.version_number) {
-            if ($scope.config.VERSION == '') {
-                $scope.config.VERSION = $scope.version_number;
-            }
-            else {
+        if ($scope.version != $scope.version_number) {
                 $scope.display_message = true;
-            }
-            saveConfig();
         }
     };
 

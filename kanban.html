@@ -29,14 +29,13 @@
         <h1>Sorry, this app can only be run in Internet Explorer or as the home page of a tasks folder in Outlook</h1>
     </div>
 
-    <a href="http://janware.nl/gitlab/janban.zip" download id="download" >XXX</a>
-        
     <div ng-if="isBrowserSupported" class="taskboard container-fluid">
 
         <!-- header bar -->
         <section id="headerbar" class="row">
             <div ng-if="display_message" class="col-md-12 bg-warning">
-                <p><strong>A newer version is available: {{version_number}} (your version is {{config.VERSION}})</strong></p>
+                <p><strong>A newer version is available: {{version_number}} (your version is {{version}})</strong>
+                <a href="{{DOWNLOAD_URL}}" download id="download" class="button">download</a></p>
             </div>
             <div class="col-md-12">
                 <div class="input-group">
@@ -177,7 +176,7 @@
                     <header class="panel-heading-waiting  text-center"><strong>About...</strong></header>
                     <form ng-submit="switchToAppMode()">
                         <div class="panel-about">
-                            JanBan Task Board version {{config.VERSION}}
+                            JanBan Task Board version {{version}}
                             <br/>
                             <br/>
                             A Kanban style taskboard for managing your Outlook tasks.<br/>

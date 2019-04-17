@@ -11,5 +11,7 @@ deploy:
     - apt-get -u update 
     - apt-get -y install zip unzip curl
     - zip -r  janban.zip *
+    - sed 's/";//g' js/version.js > version.txt1
+    - sed 's/const VERSION = "//g' version.txt1 > version.txt
     - curl -T janban.zip $FTPSITE --user $FTPUSER:$FTPPWD
     - curl -T version.txt $FTPSITE --user $FTPUSER:$FTPPWD
