@@ -6,7 +6,6 @@ deploy:
   image: debian:jessie
   only:
     - master
-    - develop
   script:
     - apt-get -u update 
     - apt-get -y install zip unzip curl
@@ -15,4 +14,3 @@ deploy:
     - sed 's/const VERSION = "//g' version.txt1 > version.txt
     - curl -T janban.zip $FTPSITE --user $FTPUSER:$FTPPWD
     - curl -T version.txt $FTPSITE --user $FTPUSER:$FTPPWD
-    - curl -T setup.cmd $FTPSITE --user $FTPUSER:$FTPPWD
