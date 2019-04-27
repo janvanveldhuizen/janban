@@ -23,6 +23,7 @@ tbApp.controller('taskboardController', function ($scope, $filter, $http) {
     const DOING = 2;
     const WAITING = 3;
     const DONE = 4;
+    const SOMEDAY = 5;
     
     $scope.privacyFilter = 
         { all:     { text : "Both", value : 0 },
@@ -72,6 +73,7 @@ tbApp.controller('taskboardController', function ($scope, $filter, $http) {
         }
 
         $scope.switchToAppMode();
+
         getConfig();
         getState();
         getVersion();
@@ -166,7 +168,7 @@ tbApp.controller('taskboardController', function ($scope, $filter, $http) {
         });
     };
 
-    $scope.submitConfig = function (editedConfig) {
+    $scope.submitConfig1 = function (editedConfig) {
         var delta = DeepDiff.diff(editedConfig, $scope.configRaw);
         if (delta){
             try {
@@ -180,6 +182,12 @@ tbApp.controller('taskboardController', function ($scope, $filter, $http) {
                 return;
             }
         }
+        $scope.switchToAppMode();
+    }
+
+    $scope.submitConfig2 = function () {
+        saveConfig();
+        $scope.init();
         $scope.switchToAppMode();
     }
 
@@ -668,6 +676,15 @@ tbApp.controller('taskboardController', function ($scope, $filter, $http) {
     }
 
     var applyConfig = function() {
+        // $scope.taskFolders[SOMEDAY].type = BACKLOG;
+        // $scope.taskFolders[SOMEDAY].initialStatus = $scope.config.STATUS.NOT_STARTED.VALUE;
+        // $scope.taskFolders[SOMEDAY].display = $scope.config.BACKLOG_FOLDER.ACTIVE;
+        // $scope.taskFolders[SOMEDAY].name = $scope.config.BACKLOG_FOLDER.NAME;
+        // $scope.taskFolders[SOMEDAY].title = $scope.config.BACKLOG_FOLDER.TITLE;
+        
+        // $scope.taskFolders[SOMEDAY].limit = $scope.config.BACKLOG_FOLDER.LIMIT;
+        // $scope.taskFolders[SOMEDAY].sort = $scope.config.BACKLOG_FOLDER.SORT;
+
         $scope.taskFolders[BACKLOG].type = BACKLOG;
         $scope.taskFolders[BACKLOG].initialStatus = $scope.config.STATUS.NOT_STARTED.VALUE;
         $scope.taskFolders[BACKLOG].display = $scope.config.BACKLOG_FOLDER.ACTIVE;
