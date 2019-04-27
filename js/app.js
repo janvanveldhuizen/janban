@@ -228,7 +228,7 @@ tbApp.controller('taskboardController', function ($scope, $filter, $http) {
         var count = tasks.Count;
         for (i = 1; i <= count; i++) {
             var task = tasks(i);
-            if (task.Status == folderStatus) {
+            if (task.Status == folderStatus || folderStatus == -1) {
                 array.push({
                     entryID: task.EntryID,
                     subject: task.Subject,
@@ -271,7 +271,7 @@ tbApp.controller('taskboardController', function ($scope, $filter, $http) {
 
     $scope.initTasks = function () {
         // get tasks from each outlook folder and populate model data
-        $scope.taskFolders.forEach(function(taskFolder){
+        $scope.taskFolders.forEach(function (taskFolder) {
             taskFolder.tasks = getTasksFromOutlook(taskFolder.name, taskFolder.sort, taskFolder.initialStatus);
             taskFolder.filteredTasks = taskFolder.tasks;
         });
@@ -297,6 +297,28 @@ tbApp.controller('taskboardController', function ($scope, $filter, $http) {
             };
         };
 
+        // move tasks that do not have status New to the Next folder
+        if (true) {
+            var i;
+            var movedTask = false;
+            var tasks = $scope.taskFolders[BACKLOG].tasks;
+            var count = tasks.length;
+            for (i = 0; i < count; i++) {
+                if (tasks[i].status != $scope.config.STATUS.NOT_STARTED.TEXT) {
+                    var taskitem = getTaskItem(tasks[i].entryID);
+                    taskitem.Move(getTaskFolder($scope.taskFolders[SPRINT].name));
+                    movedTask = true;
+                }
+            };
+            if (movedTask) {
+                // TODO: why read all the task when onlya few items are moved
+                $scope.taskFolders[BACKLOG].tasks = getTasksFromOutlook($scope.taskFolders[BACKLOG].name, $scope.taskFolders[BACKLOG].sort, $scope.taskFolders[BACKLOG].initialStatus);
+                $scope.taskFolders[SPRINT].tasks = getTasksFromOutlook($scope.taskFolders[SPRINT].name, $scope.taskFolders[SPRINT].sort, $scope.taskFolders[SPRINT].initialStatus);
+                $scope.taskFolders[BACKLOG].filteredTasks = $scope.taskFolders[BACKLOG].tasks;
+                $scope.taskFolders[SPRINT].filteredTasks = $scope.taskFolders[SPRINT].tasks;
+            }
+        }
+
         // move tasks with start date today to the Next folder
         if ($scope.config.AUTO_START_TASKS) {
             var i;
@@ -320,8 +342,8 @@ tbApp.controller('taskboardController', function ($scope, $filter, $http) {
                 $scope.taskFolders[BACKLOG].filteredTasks = $scope.taskFolders[BACKLOG].tasks;
                 $scope.taskFolders[SPRINT].filteredTasks = $scope.taskFolders[SPRINT].tasks;
             }
-        };
-    }
+        }
+    };
 
     $scope.applyFilters = function () {
         if ($scope.filter.search.length > 0) {
@@ -687,6 +709,7 @@ tbApp.controller('taskboardController', function ($scope, $filter, $http) {
 
         $scope.taskFolders[BACKLOG].type = BACKLOG;
         $scope.taskFolders[BACKLOG].initialStatus = $scope.config.STATUS.NOT_STARTED.VALUE;
+        $scope.taskFolders[BACKLOG].initialStatus = -1;
         $scope.taskFolders[BACKLOG].display = $scope.config.BACKLOG_FOLDER.ACTIVE;
         $scope.taskFolders[BACKLOG].name = $scope.config.BACKLOG_FOLDER.NAME;
         $scope.taskFolders[BACKLOG].title = $scope.config.BACKLOG_FOLDER.TITLE;
