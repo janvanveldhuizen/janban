@@ -901,7 +901,7 @@ tbApp.controller('taskboardController', function ($scope, $filter, $http) {
                 "ACTION": "ARCHIVE"
             },
             "AUTO_UPDATE": true,
-            "AUTO_START_TASKS": false
+            "AUTO_START_TASKS": true
         }
     
     var getState = function () {

@@ -36,7 +36,7 @@
         <section id="headerbar" class="row">
             <div ng-if="display_message" class="col-md-12 bg-warning">
                 <p><strong>A newer version is available: {{version_number}} (your version is {{version}})</strong>
-                <a href="{{DOWNLOAD_URL}}" download id="download" class="button">download</a></p>
+                    <a href="{{DOWNLOAD_URL}}" download id="download" class="button">download</a></p>
             </div>
             <div class="col-md-12">
                 <div class="input-group">
@@ -44,28 +44,40 @@
                         <strong>Outlook Taskboard</strong>
                     </div>
                     <div class="input-group-addon">
-                        <button id="refreshbutton" class="btn btn-default btn-xs" aria-label="Refresh" type="button" ng-click="initTasks();"><span class="glyphicon glyphicon-refresh" aria-hidden="true"></span></button>
+                        <button id="refreshbutton" class="btn btn-default btn-xs" aria-label="Refresh" type="button"
+                            ng-click="initTasks();"><span class="glyphicon glyphicon-refresh"
+                                aria-hidden="true"></span></button>
                     </div>
                     <div ng-show="(filter.search != '')" class="input-group-addon">
-                        <button class="btn btn-default btn-xs" aria-label="Clear" type="button" ng-click="filter.search = ''"><span class="glyphicon glyphicon-remove" aria-hidden="true"></span></button>
+                        <button class="btn btn-default btn-xs" aria-label="Clear" type="button"
+                            ng-click="filter.search = ''"><span class="glyphicon glyphicon-remove"
+                                aria-hidden="true"></span></button>
                     </div>
-                    <input type="text" name="search" ng-model="filter.search" class="form-control" placeholder="Filter" />
+                    <input type="text" name="search" ng-model="filter.search" class="form-control"
+                        placeholder="Filter" />
                     <div class="input-group-addon">
-                        <button class="btn btn-default btn-xs" aria-label="Report" type="button" ng-click="createReport();"><span class="glyphicon glyphicon-list-alt" aria-hidden="true"></span></button>
+                        <button class="btn btn-default btn-xs" aria-label="Report" type="button"
+                            ng-click="createReport();"><span class="glyphicon glyphicon-list-alt"
+                                aria-hidden="true"></span></button>
                     </div>
                     <div class="input-group-addon">
-                            <span class="glyphicon" ng-class="{ 'glyphicon-globe' : filter.private == privacyFilter.all.value, 'glyphicon-lock' : filter.private == privacyFilter.private.value, 'glyphicon-briefcase' : filter.private == privacyFilter.public.value }" aria-hidden="true"></span>                                  
-                            <select class="btn btn-default btn-xs" ng-model="filter.private"> 
+                        <span class="glyphicon"
+                            ng-class="{ 'glyphicon-globe' : filter.private == privacyFilter.all.value, 'glyphicon-lock' : filter.private == privacyFilter.private.value, 'glyphicon-briefcase' : filter.private == privacyFilter.public.value }"
+                            aria-hidden="true"></span>
+                        <select class="btn btn-default btn-xs" ng-model="filter.private">
                             <option value={{privacyFilter.all.value}}>{{privacyFilter.all.text}}</option>
                             <option value={{privacyFilter.private.value}}>{{privacyFilter.private.text}}</option>
                             <option value={{privacyFilter.public.value}}>{{privacyFilter.public.text}}</option>
                         </select>
                     </div>
                     <div class="input-group-addon">
-                        <button class="btn btn-default btn-xs" aria-label="Config" type="button" ng-click="switchToConfigMode();"><span class="glyphicon glyphicon-wrench" aria-hidden="true"></span></button>
+                        <button class="btn btn-default btn-xs" aria-label="Config" type="button"
+                            ng-click="switchToConfigMode();"><span class="glyphicon glyphicon-wrench"
+                                aria-hidden="true"></span></button>
                     </div>
                     <div class="input-group-addon">
-                        <button class="btn btn-default btn-xs" aria-label="Help" ng-click="switchToHelpMode();"><strong>?</strong></button>
+                        <button class="btn btn-default btn-xs" aria-label="Help"
+                            ng-click="switchToHelpMode();"><strong>?</strong></button>
                     </div>
                 </div>
             </div>
@@ -73,40 +85,64 @@
 
         <!-- tasklanes section -->
         <section ng-if="inAppMode()" class="row">
-            <div ng-repeat="folder in taskFolders" ng-if="( folder.display )" class="tasklane col-md-3 col-sm-4 col-xs-6" ng-class=" { 'col-lg-100' : displayFolderCount === 1, 'col-lg-50' : displayFolderCount === 2, 'col-lg-33' : displayFolderCount === 3, 'col-lg-25': displayFolderCount === 4, 'col-lg-20': displayFolderCount === 5, 'col-lg-16': displayFolderCount === 6 }">
+            <div ng-repeat="folder in taskFolders" ng-if="( folder.display )"
+                class="tasklane col-md-3 col-sm-4 col-xs-6"
+                ng-class=" { 'col-lg-100' : displayFolderCount === 1, 'col-lg-50' : displayFolderCount === 2, 'col-lg-33' : displayFolderCount === 3, 'col-lg-25': displayFolderCount === 4, 'col-lg-20': displayFolderCount === 5, 'col-lg-16': displayFolderCount === 6 }">
                 <div class="panel panel-default">
-                    <header ng-class="{ 'panel-heading-todo' : folder.type == 0, 'panel-heading-next' : folder.type == 1, 'panel-heading-progress' : folder.type == 2, 'panel-heading-waiting' : folder.type == 3,'panel-heading-completed' : folder.type == 4 }">
-                        <h5>{{ folder.title }} 
-                                <span class="pull-right">
-                                    <button ng-if="( folder.allowAdd && (folder.limit == 0 || folder.tasks.length < folder.limit ))" class="btn btn-default btn-xs" aria-label="Add" type="button" ng-click="addTask(folder.type);">
-                                        <span class="glyphicon glyphicon-plus" aria-hidden="true"></span>
-                                    </button>
-                                    <span class="label label-info">{{ folder.tasks.length }}</span> 
-                                    <span ng-if="( folder.limit > 0 )" class="label label-primary">{{ folder.limit }}</span>
-                                </span>
-                            </h5>
-                        </header>
-                    <ul id="folder-{{folder.type}}" ui-sortable="sortableOptions" ng-model="folder.filteredTasks" ng-class=" { 'tasklist-default' : !display_message, 'tasklist-message' : display_message }" class="panel-body list-unstyled tasklist">
-                        <li ng-repeat="task in folder.filteredTasks" class="task panel" ng-class=" {  'task-completed': folder.type == 4 , 'task-low' : task.priority === 0, 'task-medium' : task.priority === 1, 'task-high' : task.priority === 2, 'task-private': task.sensitivity === 2 }"
+                    <header
+                        ng-class="{ 'panel-heading-todo' : folder.type == 0, 'panel-heading-next' : folder.type == 1, 'panel-heading-progress' : folder.type == 2, 'panel-heading-waiting' : folder.type == 3,'panel-heading-completed' : folder.type == 4 }">
+                        <h5>{{ folder.title }}
+                            <span class="pull-right">
+                                <button
+                                    ng-if="( folder.allowAdd && (folder.limit == 0 || folder.tasks.length < folder.limit ))"
+                                    class="btn btn-default btn-xs" aria-label="Add" type="button"
+                                    ng-click="addTask(folder.type);">
+                                    <span class="glyphicon glyphicon-plus" aria-hidden="true"></span>
+                                </button>
+                                <span class="label label-info">{{ folder.tasks.length }}</span>
+                                <span ng-if="( folder.limit > 0 )" class="label label-primary">{{ folder.limit }}</span>
+                            </span>
+                        </h5>
+                    </header>
+                    <ul id="folder-{{folder.type}}" ui-sortable="sortableOptions" ng-model="folder.filteredTasks"
+                        ng-class=" { 'tasklist-default' : !display_message, 'tasklist-message' : display_message }"
+                        class="panel-body list-unstyled tasklist">
+                        <li ng-repeat="task in folder.filteredTasks" class="task panel"
+                            ng-class=" {  'task-completed': folder.type == 4 , 'task-low' : task.priority === 0, 'task-medium' : task.priority === 1, 'task-high' : task.priority === 2, 'task-private': task.sensitivity === 2 }"
                             ng-dblclick="editTask(task)">
                             <header class="panel-heading">
                                 {{ task.subject }}
-                                <span ng-if="(folder.type != 4 && (task.duedate | date:'yyyy' ) != '4501')" ng-class="isOverdue(task.duedate)" class="pull-right">(Due: {{ task.duedate | date:config.DATE_FORMAT }}) </span>
-                                <span ng-if="folder.type == 4" class="pull-right">(Completed: {{ task.completeddate | date:config.DATE_FORMAT }}) </span>
+                                <span ng-if="(folder.type != 4 && (task.duedate | date:'yyyy' ) != '4501')"
+                                    ng-class="isOverdue(task.duedate)" class="pull-right">(Due:
+                                    {{ task.duedate | date:config.DATE_FORMAT }}) </span>
+                                <span ng-if="folder.type == 4" class="pull-right">(Completed:
+                                    {{ task.completeddate | date:config.DATE_FORMAT }}) </span>
                             </header>
                             <div class="panel-body"> {{ task.notes }} </div>
                             <footer class="text-right" ng-style="getFooterStyle(task.categories)">
-                                <div ng-if="( folder.displayOwner )"><span class="glyphicon glyphicon-user"></span> {{ task.owner }} </div>
+                                <div ng-if="( folder.displayOwner )"><span class="glyphicon glyphicon-user"></span>
+                                    {{ task.owner }} </div>
                                 <div ng-if="( folder.displayPercent )" class="pull-right"> {{ task.percent }}%</div>
-                                <div ng-show="( filter.private == privacyFilter.all.value && task.sensitivity == 2 )" class="glyphicon glyphicon-lock"></div>
-                                <div ng-if="(task.categories != '')" class="pull-left"><span class="glyphicon glyphicon-tag"></span>
-                                    <span ng-repeat="cat in task.categories"><strong ng-style="cat.style">{{ cat.label }}</strong>&nbsp;</span>
+                                <div ng-show="( filter.private == privacyFilter.all.value && task.sensitivity == 2 )"
+                                    class="glyphicon glyphicon-lock"></div>
+                                <div ng-if="(task.categories != '')" class="pull-left"><span
+                                        class="glyphicon glyphicon-tag"></span>
+                                    <span ng-repeat="cat in task.categories"><strong
+                                            ng-style="cat.style">{{ cat.label }}</strong>&nbsp;</span>
                                 </div>
-                                <div ng-if="( folder.displayTotalWork )" ><span class="glyphicon glyphicon-time"></span> {{ task.totalwork }} </div>
+                                <div ng-if="( folder.displayTotalWork )"><span class="glyphicon glyphicon-time"></span>
+                                    {{ task.totalwork }} </div>
                                 <span class="btn-group btn-group-xs">
-                                    <button ng-show="(task.oneNoteURL != '')" class="btn btn-default btn-xs" aria-label="OneNote" type="button" ng-click="openOneNoteURL(task.oneNoteURL)"><span class="glyphicon glyphicon-book" aria-hidden="true"></span></button>
-                                <button ng-if="folder.allowEdit" class="btn btn-default btn-xs" aria-label="Edit" type="button" ng-click="editTask(task)"><span class="glyphicon glyphicon-edit" aria-hidden="true"></span></button>
-                                <button class="btn btn-default btn-xs" aria-label="Delete" type="button" ng-click="deleteTask(task,folder.tasks,folder.filteredTasks, true)"><span class="glyphicon glyphicon-trash" aria-hidden="true"></span></button>
+                                    <button ng-show="(task.oneNoteURL != '')" class="btn btn-default btn-xs"
+                                        aria-label="OneNote" type="button"
+                                        ng-click="openOneNoteURL(task.oneNoteURL)"><span
+                                            class="glyphicon glyphicon-book" aria-hidden="true"></span></button>
+                                    <button ng-if="folder.allowEdit" class="btn btn-default btn-xs" aria-label="Edit"
+                                        type="button" ng-click="editTask(task)"><span class="glyphicon glyphicon-edit"
+                                            aria-hidden="true"></span></button>
+                                    <button class="btn btn-default btn-xs" aria-label="Delete" type="button"
+                                        ng-click="deleteTask(task,folder.tasks,folder.filteredTasks, true)"><span
+                                            class="glyphicon glyphicon-trash" aria-hidden="true"></span></button>
                                 </span>
                             </footer>
                         </li>
@@ -119,9 +155,9 @@
         <section ng-if="(inConfigMode())" class="row">
 
             <form ng-submit="submitConfig2()" class="container-fluid">
-            
+
                 <h2>Task Columns Configuration</h2>
-            
+
                 <ul class="nav nav-tabs">
                     <li class="active"><a data-toggle="tab" href="#backlog">{{config.BACKLOG_FOLDER.TITLE}}</a></li>
                     <li><a data-toggle="tab" href="#next">{{config.NEXT_FOLDER.TITLE}}</a></li>
@@ -129,7 +165,7 @@
                     <li><a data-toggle="tab" href="#waiting">{{config.WAITING_FOLDER.TITLE}}</a></li>
                     <li><a data-toggle="tab" href="#done">{{config.COMPLETED_FOLDER.TITLE}}</a></li>
                 </ul>
-            
+
                 <div class="tab-content" style="height:180px">
                     <div id="backlog" class="tab-pane fade in active">
                         <div class="form-check row col-sm-12">
@@ -141,7 +177,8 @@
                         <div class="form-group row col-sm-12">
                             <label class="control-label col-sm-1">Title:</label>
                             <div class="col-sm-2">
-                                <input type="text" class="form-control input-sm" placeholder="Enter Title" ng-model="config.BACKLOG_FOLDER.TITLE">
+                                <input type="text" class="form-control input-sm" placeholder="Enter Title"
+                                    ng-model="config.BACKLOG_FOLDER.TITLE">
                             </div>
                         </div>
                         <div class="form-check row col-sm-12">
@@ -159,11 +196,13 @@
                             </div>
                             <div class="col-sm-1">
                                 <label class="control-label"><input type="checkbox"
-                                        ng-model="config.BACKLOG_FOLDER.DISPLAY_PROPERTIES.PERCENT"> Percentage done</label>
+                                        ng-model="config.BACKLOG_FOLDER.DISPLAY_PROPERTIES.PERCENT"> Percentage
+                                    done</label>
                             </div>
                             <div class="col-sm-1">
                                 <label class="control-label"> <input type="checkbox"
-                                        ng-model="config.BACKLOG_FOLDER.DISPLAY_PROPERTIES.TOTALWORK"> Total work</label>
+                                        ng-model="config.BACKLOG_FOLDER.DISPLAY_PROPERTIES.TOTALWORK"> Total
+                                    work</label>
                             </div>
                         </div>
                         <div class="form-check row col-sm-12">
@@ -183,7 +222,8 @@
                         <div class="form-group row col-sm-12">
                             <label class="control-label col-sm-1">Title:</label>
                             <div class="col-sm-2">
-                                <input type="text" class="form-control" placeholder="Enter Title" ng-model="config.NEXT_FOLDER.TITLE">
+                                <input type="text" class="form-control" placeholder="Enter Title"
+                                    ng-model="config.NEXT_FOLDER.TITLE">
                             </div>
                         </div>
                         <div class="form-check row col-sm-12">
@@ -196,12 +236,14 @@
                         <div class="form-check row col-sm-12">
                             <label class="control-label col-sm-1">Display:</label>
                             <div class="col-sm-1">
-                                <label class="control-label"><input type="checkbox" ng-model="config.NEXT_FOLDER.DISPLAY_PROPERTIES.OWNER">
+                                <label class="control-label"><input type="checkbox"
+                                        ng-model="config.NEXT_FOLDER.DISPLAY_PROPERTIES.OWNER">
                                     Owner</label>
                             </div>
                             <div class="col-sm-1">
                                 <label class="control-label"><input type="checkbox"
-                                        ng-model="config.NEXT_FOLDER.DISPLAY_PROPERTIES.PERCENT"> Percentage done</label>
+                                        ng-model="config.NEXT_FOLDER.DISPLAY_PROPERTIES.PERCENT"> Percentage
+                                    done</label>
                             </div>
                             <div class="col-sm-1">
                                 <label class="control-label"> <input type="checkbox"
@@ -225,13 +267,15 @@
                         <div class="form-group row col-sm-12">
                             <label class="control-label col-sm-1">Title:</label>
                             <div class="col-sm-2">
-                                <input type="text" class="form-control input-sm" placeholder="Enter Title" ng-model="config.INPROGRESS_FOLDER.TITLE">
+                                <input type="text" class="form-control input-sm" placeholder="Enter Title"
+                                    ng-model="config.INPROGRESS_FOLDER.TITLE">
                             </div>
                         </div>
                         <div class="form-check row col-sm-12">
                             <label class="control-label col-sm-1">Max number of tasks:</label>
                             <div class="col-sm-2">
-                                <input type="text" class="form-control input-sm" ng-model="config.INPROGRESS_FOLDER.LIMIT">
+                                <input type="text" class="form-control input-sm"
+                                    ng-model="config.INPROGRESS_FOLDER.LIMIT">
                             </div>
                             <div class="col-sm-5"> (zero for no limit)</div>
                         </div>
@@ -243,11 +287,13 @@
                             </div>
                             <div class="col-sm-1">
                                 <label class="control-label"><input type="checkbox"
-                                        ng-model="config.INPROGRESS_FOLDER.DISPLAY_PROPERTIES.PERCENT"> Percentage done</label>
+                                        ng-model="config.INPROGRESS_FOLDER.DISPLAY_PROPERTIES.PERCENT"> Percentage
+                                    done</label>
                             </div>
                             <div class="col-sm-1">
                                 <label class="control-label"> <input type="checkbox"
-                                        ng-model="config.INPROGRESS_FOLDER.DISPLAY_PROPERTIES.TOTALWORK"> Total work</label>
+                                        ng-model="config.INPROGRESS_FOLDER.DISPLAY_PROPERTIES.TOTALWORK"> Total
+                                    work</label>
                             </div>
                         </div>
                         <div class="form-check row col-sm-12">
@@ -267,7 +313,8 @@
                         <div class="form-group row col-sm-12">
                             <label class="control-label col-sm-1">Title:</label>
                             <div class="col-sm-2">
-                                <input type="text" class="form-control input-sm" placeholder="Enter Title" ng-model="config.WAITING_FOLDER.TITLE">
+                                <input type="text" class="form-control input-sm" placeholder="Enter Title"
+                                    ng-model="config.WAITING_FOLDER.TITLE">
                             </div>
                         </div>
                         <div class="form-check row col-sm-12">
@@ -278,11 +325,13 @@
                             </div>
                             <div class="col-sm-1">
                                 <label class="control-label"><input type="checkbox"
-                                        ng-model="config.WAITING_FOLDER.DISPLAY_PROPERTIES.PERCENT"> Percentage done</label>
+                                        ng-model="config.WAITING_FOLDER.DISPLAY_PROPERTIES.PERCENT"> Percentage
+                                    done</label>
                             </div>
                             <div class="col-sm-1">
                                 <label class="control-label"> <input type="checkbox"
-                                        ng-model="config.WAITING_FOLDER.DISPLAY_PROPERTIES.TOTALWORK"> Total work</label>
+                                        ng-model="config.WAITING_FOLDER.DISPLAY_PROPERTIES.TOTALWORK"> Total
+                                    work</label>
                             </div>
                         </div>
                         <div class="form-check row col-sm-12">
@@ -302,7 +351,8 @@
                         <div class="form-group row col-sm-12">
                             <label class="control-label col-sm-1">Title:</label>
                             <div class="col-sm-2">
-                                <input type="text" class="form-control input-sm" placeholder="Enter Title" ng-model="config.COMPLETED_FOLDER.TITLE">
+                                <input type="text" class="form-control input-sm" placeholder="Enter Title"
+                                    ng-model="config.COMPLETED_FOLDER.TITLE">
                             </div>
                         </div>
                         <div class="form-check row col-sm-12">
@@ -313,11 +363,13 @@
                             </div>
                             <div class="col-sm-1">
                                 <label class="control-label"><input type="checkbox"
-                                        ng-model="config.COMPLETED_FOLDER.DISPLAY_PROPERTIES.PERCENT"> Percentage done</label>
+                                        ng-model="config.COMPLETED_FOLDER.DISPLAY_PROPERTIES.PERCENT"> Percentage
+                                    done</label>
                             </div>
                             <div class="col-sm-1">
                                 <label class="control-label"> <input type="checkbox"
-                                        ng-model="config.COMPLETED_FOLDER.DISPLAY_PROPERTIES.TOTALWORK"> Total work</label>
+                                        ng-model="config.COMPLETED_FOLDER.DISPLAY_PROPERTIES.TOTALWORK"> Total
+                                    work</label>
                             </div>
                         </div>
                         <div class="form-check row col-sm-12">
@@ -335,10 +387,12 @@
                     <div class="form-check row col-sm-12">
                         <label class="control-label col-sm-1">Category Colors:</label>
                         <div class="col-sm-1">
-                            <label class="control-label"><input type="checkbox" ng-model="config.USE_CATEGORY_COLORS"> Category</label>
+                            <label class="control-label"><input type="checkbox" ng-model="config.USE_CATEGORY_COLORS">
+                                Category</label>
                         </div>
                         <div class="col-sm-1" ng-show="config.USE_CATEGORY_COLORS">
-                            <label class="control-label"><input type="checkbox" ng-model="config.USE_CATEGORY_COLOR_FOOTERS"> Entire
+                            <label class="control-label"><input type="checkbox"
+                                    ng-model="config.USE_CATEGORY_COLOR_FOOTERS"> Entire
                                 footer</label>
                         </div>
                     </div>
@@ -356,42 +410,46 @@
 
                 <div style="height:120px">
                     <div class="form-check row col-sm-12">
-                    <label class="control-label col-sm-1">Auto-start tasks:</label>
-                    <div class="col-sm-1">
-                        <input type="checkbox" ng-model="config.AUTO_START_TASKS">
+                        <label class="control-label col-sm-1">Auto-start tasks:</label>
+                        <div class="col-sm-1">
+                            <input type="checkbox" ng-model="config.AUTO_START_TASKS">
+                        </div>
+                        <div class="col-sm-10"> (Automatically move tasks to {{config.NEXT_FOLDER.TITLE}} column when
+                            its Start Date has arrived)</div>
                     </div>
-                    <div class="col-sm-10"> (Automatically move tasks to {{config.NEXT_FOLDER.TITLE}} column when its Start Date has arrived)</div>
-                </div>
-                <div class="form-check row col-sm-12">
-                    <label class="control-label col-sm-1">Remember state:</label>
-                    <div class="col-sm-1">
-                        <input type="checkbox" ng-model="config.SAVE_STATE">
+                    <div class="form-check row col-sm-12">
+                        <label class="control-label col-sm-1">Remember state:</label>
+                        <div class="col-sm-1">
+                            <input type="checkbox" ng-model="config.SAVE_STATE">
+                        </div>
+                        <div class="col-sm-10"> (Remember the filters after you close the application)</div>
                     </div>
-                    <div class="col-sm-10"> (Remember the filters after you close the application)</div>
-                </div>
-                <div class="form-group row col-sm-12">
-                    <label class="control-label col-sm-1">Done tasks action:</label>
-                    <div class="col-sm-11">
-                        <select class="col-sm-1" ng-model="config.COMPLETED.ACTION">
-                            <option>DELETE</option>
-                            <option>ARCHIVE</option>
-                            <option>NOTHING</option>
-                        </select>
-                        <div ng-show="config.COMPLETED.ACTION != 'NOTHING'">
-                            <div class="col-sm-1">
-                                <input type="text" class="form-control input-sm" ng-model="config.COMPLETED.AFTER_X_DAYS">
+                    <div class="form-group row col-sm-12">
+                        <label class="control-label col-sm-1">Done tasks action:</label>
+                        <div class="col-sm-11">
+                            <select class="col-sm-1" ng-model="config.COMPLETED.ACTION">
+                                <option>DELETE</option>
+                                <option>ARCHIVE</option>
+                                <option>NOTHING</option>
+                            </select>
+                            <div ng-show="config.COMPLETED.ACTION != 'NOTHING'">
+                                <div class="col-sm-1">
+                                    <input type="text" class="form-control input-sm"
+                                        ng-model="config.COMPLETED.AFTER_X_DAYS">
+                                </div>
+                                <div class="col-sm-5"> days after completion</div>
                             </div>
-                            <div class="col-sm-5"> days after completion</div>
                         </div>
                     </div>
-                </div></div>
+                </div>
 
                 <button id="submitconfig" class="btn btn-primary">Save</button>
-                <button id="cancelconfig" class="btn btn-default" type="reset" ng-click="switchToAppMode();">Cancel</button>
+                <button id="cancelconfig" class="btn btn-default" type="reset"
+                    ng-click="switchToAppMode();">Cancel</button>
 
             </form>
         </section>
-    
+
         <!-- help section -->
         <section ng-if="(inHelpMode())" class="row">
             <div class="col-sm-6 col-sm-offset-3">
@@ -400,18 +458,24 @@
                     <form ng-submit="switchToAppMode()">
                         <div class="panel-about">
                             JanBan Task Board version {{version}}
-                            <br/>
-                            <br/>
-                            A Kanban style taskboard for managing your Outlook tasks.<br/>
-                            Refactored and taken to the next level by <a href="https://papasmurf.nl/jan/" target="_blank"><strong><i>Jan van Veldhuizen</i></strong></a>.<br/>    
-                            <br/>
-                            <a href="https://gitlab.com/janware/janban" target="_blank">View on Gitlab</a><br/>
-                            <br/>
-                            Credits:<br/>
-                            <a href="https://github.com/evrenvarol/outlook-taskboard" target="_blank"><strong><i>Evren Varol</i></strong></a>, for developing the very first version of the Kanban board
-                            <br/>
-                            <a href="https://github.com/Shrekmachine" target="_blank"><strong><i>Shrekmachine</i></strong></a> and 
-                            <a href="https://github.com/BillyMcSkintos" target="_blank"><strong><i>BillyMcSkintos</i></strong></a>, for following my developement and doing a lot of useful suggestions
+                            <br />
+                            <br />
+                            A Kanban style taskboard for managing your Outlook tasks.<br />
+                            Refactored and taken to the next level by <a href="https://papasmurf.nl/jan/"
+                                target="_blank"><strong><i>Jan van Veldhuizen</i></strong></a>.<br />
+                            <br />
+                            <a href="https://gitlab.com/janware/janban" target="_blank">View on Gitlab</a><br />
+                            <br />
+                            Credits:<br />
+                            <a href="https://github.com/evrenvarol/outlook-taskboard" target="_blank"><strong><i>Evren
+                                        Varol</i></strong></a>, for developing the very first version of the Kanban
+                            board
+                            <br />
+                            <a href="https://github.com/Shrekmachine"
+                                target="_blank"><strong><i>Shrekmachine</i></strong></a> and
+                            <a href="https://github.com/BillyMcSkintos"
+                                target="_blank"><strong><i>BillyMcSkintos</i></strong></a>, for following my
+                            developement and doing a lot of useful suggestions
                         </div>
                         <div class="text-center">
                             <button id="back" class="btn btn-default">Ok</button>
@@ -419,70 +483,8 @@
                     </form>
                 </div>
             </div>
-            <!-- <h2>Configuration options:</h2>
-                <table>
-                <tr><strong>BACKLOG_FOLDER</strong></tr>
-                <tr><td>ACTIVE</td><td>display this folder on the board or not</td></tr>
-                <tr><td>FILTER_ON_START_DATE</td><td>if true, then task with start date in the future will not be displayed</td></tr>
-                <tr><td>TITLE</td><td>Folder title</td></tr>
-                <tr><td>NAME</td><td>Name of the Outlook tasks folder (blank = default tasks folder)</td></tr>
-                <tr><td>LIMIT</td><td>Maximum number of tasks in this folder (0 means no maximum)</td></tr>
-                <tr><td>SORT</td><td>The sort order of the tasks</td></tr>
-                <tr><td>DISPLAY_PROPERTIES</td><td>Defines the task properties that will be displayed on the task card</td></tr>
-                <tr><td>REPORT</td><td>Settings for the status report</td></tr>
-                <tr><strong>NEXT_FOLDER</strong></tr>
-                <tr><td>ACTIVE</td><td>display this folder on the board or not</td></tr>
-                <tr><td>TITLE</td><td>Folder title</td></tr>
-                <tr><td>NAME</td><td>Name of the Outlook tasks folder (blank = default tasks folder)</td></tr>
-                <tr><td>LIMIT</td><td>Maximum number of tasks in this folder (0 means no maximum)</td></tr>
-                <tr><td>SORT</td><td>The sort order of the tasks</td></tr>
-                <tr><td>DISPLAY_PROPERTIES</td><td>Defines the task properties that will be displayed on the task card</td></tr>
-                <tr><td>REPORT</td><td>Settings for the status report</td></tr>
-                <tr><strong>INPROGRESS_FOLDER</strong></tr>
-                <tr><td>ACTIVE</td><td>display this folder on the board or not</td></tr>
-                <tr><td>TITLE</td><td>Folder title</td></tr>
-                <tr><td>NAME</td><td>Name of the Outlook tasks folder (blank = default tasks folder)</td></tr>
-                <tr><td>LIMIT</td><td>Maximum number of tasks in this folder (0 means no maximum)</td></tr>
-                <tr><td>SORT</td><td>The sort order of the tasks</td></tr>
-                <tr><td>DISPLAY_PROPERTIES</td><td>Defines the task properties that will be displayed on the task card</td></tr>
-                <tr><td>REPORT</td><td>Settings for the status report</td></tr>
-                <tr><strong>WAITING_FOLDER</strong></tr>
-                <tr><td>ACTIVE</td><td>display this folder on the board or not</td></tr>
-                <tr><td>TITLE</td><td>Folder title</td></tr>
-                <tr><td>NAME</td><td>Name of the Outlook tasks folder (blank = default tasks folder)</td></tr>
-                <tr><td>LIMIT</td><td>Maximum number of tasks in this folder (0 means no maximum)</td></tr>
-                <tr><td>SORT</td><td>The sort order of the tasks</td></tr>
-                <tr><td>DISPLAY_PROPERTIES</td><td>Defines the task properties that will be displayed on the task card</td></tr>
-                <tr><td>REPORT</td><td>Settings for the status report</td></tr>
-                <tr><strong>COMPLETED_FOLDER</strong></tr>
-                <tr><td>ACTIVE</td><td>display this folder on the board or not</td></tr>
-                <tr><td>TITLE</td><td>Folder title</td></tr>
-                <tr><td>NAME</td><td>Name of the Outlook tasks folder (blank = default tasks folder)</td></tr>
-                <tr><td>LIMIT</td><td>Maximum number of tasks in this folder (0 means no maximum)</td></tr>
-                <tr><td>SORT</td><td>The sort order of the tasks</td></tr>
-                <tr><td>DISPLAY_PROPERTIES</td><td>Defines the task properties that will be displayed on the task card</td></tr>
-                <tr><td>REPORT</td><td>Settings for the status report</td></tr>
-                <tr><strong>ARCHIVE_FOLDER</strong></tr>
-                <tr><td>NAME</td><td>Name of the Outlook tasks folder (blank = default tasks folder)</td></tr>
-                <tr><strong>OTHER SETTINGS</strong></tr>
-                <tr><td>TASKNOTE_MAXLEN</td><td>Number of characters that are displayed for the tasks details</td></tr>
-                <tr><td>TASK_TEMPLATE</td><td>Template to use for new tasks</td></tr>
-                <tr><td>DATE_FORMAT</td><td>Date format (must a valid JS date format)</td></tr>
-                <tr><td>USE_CATEGORY_COLORS</td><td>if true, then the Outlook category colors will be used</td></tr>
-                <tr><td>USE_CATEGORY_COLOR_FOOTERS</td><td>if true, then the Outlook category colors will be used for the entire footer line</td></tr>
-                <tr><td>SAVE_STATE</td><td>if true, then the filters will be save dand re-used when the app is restarted</td></tr>
-                <tr><td>PRIVACY_FILTER</td><td>if true, then you can use separate boards for private and publis tasks</td></tr>
-                <tr><td>STATUS</td><td>Tha value and descriptions for the task statuses. The text can be changed for the status report</td></tr>
-                <tr><td>COMPLETED</td><td>Define what to do with completed tasks after x days: NONE, HIDE, ARCHIVE or DELETE</td></tr>
-                <tr><td>AUTO_UPDATE</td><td>if true, then the board is updated immediately after adding or deleting tasks</td></tr>
-                </table> -->
-                    </section>
-    
+        </section>
     </div>
-
-
-
-
 </body>
 
 </html>
