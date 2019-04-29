@@ -26,9 +26,9 @@ tbApp.controller('taskboardController', function ($scope, $filter, $http) {
     const SOMEDAY = 5;
     
     $scope.privacyFilter = 
-        { all:     { text : "Both", value : 0 },
-          private: { text : "Private", value: 1 },
-          public:  { text : "Work", value: 2 }
+        { all:     { text : "Both", value : "0" },
+          private: { text : "Private", value: "1" },
+          public:  { text : "Work", value: "2" }
         };
     $scope.display_message = false;
 
@@ -80,12 +80,12 @@ tbApp.controller('taskboardController', function ($scope, $filter, $http) {
         
         outlookCategories = getOutlookCategories();
         applyConfig();
-        $scope.initTasks();
-
         $scope.displayFolderCount = 0;
         $scope.taskFolders.forEach( function(folder) {
             if (folder.display) $scope.displayFolderCount++;
         });
+        
+        $scope.initTasks();
 
         // ui-sortable options and events
         $scope.sortableOptions = {
@@ -312,10 +312,11 @@ tbApp.controller('taskboardController', function ($scope, $filter, $http) {
             };
             if (movedTask) {
                 // TODO: why read all the task when onlya few items are moved
-                $scope.taskFolders[BACKLOG].tasks = getTasksFromOutlook($scope.taskFolders[BACKLOG].name, $scope.taskFolders[BACKLOG].sort, $scope.taskFolders[BACKLOG].initialStatus);
-                $scope.taskFolders[SPRINT].tasks = getTasksFromOutlook($scope.taskFolders[SPRINT].name, $scope.taskFolders[SPRINT].sort, $scope.taskFolders[SPRINT].initialStatus);
-                $scope.taskFolders[BACKLOG].filteredTasks = $scope.taskFolders[BACKLOG].tasks;
-                $scope.taskFolders[SPRINT].filteredTasks = $scope.taskFolders[SPRINT].tasks;
+                // Read all tasks again
+                $scope.taskFolders.forEach(function (taskFolder) {
+                    taskFolder.tasks = getTasksFromOutlook(taskFolder.name, taskFolder.sort, taskFolder.initialStatus);
+                    taskFolder.filteredTasks = taskFolder.tasks;
+                });
             }
         }
 
@@ -337,10 +338,11 @@ tbApp.controller('taskboardController', function ($scope, $filter, $http) {
             };
             if (movedTask) {
                 // TODO: why read all the task when onlya few items are moved
-                $scope.taskFolders[BACKLOG].tasks = getTasksFromOutlook($scope.taskFolders[BACKLOG].name, $scope.taskFolders[BACKLOG].sort, $scope.taskFolders[BACKLOG].initialStatus);
-                $scope.taskFolders[SPRINT].tasks = getTasksFromOutlook($scope.taskFolders[SPRINT].name, $scope.taskFolders[SPRINT].sort, $scope.taskFolders[SPRINT].initialStatus);
-                $scope.taskFolders[BACKLOG].filteredTasks = $scope.taskFolders[BACKLOG].tasks;
-                $scope.taskFolders[SPRINT].filteredTasks = $scope.taskFolders[SPRINT].tasks;
+                // Read all tasks again
+                $scope.taskFolders.forEach(function (taskFolder) {
+                    taskFolder.tasks = getTasksFromOutlook(taskFolder.name, taskFolder.sort, taskFolder.initialStatus);
+                    taskFolder.filteredTasks = taskFolder.tasks;
+                });
             }
         }
     };
@@ -905,12 +907,15 @@ tbApp.controller('taskboardController', function ($scope, $filter, $http) {
         }
     
     var getState = function () {
-        var state = { "private": 0, "search": "" }; // default state
+        var state = { "private": "0", "search": "" }; // default state
 
         if ($scope.config.SAVE_STATE) {
             var stateRaw = getJournalItem(STATE_ID);
             if (stateRaw !== null){
                 state = JSON.parse(stateRaw);
+            }
+            else {
+                saveJournalItem(STATE_ID, JSON.stringify(state));
             }
         }
 
