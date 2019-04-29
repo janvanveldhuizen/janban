@@ -550,19 +550,20 @@ tbApp.controller('taskboardController', function ($scope, $filter, $http) {
     $scope.addTask = function (target) {
         // set the parent folder to target defined
         switch (target) {
-            case 'BACKLOG':
+            case BACKLOG:
                 var tasksfolder = getTaskFolder($scope.taskFolders[BACKLOG].name);
                 break;
-            case 'SPRINT':
+            case SPRINT:
                 var tasksfolder = getTaskFolder($scope.taskFolders[SPRINT].name);
                 break;
-            case 'DOING':
+            case DOING:
                 var tasksfolder = getTaskFolder($scope.taskFolders[DOING].name);
                 break;
-            case 'WAITING':
+            case WAITING:
                 var tasksfolder = getTaskFolder($scope.taskFolders[WAITING].name);
                 break;
         };
+        alert(target)
         // create a new task item object in outlook
         var taskitem = tasksfolder.Items.Add();
 
