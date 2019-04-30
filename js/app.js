@@ -168,24 +168,7 @@ tbApp.controller('taskboardController', function ($scope, $filter, $http) {
         });
     };
 
-    $scope.submitConfig1 = function (editedConfig) {
-        var delta = DeepDiff.diff(editedConfig, $scope.configRaw);
-        if (delta){
-            try {
-                var newConfig = JSON.parse(JSON.minify(editedConfig));
-                $scope.config = newConfig;
-                saveConfig();
-                $scope.init();
-            }
-            catch (e) {
-                alert("I am afraid there is something wrong with the json structure of your configuration data. Please correct it.");
-                return;
-            }
-        }
-        $scope.switchToAppMode();
-    }
-
-    $scope.submitConfig2 = function () {
+    $scope.submitConfig = function () {
         saveConfig();
         $scope.init();
         $scope.switchToAppMode();
@@ -563,7 +546,6 @@ tbApp.controller('taskboardController', function ($scope, $filter, $http) {
                 var tasksfolder = getTaskFolder($scope.taskFolders[WAITING].name);
                 break;
         };
-        alert(target)
         // create a new task item object in outlook
         var taskitem = tasksfolder.Items.Add();
 
