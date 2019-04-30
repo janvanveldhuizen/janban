@@ -1,5 +1,10 @@
 @echo off
 if not exist %USERPROFILE%\janban (mkdir %USERPROFILE%\janban)
+if not exist kanban.html (
+      echo The install script is running in the wrong folder
+      pause
+      goto :EOF
+)
 robocopy /mir . %USERPROFILE%\janban 
 set offver=0
 for /l %%x in (12, 1, 19) do (
