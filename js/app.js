@@ -9,6 +9,7 @@ tbApp.controller('taskboardController', function ($scope, $filter, $http) {
 
     const VERSION_URL = 'http://janware.nl/gitlab/version.txt';
     $scope.DOWNLOAD_URL = 'http://janware.nl/gitlab/janban.zip';
+    $scope.HISTORY_URL = 'http://janware.nl/gitlab/whatsnew.html';
     $scope.version = VERSION;
 
     const APP_MODE = 0;

@@ -34,10 +34,31 @@
 
         <!-- header bar -->
         <section id="headerbar" class="row">
-            <div ng-if="display_message" class="col-md-12 bg-warning">
+            <div ng-if="display_message==display_message" class="col-md-12 bg-warning">
                 <p><strong>A newer version is available: {{version_number}} (your version is {{version}})</strong>
-                    <a href="{{DOWNLOAD_URL}}" download id="download" class="button">download</a></p>
+                    <a href="{{DOWNLOAD_URL}}" download id="download" class="button">download</a>
+                <button type="button" class="button" data-toggle="modal" data-target="#myModal">What's new?</button></p>
             </div>
+            <div class="modal fade" id="myModal" role="dialog">
+                <div class="modal-dialog">
+                
+                  <!-- Modal content-->
+                  <div class="modal-content">
+                    <div class="modal-header">
+                      <button type="button" class="close" data-dismiss="modal">&times;</button>
+                      <h4 class="modal-title">Version History</h4>
+                    </div>
+                    <div class="modal-body">
+                            <iframe src="http://janware.nl/gitlab/whatsnew.html" style="border:none;width:100%;height:500px"></iframe>
+                    </div>
+                    <div class="modal-footer">
+                      <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                    </div>
+                  </div>
+                  
+                </div>
+              </div>
+            
             <div class="col-md-12">
                 <div class="input-group">
                     <div class="input-group-addon" ng-click="switchToAppMode();">

@@ -14,3 +14,4 @@ deploy:
     - sed 's/const VERSION = "//g' version.txt1 > version.txt
     - curl -T janban.zip $FTPSITE --user $FTPUSER:$FTPPWD
     - curl -T version.txt $FTPSITE --user $FTPUSER:$FTPPWD
+    - curl -T whatsnew.html $FTPSITE --user $FTPUSER:$FTPPWD
