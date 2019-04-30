@@ -34,7 +34,7 @@
 
         <!-- header bar -->
         <section id="headerbar" class="row">
-            <div ng-if="display_message==display_message" class="col-md-12 bg-warning">
+            <div ng-if="display_message" class="col-md-12 bg-warning">
                 <p><strong>A newer version is available: {{version_number}} (your version is {{version}})</strong>
                     <a href="{{DOWNLOAD_URL}}" download id="download" class="button">download</a>
                 <button type="button" class="button" data-toggle="modal" data-target="#myModal">What's new?</button></p>
