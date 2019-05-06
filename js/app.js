@@ -375,6 +375,13 @@ tbApp.controller('taskboardController', function ($scope, $filter, $http) {
         }
     }
 
+    $scope.sendFeedback = function () {
+        var mailItem = newMailItem();
+        mailItem.Subject = "JanBan version " + $scope.version + " Feedback";
+        mailItem.To = "janban@papasmurf.nl";
+        mailItem.BodyFormat = 2;
+        mailItem.Display();
+    }
 
     // this is only a proof-of-concept single page report in a draft email for weekly report
     // it will be improved later on
