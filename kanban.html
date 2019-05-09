@@ -441,6 +441,14 @@
                             its Start Date has arrived)</div>
                     </div>
                     <div class="form-check row col-sm-12">
+                        <label class="control-label col-sm-1">Auto-start due tasks:</label>
+                        <div class="col-sm-1">
+                            <input type="checkbox" ng-model="config.AUTO_START_DUE_TASKS">
+                        </div>
+                        <div class="col-sm-10"> (Automatically move tasks to {{config.NEXT_FOLDER.TITLE}} column when
+                            its Due Date has arrived)</div>
+                    </div>
+                    <div class="form-check row col-sm-12">
                         <label class="control-label col-sm-1">Remember state:</label>
                         <div class="col-sm-1">
                             <input type="checkbox" ng-model="config.SAVE_STATE">

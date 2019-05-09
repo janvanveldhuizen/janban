@@ -75,18 +75,12 @@ tbApp.controller('taskboardController', function ($scope, $filter, $http) {
 
         $scope.switchToAppMode();
 
-        getConfig();
-        getState();
-        getVersion();
-        
-        outlookCategories = getOutlookCategories();
-        applyConfig();
-        $scope.displayFolderCount = 0;
-        $scope.taskFolders.forEach( function(folder) {
-            if (folder.display) $scope.displayFolderCount++;
+        // watch search filter and apply it
+        $scope.$watchGroup(['filter.search', 'filter.private'], function (newValues, oldValues) {
+            var search = newValues[0];
+            $scope.applyFilters();
+            saveState();
         });
-        
-        $scope.initTasks();
 
         // ui-sortable options and events
         $scope.sortableOptions = {
@@ -160,13 +154,19 @@ tbApp.controller('taskboardController', function ($scope, $filter, $http) {
                 }}
             }
         };
-
-        // watch search filter and apply it
-        $scope.$watchGroup(['filter.search', 'filter.private'], function (newValues, oldValues) {
-            var search = newValues[0];
-            $scope.applyFilters();
-            saveState();
+                
+        getConfig();
+        getState();
+        getVersion();
+        
+        outlookCategories = getOutlookCategories();
+        applyConfig();
+        $scope.displayFolderCount = 0;
+        $scope.taskFolders.forEach( function(folder) {
+            if (folder.display) $scope.displayFolderCount++;
         });
+        
+        $scope.initTasks();
     };
 
     $scope.submitConfig = function () {
@@ -269,15 +269,19 @@ tbApp.controller('taskboardController', function ($scope, $filter, $http) {
             var tasks = $scope.taskFolders[DONE].tasks;
             var count = tasks.length;
             for (i = 0; i < count; i++) {
-                var days = Date.daysBetween(tasks[i].completeddate, new Date());
-                if (days > $scope.config.COMPLETED.AFTER_X_DAYS) {
-                    if ($scope.config.COMPLETED.ACTION == 'ARCHIVE') {
-                        $scope.archiveTask(tasks[i], $scope.taskFolders[DONE].tasks, $scope.taskFolders[DONE].filteredTasks);
-                    }
-                    if ($scope.config.COMPLETED.ACTION == 'DELETE') {
-                        $scope.deleteTask(tasks[i], $scope.taskFolders[DONE].tasks, $scope.taskFolders[DONE].filteredTasks, false);
-                    }
-                };
+                try {
+                    var days = Date.daysBetween(tasks[i].completeddate, new Date());
+                    if (days > $scope.config.COMPLETED.AFTER_X_DAYS) {
+                        if ($scope.config.COMPLETED.ACTION == 'ARCHIVE') {
+                            $scope.archiveTask(tasks[i], $scope.taskFolders[DONE].tasks, $scope.taskFolders[DONE].filteredTasks);
+                        }
+                        if ($scope.config.COMPLETED.ACTION == 'DELETE') {
+                            $scope.deleteTask(tasks[i], $scope.taskFolders[DONE].tasks, $scope.taskFolders[DONE].filteredTasks, false);
+                        }
+                    };
+                } catch (error) {
+                    // ignore errors at this point. 
+                }
             };
         };
 
@@ -316,6 +320,58 @@ tbApp.controller('taskboardController', function ($scope, $filter, $http) {
                     if (seconds >= 0) {
                         var taskitem = getTaskItem(tasks[i].entryID);
                         taskitem.Move(getTaskFolder($scope.taskFolders[SPRINT].name));
+                        movedTask = true;
+                    }
+                };
+            };
+            if (movedTask) {
+                // TODO: why read all the task when onlya few items are moved
+                // Read all tasks again
+                $scope.taskFolders.forEach(function (taskFolder) {
+                    taskFolder.tasks = getTasksFromOutlook(taskFolder.name, taskFolder.sort, taskFolder.initialStatus);
+                    taskFolder.filteredTasks = taskFolder.tasks;
+                });
+            }
+        }
+
+        // move tasks with past due date to the Next folder
+        if ($scope.config.AUTO_START_DUE_TASKS) {
+            var i;
+            var movedTask = false;
+            var tasks = $scope.taskFolders[BACKLOG].tasks;
+            var count = tasks.length;
+            for (i = 0; i < count; i++) {
+                if (tasks[i].duedate.getFullYear() != 4501) {
+                    var seconds = Date.secondsBetween(tasks[i].duedate, new Date());
+                    if (seconds >= 0) {
+                        var taskitem = getTaskItem(tasks[i].entryID);
+                        taskitem.Move(getTaskFolder($scope.taskFolders[SPRINT].name));
+                        movedTask = true;
+                    }
+                };
+            };
+            if (movedTask) {
+                // TODO: why read all the task when onlya few items are moved
+                // Read all tasks again
+                $scope.taskFolders.forEach(function (taskFolder) {
+                    taskFolder.tasks = getTasksFromOutlook(taskFolder.name, taskFolder.sort, taskFolder.initialStatus);
+                    taskFolder.filteredTasks = taskFolder.tasks;
+                });
+            }
+        }
+
+        // move tasks with start date in future back to the Backlog folder
+        if (true) {
+            var i;
+            var movedTask = false;
+            var tasks = $scope.taskFolders[SPRINT].tasks;
+            var count = tasks.length;
+            for (i = 0; i < count; i++) {
+                if (tasks[i].startdate.getFullYear() != 4501) {
+                    var seconds = Date.secondsBetween(new Date(), tasks[i].startdate);
+                    if (seconds >= 0) {
+                        var taskitem = getTaskItem(tasks[i].entryID);
+                        taskitem.Move(getTaskFolder($scope.taskFolders[BACKLOG].name));
                         movedTask = true;
                     }
                 };
@@ -894,7 +950,8 @@ tbApp.controller('taskboardController', function ($scope, $filter, $http) {
                 "ACTION": "ARCHIVE"
             },
             "AUTO_UPDATE": true,
-            "AUTO_START_TASKS": true
+            "AUTO_START_TASKS": true,
+            "AUTO_START_DUE_TASKS": false
         }
     
     var getState = function () {
