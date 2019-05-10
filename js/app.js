@@ -971,7 +971,7 @@ tbApp.controller('taskboardController', function ($scope, $filter, $http) {
         if (state.private === true) state.private = $scope.privacyFilter.private.value;
         if (state.private === false) state.private = $scope.privacyFilter.public.value;
 
-        $scope.orgState = state;
+        $scope.prevState = state;
         $scope.filter = 
             {   private: state.private,
                 search:  state.search         
@@ -981,8 +981,9 @@ tbApp.controller('taskboardController', function ($scope, $filter, $http) {
     var saveState = function () {
         if ($scope.config.SAVE_STATE) {
             var currState = { "private": $scope.filter.private, "search": $scope.filter.search };
-            if (DeepDiff.diff($scope.orgState, currState)) {
+            if (DeepDiff.diff($scope.prevState, currState)) {
                 saveJournalItem(STATE_ID, JSON.stringify(currState));
+                $scope.prevState = currState;
             }
         }
     }
