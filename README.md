@@ -10,7 +10,7 @@ The JanBan Outlook Taskboard is a kanban board style view for Outlook Tasks.
 This project is based on [Evren varol's Outlook Taskboard](https://github.com/evrenvarol/outlook-taskboard).
 I have added a lot of features, customization and configuration options.
 
-[JanBan board](http://janware.nl/janban/janban.png)
+![JanBan board](http://janware.nl/janban/janban.png)
 
 The main features of JanBan are:
 
@@ -22,6 +22,9 @@ The main features of JanBan are:
 
 ### Configuration
 ![Configuration](http://janware.nl/janban/config.gif)
+
+### Support Mailbox
+![Support](http://janware.nl/janban/support.gif)
 
 ### Platforms supported
 Only tested with Outlook 2013 and 2016 running on Windows 8.1/10.
