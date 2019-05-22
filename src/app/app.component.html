@@ -1,11 +1,8 @@
-<!-- Fixed navbar -->
-<nav class="navbar navbar-expand-md navbar-dark bg-dark fixed-top">
-  <a class="navbar-brand" href="#">Angular Notes</a>
-</nav>
-<div class="container-fluid text-center pb-5">
-  <div style="text-align:center">
-    <h1>
-      Welcome to {{title}}!
-    </h1>
-  </div>
+<div>
+  <app-not-supported *ngIf="!canRun"></app-not-supported>
+  <!-- <app-not-supported ng-if="!janban.isSupported()"></app-not-supported>
+  <div ng-if="janban.isSupported()" class="taskboard container-fluid">
+      <header-bar></header-bar>
+  </div> -->
+  'janban'
 </div>

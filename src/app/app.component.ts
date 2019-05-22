@@ -1,4 +1,5 @@
 import { Component } from '@angular/core';
+import { OutlookService } from './services/outlook.service';
 
 @Component({
   selector: 'app-root',
@@ -6,5 +7,9 @@ import { Component } from '@angular/core';
   styleUrls: ['./app.component.css']
 })
 export class AppComponent {
-  title = 'janban';
+  canRun: boolean;
+    
+  constructor(private outlookService: OutlookService){
+    this.canRun = outlookService.isRunningInOutlook();
+  }
 }
