@@ -39,6 +39,10 @@ function getOutlookCategories() {
     return { names: catNames, colors: catColors };
 }
 
+function getOutlookVersion() {
+    return outlookApp.version;
+}
+
 function getTaskFolder(folderName) {
     if (folderName === undefined || folderName === '') {
         // if folder path is not defined, return main Tasks folder
@@ -84,6 +88,16 @@ function getJournalItem(subject){
         if (configItem.Body){
             return configItem.Body;
         }
+    }   
+    return null;
+}
+
+function getPureJournalItem(subject){
+    var folder = getJournalFolder();
+    var configItems = folder.Items.Restrict('[Subject] = "' + subject + '"');
+    if (configItems.Count > 0) {
+        var configItem = configItems(1);
+        return configItem;
     }   
     return null;
 }

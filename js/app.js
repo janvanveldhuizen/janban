@@ -25,20 +25,21 @@ tbApp.controller('taskboardController', function ($scope, $filter, $http) {
     const WAITING = 3;
     const DONE = 4;
     const SOMEDAY = 5;
-    
-    $scope.privacyFilter = 
-        { all:     { text : "Both", value : "0" },
-          private: { text : "Private", value: "1" },
-          public:  { text : "Work", value: "2" }
+
+    $scope.privacyFilter =
+        {
+            all: { text: "Both", value: "0" },
+            private: { text: "Private", value: "1" },
+            public: { text: "Work", value: "2" }
         };
     $scope.display_message = false;
 
     $scope.taskFolders = [
-        { type: 0},
-        { type: 1},
-        { type: 2},
-        { type: 3},
-        { type: 4}
+        { type: 0 },
+        { type: 1 },
+        { type: 2 },
+        { type: 3 },
+        { type: 4 }
     ];
 
     $scope.switchToAppMode = function () {
@@ -68,8 +69,7 @@ tbApp.controller('taskboardController', function ($scope, $filter, $http) {
     $scope.init = function () {
 
         $scope.isBrowserSupported = checkBrowser();
-        if (!$scope.isBrowserSupported)
-        {
+        if (!$scope.isBrowserSupported) {
             return;
         }
 
@@ -94,78 +94,79 @@ tbApp.controller('taskboardController', function ($scope, $filter, $http) {
                 // locate the target folder in outlook
                 // ui.item.sortable.droptarget[0].id represents the id of the target list
                 if (ui.item.sortable.droptarget) { // check if it is dropped on a valid target
-                    if (($scope.config.INPROGRESS_FOLDER.LIMIT !== 0 && e.target.id !== ('folder-'+DOING) && ui.item.sortable.droptarget.attr('id') === ('folder-'+DOING) && $scope.taskFolders[DOING].tasks.length > $scope.config.INPROGRESS_FOLDER.LIMIT) ||
-                    ($scope.config.NEXT_FOLDER.LIMIT !== 0 && ('folder-'+SPRINT) && ui.item.sortable.droptarget.attr('id') === ('folder-'+SPRINT) && $scope.taskFolders[SPRINT].tasks.length > $scope.config.NEXT_FOLDER.LIMIT) ||
-                    ($scope.config.WAITING_FOLDER.LIMIT !== 0 && e.target.id !== ('folder-'+WAITING) && ui.item.sortable.droptarget.attr('id') === ('folder-'+WAITING) && $scope.taskFolders[WAITING].tasks.length > $scope.config.WAITING_FOLDER.LIMIT)) {
+                    if (($scope.config.INPROGRESS_FOLDER.LIMIT !== 0 && e.target.id !== ('folder-' + DOING) && ui.item.sortable.droptarget.attr('id') === ('folder-' + DOING) && $scope.taskFolders[DOING].tasks.length > $scope.config.INPROGRESS_FOLDER.LIMIT) ||
+                        ($scope.config.NEXT_FOLDER.LIMIT !== 0 && ('folder-' + SPRINT) && ui.item.sortable.droptarget.attr('id') === ('folder-' + SPRINT) && $scope.taskFolders[SPRINT].tasks.length > $scope.config.NEXT_FOLDER.LIMIT) ||
+                        ($scope.config.WAITING_FOLDER.LIMIT !== 0 && e.target.id !== ('folder-' + WAITING) && ui.item.sortable.droptarget.attr('id') === ('folder-' + WAITING) && $scope.taskFolders[WAITING].tasks.length > $scope.config.WAITING_FOLDER.LIMIT)) {
                         $scope.initTasks();
                         ui.item.sortable.cancel();
-                } else {
-                    //TODO dit kan korter
-                    switch (ui.item.sortable.droptarget[0].id) {
-                        case 'folder-'+BACKLOG:
-                            var tasksfolder = getTaskFolder($scope.config.BACKLOG_FOLDER.NAME);
-                            var newstatus = $scope.config.STATUS.NOT_STARTED.VALUE;
-                            break;
-                        case 'folder-'+SPRINT:
-                            var tasksfolder = getTaskFolder($scope.config.NEXT_FOLDER.NAME);
-                            var newstatus = $scope.config.STATUS.NOT_STARTED.VALUE;
-                            break;
-                        case 'folder-'+DOING:
-                            var tasksfolder = getTaskFolder($scope.config.INPROGRESS_FOLDER.NAME);
-                            var newstatus = $scope.config.STATUS.IN_PROGRESS.VALUE;
-                            break;
-                        case 'folder-'+WAITING:
-                            var tasksfolder = getTaskFolder($scope.config.WAITING_FOLDER.NAME);
-                            var newstatus = $scope.config.STATUS.WAITING.VALUE;
-                            break;
-                        case 'folder-'+DONE:
-                            var tasksfolder = getTaskFolder($scope.config.COMPLETED_FOLDER.NAME);
-                            var newstatus = $scope.config.STATUS.COMPLETED.VALUE;
-                            break;
-                    };
+                    } else {
+                        //TODO dit kan korter
+                        switch (ui.item.sortable.droptarget[0].id) {
+                            case 'folder-' + BACKLOG:
+                                var tasksfolder = getTaskFolder($scope.config.BACKLOG_FOLDER.NAME);
+                                var newstatus = $scope.config.STATUS.NOT_STARTED.VALUE;
+                                break;
+                            case 'folder-' + SPRINT:
+                                var tasksfolder = getTaskFolder($scope.config.NEXT_FOLDER.NAME);
+                                var newstatus = $scope.config.STATUS.NOT_STARTED.VALUE;
+                                break;
+                            case 'folder-' + DOING:
+                                var tasksfolder = getTaskFolder($scope.config.INPROGRESS_FOLDER.NAME);
+                                var newstatus = $scope.config.STATUS.IN_PROGRESS.VALUE;
+                                break;
+                            case 'folder-' + WAITING:
+                                var tasksfolder = getTaskFolder($scope.config.WAITING_FOLDER.NAME);
+                                var newstatus = $scope.config.STATUS.WAITING.VALUE;
+                                break;
+                            case 'folder-' + DONE:
+                                var tasksfolder = getTaskFolder($scope.config.COMPLETED_FOLDER.NAME);
+                                var newstatus = $scope.config.STATUS.COMPLETED.VALUE;
+                                break;
+                        };
 
-                    // locate the task in outlook namespace by using unique entry id
-                    var taskitem = getTaskItem(ui.item.sortable.model.entryID);
-                    var itemChanged = false;
+                        // locate the task in outlook namespace by using unique entry id
+                        var taskitem = getTaskItem(ui.item.sortable.model.entryID);
+                        var itemChanged = false;
 
-                    // set new status, if different
-                    if (taskitem.Status != newstatus) {
-                        taskitem.Status = newstatus;
-                        taskitem.Save();
-                        itemChanged = true;
-                        ui.item.sortable.model.status = taskStatusText(newstatus);
-                        ui.item.sortable.model.completeddate = new Date(taskitem.DateCompleted)
+                        // set new status, if different
+                        if (taskitem.Status != newstatus) {
+                            taskitem.Status = newstatus;
+                            taskitem.Save();
+                            itemChanged = true;
+                            ui.item.sortable.model.status = taskStatusText(newstatus);
+                            ui.item.sortable.model.completeddate = new Date(taskitem.DateCompleted)
+                        }
+
+                        // ensure the task is not moving into same folder
+                        if (taskitem.Parent.Name != tasksfolder.Name) {
+                            // move the task item
+                            taskitem = taskitem.Move(tasksfolder);
+                            itemChanged = true;
+
+                            // update entryID with new one (entryIDs get changed after move)
+                            // https://msdn.microsoft.com/en-us/library/office/ff868618.aspx
+                            ui.item.sortable.model.entryID = taskitem.EntryID;
+                        }
+
+                        if (itemChanged) {
+                            $scope.initTasks();
+                        }
                     }
-
-                    // ensure the task is not moving into same folder
-                    if (taskitem.Parent.Name != tasksfolder.Name) {
-                        // move the task item
-                        taskitem = taskitem.Move(tasksfolder);
-                        itemChanged = true;
-
-                        // update entryID with new one (entryIDs get changed after move)
-                        // https://msdn.microsoft.com/en-us/library/office/ff868618.aspx
-                        ui.item.sortable.model.entryID = taskitem.EntryID;
-                    }
-
-                    if (itemChanged) {
-                        $scope.initTasks();
-                    }
-                }}
+                }
             }
         };
-                
+
         getConfig();
         getState();
         getVersion();
-        
+
         outlookCategories = getOutlookCategories();
         applyConfig();
         $scope.displayFolderCount = 0;
-        $scope.taskFolders.forEach( function(folder) {
+        $scope.taskFolders.forEach(function (folder) {
             if (folder.display) $scope.displayFolderCount++;
         });
-        
+
         $scope.initTasks();
     };
 
@@ -389,12 +390,12 @@ tbApp.controller('taskboardController', function ($scope, $filter, $http) {
 
     $scope.applyFilters = function () {
         if ($scope.filter.search.length > 0) {
-            $scope.taskFolders.forEach(function(taskFolder){
+            $scope.taskFolders.forEach(function (taskFolder) {
                 taskFolder.filteredTasks = $filter('filter')(taskFolder.tasks, $scope.filter.search);
             });
         }
         else {
-            $scope.taskFolders.forEach(function(taskFolder){
+            $scope.taskFolders.forEach(function (taskFolder) {
                 taskFolder.filteredTasks = taskFolder.tasks;
             });
         }
@@ -404,21 +405,21 @@ tbApp.controller('taskboardController', function ($scope, $filter, $http) {
         if ($scope.filter.private != $scope.privacyFilter.all.value) {
             if ($scope.filter.private == $scope.privacyFilter.private.value) { sensitivityFilter = SENSITIVITY.olPrivate; }
             if ($scope.filter.private == $scope.privacyFilter.public.value) { sensitivityFilter = SENSITIVITY.olNormal; }
-            $scope.taskFolders.forEach(function(taskFolder){
+            $scope.taskFolders.forEach(function (taskFolder) {
                 taskFolder.filteredTasks = $filter('filter')(taskFolder.filteredTasks, function (task) { return task.sensitivity == sensitivityFilter });
             });
         }
 
         // filter on start date
-        $scope.taskFolders.forEach(function(taskFolder){
-            if (taskFolder.filterOnStartDate === true){
-                taskFolder.filteredTasks = $filter('filter')(taskFolder.filteredTasks, function (task) { 
+        $scope.taskFolders.forEach(function (taskFolder) {
+            if (taskFolder.filterOnStartDate === true) {
+                taskFolder.filteredTasks = $filter('filter')(taskFolder.filteredTasks, function (task) {
                     if (task.startdate.getFullYear() != 4501) {
                         var days = Date.daysBetween(task.startdate, new Date());
                         return days >= 0;
                     }
                     else return true; // always show tasks not having start date
-                    });
+                });
             }
         });
 
@@ -433,9 +434,10 @@ tbApp.controller('taskboardController', function ($scope, $filter, $http) {
 
     $scope.sendFeedback = function () {
         var mailItem = newMailItem();
-        mailItem.Subject = "JanBan version " + $scope.version + " Feedback";
+        mailItem.Subject = "JanBan version " + $scope.version + " Feedback (Outlook version: " + getOutlookVersion() + ")";
         mailItem.To = "janban@papasmurf.nl";
         mailItem.BodyFormat = 2;
+        mailItem.Attachments.Add(getPureJournalItem(CONFIG_ID));
         mailItem.Display();
     }
 
@@ -697,7 +699,7 @@ tbApp.controller('taskboardController', function ($scope, $filter, $http) {
         var today = new Date().setHours(0, 0, 0, 0);
         return { 'task-overdue': dateobj < today, 'task-today': dateobj == today };
     };
-    
+
     $scope.getFooterStyle = function (categories) {
         if ($scope.config.USE_CATEGORY_COLOR_FOOTERS) {
             if ((categories !== '') && $scope.config.USE_CATEGORY_COLORS) {
@@ -710,7 +712,7 @@ tbApp.controller('taskboardController', function ($scope, $filter, $http) {
                 else {
                     var lightGray = '#dfdfdf';
                     return { "background-color": lightGray, color: getContrastYIQ(lightGray) };
-                }           
+                }
             }
         }
         return;
@@ -746,13 +748,13 @@ tbApp.controller('taskboardController', function ($scope, $filter, $http) {
         return difference_ms / one_second;
     }
 
-    var applyConfig = function() {
+    var applyConfig = function () {
         // $scope.taskFolders[SOMEDAY].type = BACKLOG;
         // $scope.taskFolders[SOMEDAY].initialStatus = $scope.config.STATUS.NOT_STARTED.VALUE;
         // $scope.taskFolders[SOMEDAY].display = $scope.config.BACKLOG_FOLDER.ACTIVE;
         // $scope.taskFolders[SOMEDAY].name = $scope.config.BACKLOG_FOLDER.NAME;
         // $scope.taskFolders[SOMEDAY].title = $scope.config.BACKLOG_FOLDER.TITLE;
-        
+
         // $scope.taskFolders[SOMEDAY].limit = $scope.config.BACKLOG_FOLDER.LIMIT;
         // $scope.taskFolders[SOMEDAY].sort = $scope.config.BACKLOG_FOLDER.SORT;
 
@@ -831,135 +833,135 @@ tbApp.controller('taskboardController', function ($scope, $filter, $http) {
         $scope.taskFolders[DONE].displayInReport = $scope.config.COMPLETED_FOLDER.REPORT.DISPLAY;
         $scope.taskFolders[DONE].allowAdd = false;
         $scope.taskFolders[DONE].allowEdit = false;
-};
+    };
 
-    const DEFAULT_CONFIG =  {
-            "BACKLOG_FOLDER": {
-                "TYPE": BACKLOG,
-                "ACTIVE": true,
-                "NAME": "",
-                "TITLE": "BACKLOG",
-                "LIMIT": 0,
-                "SORT": "duedate,-priority",
-                "DISPLAY_PROPERTIES": {
-                    "OWNER": false,
-                    "PERCENT": false,
-                    "TOTALWORK": false
-                },
-                "FILTER_ON_START_DATE": true,
-                "REPORT": {
-                    "DISPLAY": true
-                }
+    const DEFAULT_CONFIG = {
+        "BACKLOG_FOLDER": {
+            "TYPE": BACKLOG,
+            "ACTIVE": true,
+            "NAME": "",
+            "TITLE": "BACKLOG",
+            "LIMIT": 0,
+            "SORT": "duedate,-priority",
+            "DISPLAY_PROPERTIES": {
+                "OWNER": false,
+                "PERCENT": false,
+                "TOTALWORK": false
             },
-            "NEXT_FOLDER": {
-                "TYPE": "SPRINT",
-                "ACTIVE": true,
-                "NAME": "Kanban",
-                "TITLE": "NEXT",
-                "LIMIT": 20,
-                "SORT": "duedate,-priority",
-                "DISPLAY_PROPERTIES": {
-                    "OWNER": false,
-                    "PERCENT": false,
-                    "TOTALWORK": false
-                },
-                "FILTER_ON_START_DATE": undefined,
-                "REPORT": {
-                    "DISPLAY": true
-                }
+            "FILTER_ON_START_DATE": true,
+            "REPORT": {
+                "DISPLAY": true
+            }
+        },
+        "NEXT_FOLDER": {
+            "TYPE": "SPRINT",
+            "ACTIVE": true,
+            "NAME": "Kanban",
+            "TITLE": "NEXT",
+            "LIMIT": 20,
+            "SORT": "duedate,-priority",
+            "DISPLAY_PROPERTIES": {
+                "OWNER": false,
+                "PERCENT": false,
+                "TOTALWORK": false
             },
-            "INPROGRESS_FOLDER": {
-                "TYPE": "DOING",
-                "ACTIVE": true,
-                "NAME": "Kanban",
-                "TITLE": "IN PROGRESS",
-                "LIMIT": 5,
-                "SORT": "-priority",
-                "DISPLAY_PROPERTIES": {
-                    "OWNER": false,
-                    "PERCENT": false,
-                    "TOTALWORK": false
-                },
-                "FILTER_ON_START_DATE": undefined,
-                "REPORT": {
-                    "DISPLAY": true
-                }
+            "FILTER_ON_START_DATE": undefined,
+            "REPORT": {
+                "DISPLAY": true
+            }
+        },
+        "INPROGRESS_FOLDER": {
+            "TYPE": "DOING",
+            "ACTIVE": true,
+            "NAME": "Kanban",
+            "TITLE": "IN PROGRESS",
+            "LIMIT": 5,
+            "SORT": "-priority",
+            "DISPLAY_PROPERTIES": {
+                "OWNER": false,
+                "PERCENT": false,
+                "TOTALWORK": false
             },
-            "WAITING_FOLDER": {
-                "TYPE": "WAITING",
-                "ACTIVE": true,
-                "NAME": "Kanban",
-                "TITLE": "WAITING",
-                "LIMIT": 0,
-                "SORT": "-priority",
-                "DISPLAY_PROPERTIES": {
-                    "OWNER": false,
-                    "PERCENT": false,
-                    "TOTALWORK": false
-                },
-                "FILTER_ON_START_DATE": undefined,
-                "REPORT": {
-                    "DISPLAY": true
-                }
+            "FILTER_ON_START_DATE": undefined,
+            "REPORT": {
+                "DISPLAY": true
+            }
+        },
+        "WAITING_FOLDER": {
+            "TYPE": "WAITING",
+            "ACTIVE": true,
+            "NAME": "Kanban",
+            "TITLE": "WAITING",
+            "LIMIT": 0,
+            "SORT": "-priority",
+            "DISPLAY_PROPERTIES": {
+                "OWNER": false,
+                "PERCENT": false,
+                "TOTALWORK": false
             },
-            "COMPLETED_FOLDER": {
-                "TYPE": "DONE",
-                "ACTIVE": true,
-                "NAME": "Kanban",
-                "TITLE": "COMPLETED",
-                "LIMIT": 0,
-                "SORT": "-completeddate,-priority,subject",
-                "DISPLAY_PROPERTIES": {
-                    "OWNER": false,
-                    "PERCENT": false,
-                    "TOTALWORK": false
-                },
-                "FILTER_ON_START_DATE": undefined,
-                "REPORT": {
-                    "DISPLAY": true
-                },
+            "FILTER_ON_START_DATE": undefined,
+            "REPORT": {
+                "DISPLAY": true
+            }
+        },
+        "COMPLETED_FOLDER": {
+            "TYPE": "DONE",
+            "ACTIVE": true,
+            "NAME": "Kanban",
+            "TITLE": "COMPLETED",
+            "LIMIT": 0,
+            "SORT": "-completeddate,-priority,subject",
+            "DISPLAY_PROPERTIES": {
+                "OWNER": false,
+                "PERCENT": false,
+                "TOTALWORK": false
             },
-            "ARCHIVE_FOLDER": {
-                "NAME": "Completed"
+            "FILTER_ON_START_DATE": undefined,
+            "REPORT": {
+                "DISPLAY": true
             },
-            "TASKNOTE_MAXLEN": 100,
-            "DATE_FORMAT": "dd-MMM",
-            "USE_CATEGORY_COLORS": true,
-            "USE_CATEGORY_COLOR_FOOTERS": false,
-            "SAVE_STATE": true,
-            "STATUS": {
-                "NOT_STARTED": {
-                    "VALUE": 0,
-                    "TEXT": "Not Started"
-                },
-                "IN_PROGRESS": {
-                    "VALUE": 1,
-                    "TEXT": "In Progress"
-                },
-                "WAITING": {
-                    "VALUE": 3,
-                    "TEXT": "Waiting For Someone Else"
-                },
-                "COMPLETED": {
-                    "VALUE": 2,
-                    "TEXT": "Completed"
-                }
+        },
+        "ARCHIVE_FOLDER": {
+            "NAME": "Completed"
+        },
+        "TASKNOTE_MAXLEN": 100,
+        "DATE_FORMAT": "dd-MMM",
+        "USE_CATEGORY_COLORS": true,
+        "USE_CATEGORY_COLOR_FOOTERS": false,
+        "SAVE_STATE": true,
+        "STATUS": {
+            "NOT_STARTED": {
+                "VALUE": 0,
+                "TEXT": "Not Started"
+            },
+            "IN_PROGRESS": {
+                "VALUE": 1,
+                "TEXT": "In Progress"
+            },
+            "WAITING": {
+                "VALUE": 3,
+                "TEXT": "Waiting For Someone Else"
             },
             "COMPLETED": {
-                "AFTER_X_DAYS": 7,
-                "ACTION": "ARCHIVE"
-            },
-            "AUTO_UPDATE": true,
-            "AUTO_START_TASKS": true,
-            "AUTO_START_DUE_TASKS": false
-        }
-    
+                "VALUE": 2,
+                "TEXT": "Completed"
+            }
+        },
+        "COMPLETED": {
+            "AFTER_X_DAYS": 7,
+            "ACTION": "ARCHIVE"
+        },
+        "AUTO_UPDATE": true,
+        "AUTO_START_TASKS": true,
+        "AUTO_START_DUE_TASKS": false
+    }
+
     var getState = function () {
         var state = { "private": "0", "search": "" }; // default state
 
         if ($scope.config.SAVE_STATE) {
             var stateRaw = getJournalItem(STATE_ID);
-            if (stateRaw !== null){
+            if (stateRaw !== null) {
                 state = JSON.parse(stateRaw);
             }
             else {
@@ -972,9 +974,10 @@ tbApp.controller('taskboardController', function ($scope, $filter, $http) {
         if (state.private === false) state.private = $scope.privacyFilter.public.value;
 
         $scope.prevState = state;
-        $scope.filter = 
-            {   private: state.private,
-                search:  state.search         
+        $scope.filter =
+            {
+                private: state.private,
+                search: state.search
             };
     }
 
@@ -991,7 +994,7 @@ tbApp.controller('taskboardController', function ($scope, $filter, $http) {
     var getConfig = function () {
         $scope.previousConfig = null;
         $scope.configRaw = getJournalItem(CONFIG_ID);
-        if ($scope.configRaw !== null){
+        if ($scope.configRaw !== null) {
             try {
                 $scope.config = JSON.parse(JSON.minify($scope.configRaw));
             }
@@ -1008,7 +1011,7 @@ tbApp.controller('taskboardController', function ($scope, $filter, $http) {
             saveConfig();
         }
     }
-    
+
     var saveConfig = function () {
         saveJournalItem(CONFIG_ID, JSON.stringify($scope.config, null, 2));
     }
@@ -1046,8 +1049,8 @@ tbApp.controller('taskboardController', function ($scope, $filter, $http) {
     }
 
     var getVersion = function () {
-        $http.get(VERSION_URL,{headers:{'Cache-Control': 'no-cache','Pragma': 'no-cache'}})
-            .then(function(response) {
+        $http.get(VERSION_URL, { headers: { 'Cache-Control': 'no-cache', 'Pragma': 'no-cache' } })
+            .then(function (response) {
                 $scope.version_number = response.data;
                 $scope.version_number = $scope.version_number.replace(/\n|\r/g, "");
                 checkVersion();
@@ -1056,29 +1059,29 @@ tbApp.controller('taskboardController', function ($scope, $filter, $http) {
 
     var checkVersion = function () {
         if ($scope.version != $scope.version_number) {
-                $scope.display_message = true;
+            $scope.display_message = true;
         }
     };
 
     var getCategoryStyles = function (csvCategories) {
 
-        const colorArray = [ 
-            '#E7A1A2', '#F9BA89', '#F7DD8F', '#FCFA90', '#78D168', '#9FDCC9', '#C6D2B0', '#9DB7E8', '#B5A1E2', 
-            '#daaec2', '#dad9dc', '#6b7994', '#bfbfbf', '#6f6f6f', '#4f4f4f', '#c11a25', '#e2620d', '#c79930', 
+        const colorArray = [
+            '#E7A1A2', '#F9BA89', '#F7DD8F', '#FCFA90', '#78D168', '#9FDCC9', '#C6D2B0', '#9DB7E8', '#B5A1E2',
+            '#daaec2', '#dad9dc', '#6b7994', '#bfbfbf', '#6f6f6f', '#4f4f4f', '#c11a25', '#e2620d', '#c79930',
             '#b9b300', '#368f2b', '#329b7a', '#778b45', '#2858a5', '#5c3fa3', '#93446b'
         ];
-    
+
         var getColor = function (category) {
             var c = outlookCategories.names.indexOf(category);
-            var i = outlookCategories.colors[c];        
+            var i = outlookCategories.colors[c];
             if (i == -1) {
                 return '#4f4f4f';
             }
             else {
-                return colorArray[i-1];
+                return colorArray[i - 1];
             }
         }
-        
+
         function getContrastYIQ(hexcolor) {
             if (hexcolor == undefined) {
                 return 'black';
@@ -1089,7 +1092,7 @@ tbApp.controller('taskboardController', function ($scope, $filter, $http) {
             var yiq = ((r * 299) + (g * 587) + (b * 114)) / 1000;
             return (yiq >= 128) ? 'black' : 'white';
         }
-    
+
         var i;
         var catStyles = [];
         var categories = csvCategories.split(/[;,]+/);
