@@ -1,0 +1,10 @@
+#headerbar {
+    margin-top: 10px;
+    margin-bottom: 20px;
+}
+
+#headerbar .dropdown {
+    background: transparent;
+    border: none;
+    margin-left: 2px;
+}

@@ -10,6 +10,11 @@
     overflow-y: auto;
 }
 
+/* .row {
+    padding-right: 5px;
+    padding-left: 5px;
+} */
+
 .row > [class*='col-'] {
     padding-right: 5px;
     padding-left: 5px;
@@ -23,13 +28,6 @@
     padding: 10px;
     word-wrap: break-word;
 }
-
-#headerbar {
-    margin-top: 20px;
-    margin-bottom: 20px;
-}
-
-#headerbar .btn-default, .task .btn-default  { background: transparent; border: none;}
 
 .tasklane header h5 {
     margin-top:  5px;

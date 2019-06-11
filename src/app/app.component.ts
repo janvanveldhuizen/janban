@@ -8,8 +8,10 @@ import { OutlookService } from './services/outlook.service';
 })
 export class AppComponent {
   canRun: boolean;
+  privateOrWork: number;
     
   constructor(private outlookService: OutlookService){
     this.canRun = outlookService.isRunningInOutlook();
+    this.privateOrWork = 2;
   }
 }

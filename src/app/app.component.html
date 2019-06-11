@@ -1,8 +1,8 @@
 <div>
   <app-not-supported *ngIf="!canRun"></app-not-supported>
-  <!-- <app-not-supported ng-if="!janban.isSupported()"></app-not-supported>
-  <div ng-if="janban.isSupported()" class="taskboard container-fluid">
-      <header-bar></header-bar>
-  </div> -->
-  'janban'
+  <div *ngIf="canRun" class="taskboard container-fluid">
+    <app-header-bar [privacyFilter]=privateOrWork></app-header-bar>
+    <p>canRun={{canRun}}</p>
+    <p>privateOrWork={{privateOrWork}}</p>
+  </div>
 </div>
