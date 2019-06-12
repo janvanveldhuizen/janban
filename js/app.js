@@ -18,6 +18,7 @@ tbApp.controller('taskboardController', function ($scope, $filter, $http) {
 
     const STATE_ID = "KanbanState";
     const CONFIG_ID = "KanbanConfig";
+    const DEBUG_ID = "KanbanDebug";
 
     const BACKLOG = 0;
     const SPRINT = 1;
@@ -25,6 +26,14 @@ tbApp.controller('taskboardController', function ($scope, $filter, $http) {
     const WAITING = 3;
     const DONE = 4;
     const SOMEDAY = 5;
+
+    var LOG = [];
+
+    var log = function (msg) {
+        var line = new Date().toLocaleString();
+        line += ": " + msg;
+        LOG.push(line);
+    }
 
     $scope.privacyFilter =
         {
@@ -140,7 +149,15 @@ tbApp.controller('taskboardController', function ($scope, $filter, $http) {
                         // ensure the task is not moving into same folder
                         if (taskitem.Parent.Name != tasksfolder.Name) {
                             // move the task item
-                            taskitem = taskitem.Move(tasksfolder);
+                            log("moving a task because of user drag and drop, from " + taskitem.Parent.Name + " to " + tasksfolder.Name)
+                            try {
+                                taskitem = taskitem.Move(tasksfolder);
+                                throw("test")
+                            } catch (error) {
+                                log("ERROR: " + error)
+                                alert("Error, please send the debug log")
+                                $scope.sendFeedback();
+                            }
                             itemChanged = true;
 
                             // update entryID with new one (entryIDs get changed after move)
@@ -295,8 +312,15 @@ tbApp.controller('taskboardController', function ($scope, $filter, $http) {
             for (i = 0; i < count; i++) {
                 if (tasks[i].status != $scope.config.STATUS.NOT_STARTED.TEXT) {
                     var taskitem = getTaskItem(tasks[i].entryID);
-                    taskitem.Move(getTaskFolder($scope.taskFolders[SPRINT].name));
-                    movedTask = true;
+                    log("moving a task because it is Backlog, but status is " + tasks[i].status + "; moving to " + $scope.taskFolders[SPRINT].name)
+                    try {
+                        taskitem.Move(getTaskFolder($scope.taskFolders[SPRINT].name));
+                        movedTask = true;
+                    } catch (error) {
+                        log("ERROR: " + error)
+                        alert("Error, please send the debug log")
+                        $scope.sendFeedback();
+                    }
                 }
             };
             if (movedTask) {
@@ -320,8 +344,15 @@ tbApp.controller('taskboardController', function ($scope, $filter, $http) {
                     var seconds = Date.secondsBetween(tasks[i].startdate, new Date());
                     if (seconds >= 0) {
                         var taskitem = getTaskItem(tasks[i].entryID);
-                        taskitem.Move(getTaskFolder($scope.taskFolders[SPRINT].name));
-                        movedTask = true;
+                        log("moving a task because its start day is today: " + tasks[i].startdate + "; moving to " + $scope.taskFolders[SPRINT].name)
+                        try {
+                            taskitem.Move(getTaskFolder($scope.taskFolders[SPRINT].name));
+                            movedTask = true;
+                        } catch (error) {
+                            log("ERROR: " + error)
+                            alert("Error, please send the debug log")
+                            $scope.sendFeedback();
+                        }
                     }
                 };
             };
@@ -346,8 +377,15 @@ tbApp.controller('taskboardController', function ($scope, $filter, $http) {
                     var seconds = Date.secondsBetween(tasks[i].duedate, new Date());
                     if (seconds >= 0) {
                         var taskitem = getTaskItem(tasks[i].entryID);
-                        taskitem.Move(getTaskFolder($scope.taskFolders[SPRINT].name));
-                        movedTask = true;
+                        log("moving a task because its due day is past: " + tasks[i].duedate + "; moving to " + $scope.taskFolders[SPRINT].name)
+                        try {
+                            taskitem.Move(getTaskFolder($scope.taskFolders[SPRINT].name));
+                            movedTask = true;
+                        } catch (error) {
+                            log("ERROR: " + error)
+                            alert("Error, please send the debug log")
+                            $scope.sendFeedback();
+                        }
                     }
                 };
             };
@@ -372,8 +410,15 @@ tbApp.controller('taskboardController', function ($scope, $filter, $http) {
                     var seconds = Date.secondsBetween(new Date(), tasks[i].startdate);
                     if (seconds >= 0) {
                         var taskitem = getTaskItem(tasks[i].entryID);
-                        taskitem.Move(getTaskFolder($scope.taskFolders[BACKLOG].name));
-                        movedTask = true;
+                        log("moving a task to the backlog because start date is future: " + tasks[i].startdate + "; moving to " + $scope.taskFolders[BACKLOG].name)
+                        try {
+                            taskitem.Move(getTaskFolder($scope.taskFolders[BACKLOG].name));
+                            movedTask = true;
+                        } catch (error) {
+                            log("ERROR: " + error)
+                            alert("Error, please send the debug log")
+                            $scope.sendFeedback();
+                        }
                     }
                 };
             };
@@ -437,6 +482,9 @@ tbApp.controller('taskboardController', function ($scope, $filter, $http) {
         mailItem.Subject = "JanBan version " + $scope.version + " Feedback (Outlook version: " + getOutlookVersion() + ")";
         mailItem.To = "janban@papasmurf.nl";
         mailItem.BodyFormat = 2;
+        for (var i = 0; i < LOG.length; i++) {
+            mailItem.Body += LOG[i] + "\n";
+        };
         mailItem.Attachments.Add(getPureJournalItem(CONFIG_ID));
         mailItem.Display();
     }
@@ -679,7 +727,16 @@ tbApp.controller('taskboardController', function ($scope, $filter, $http) {
         // move the task to the archive folder first (if it is not already in)
         var archivefolder = getTaskFolder($scope.config.ARCHIVE_FOLDER.NAME);
         if (taskitem.Parent.Name != archivefolder.Name) {
-            taskitem = taskitem.Move(archivefolder);
+            alert(taskitem.Parent.Name)
+            alert(archivefolder.Name)
+            log("moving a task to the archive folder, from " + taskitem.Parent.Name + " to " + archivefolder.Name)
+            try {
+                taskitem = taskitem.Move(archivefolder);
+            } catch (error) {
+                log("ERROR: " + error)
+                alert("Error, please send the debug log")
+                $scope.sendFeedback();
+            }
         };
 
         // locate and remove the item from the models
@@ -837,7 +894,7 @@ tbApp.controller('taskboardController', function ($scope, $filter, $http) {
 
     const DEFAULT_CONFIG = {
         "BACKLOG_FOLDER": {
-            "TYPE": BACKLOG,
+            "TYPE": "BACKLOG",
             "ACTIVE": true,
             "NAME": "",
             "TITLE": "BACKLOG",
