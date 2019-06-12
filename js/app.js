@@ -1042,6 +1042,34 @@ tbApp.controller('taskboardController', function ($scope, $filter, $http) {
 
     var migrateConfig = function () {
         try {
+            var isChanged = false;
+            // some older configs have no folder name for the Kanban task lanes
+            if ($scope.config.NEXT_FOLDER.NAME == "") {
+                $scope.config.NEXT_FOLDER.NAME = "Kanban";
+                $scope.taskFolders[SPRINT].name = "Kanban";
+                isChanged = true;
+            }
+            if ($scope.config.INPROGRESS_FOLDER.NAME == "") {
+                $scope.config.INPROGRESS_FOLDER.NAME = "Kanban";
+                $scope.taskFolders[DOING].name = "Kanban";
+                isChanged = true;
+            }
+            if ($scope.config.WAITING_FOLDER.NAME == "") {
+                $scope.config.WAITING_FOLDER.NAME = "Kanban";
+                $scope.taskFolders[WAITING].name = "Kanban";
+                isChanged = true;
+            }
+            if ($scope.config.COMPLETED_FOLDER.NAME == "") {
+                $scope.config.COMPLETED_FOLDER.NAME = "Kanban";
+                $scope.taskFolders[DONE].name = "Kanban";
+                isChanged = true;
+            }
+            if (isChanged) {
+                saveConfig();
+                // as long as we need configraw...
+                $scope.configRaw = getJournalItem(CONFIG_ID);
+                alert("done")
+            }
         }
         catch (error) {
             alert("Sorry, an error occured while migrating the config: " + error)
