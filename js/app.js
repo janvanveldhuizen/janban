@@ -10,6 +10,7 @@ tbApp.controller('taskboardController', function ($scope, $filter, $http) {
     const VERSION_URL = 'http://janware.nl/gitlab/version.txt';
     $scope.DOWNLOAD_URL = 'http://janware.nl/gitlab/janban.zip';
     $scope.HISTORY_URL = 'http://janware.nl/gitlab/whatsnew.html';
+    $scope.PING_URL = 'https://janvanveldhuizen.outsystemscloud.com//JanbanApi/rest/janbanping/hello?email={{email}}&name={{name}}';
     $scope.version = VERSION;
 
     const APP_MODE = 0;
@@ -159,6 +160,7 @@ tbApp.controller('taskboardController', function ($scope, $filter, $http) {
         getConfig();
         getState();
         getVersion();
+        pingUsage();
 
         outlookCategories = getOutlookCategories();
         applyConfig();
@@ -953,7 +955,8 @@ tbApp.controller('taskboardController', function ($scope, $filter, $http) {
         },
         "AUTO_UPDATE": true,
         "AUTO_START_TASKS": true,
-        "AUTO_START_DUE_TASKS": false
+        "AUTO_START_DUE_TASKS": false,
+        "LAST_PING": new Date(2000, 1, 1)
     }
 
     var getState = function () {
@@ -1075,6 +1078,16 @@ tbApp.controller('taskboardController', function ($scope, $filter, $http) {
             alert("Sorry, an error occured while migrating the config: " + error)
         }
     }
+
+    var pingUsage = function () {
+        if (Date.daysBetween(new Date($scope.config.LAST_PING), new Date()) > 7) {
+            var url = $scope.PING_URL.replace('{{email}}', escape(getUserEmailAddress()));
+            url = url.replace('{{name}}', escape(getUserName()));
+            $http.post(url, { headers: { 'Cache-Control': 'no-cache', 'Pragma': 'no-cache' } });
+            $scope.config.LAST_PING = new Date();
+            saveConfig();
+        }
+    };
 
     var getVersion = function () {
         $http.get(VERSION_URL, { headers: { 'Cache-Control': 'no-cache', 'Pragma': 'no-cache' } })

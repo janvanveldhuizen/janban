@@ -115,6 +115,22 @@ function saveJournalItem(subject, body){
     configItem.Body = body;
     configItem.Save();
 }
+
+function getUserEmailAddress() {
+    try {
+        return outlookNS.Accounts.Item(1).SmtpAddress;
+    } catch (error) {
+        return 'address-unknown';      
+    }
+}
+
+function getUserName() {
+    try {
+        return outlookApp.Session.CurrentUser.Name;
+    } catch (error) {
+        return 'name-unknown';        
+    }
+}
     
 function getUserProperty(item, prop) {
     var userprop = item.UserProperties(prop);
