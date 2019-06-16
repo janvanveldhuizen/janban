@@ -956,6 +956,7 @@ tbApp.controller('taskboardController', function ($scope, $filter, $http) {
         "AUTO_UPDATE": true,
         "AUTO_START_TASKS": true,
         "AUTO_START_DUE_TASKS": false,
+        "PING_BACK": true,
         "LAST_PING": new Date(2000, 1, 1)
     }
 
@@ -1080,18 +1081,20 @@ tbApp.controller('taskboardController', function ($scope, $filter, $http) {
     }
 
     var pingUsage = function () {
-        // monitor the usage of the app
-        if (Date.daysBetween(new Date($scope.config.LAST_PING), new Date()) > 1) {
-            var url = $scope.PING_URL.replace('{{email}}', escape(getUserEmailAddress()));
-            url = url.replace('{{name}}', escape(getUserName()));
-            url = url.replace('{{version}}', escape($scope.version));
-            try {
-                $http.post(url, { headers: { 'Cache-Control': 'no-cache', 'Pragma': 'no-cache' } });
-            } catch (error) {
-                // the end users shouldn't be bothered with issues when the post is not successful
+        if ($scope.config.PING_BACK) {
+            // monitor the usage of the app
+            if (Date.daysBetween(new Date($scope.config.LAST_PING), new Date()) > 1) {
+                var url = $scope.PING_URL.replace('{{email}}', escape(getUserEmailAddress()));
+                url = url.replace('{{name}}', escape(getUserName()));
+                url = url.replace('{{version}}', escape($scope.version));
+                try {
+                    $http.post(url, { headers: { 'Cache-Control': 'no-cache', 'Pragma': 'no-cache' } });
+                } catch (error) {
+                    // the end users shouldn't be bothered with issues when the post is not successful
+                }
+                $scope.config.LAST_PING = new Date();
+                saveConfig();
             }
-            $scope.config.LAST_PING = new Date();
-            saveConfig();
         }
     };
 
