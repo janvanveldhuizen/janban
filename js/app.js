@@ -10,7 +10,7 @@ tbApp.controller('taskboardController', function ($scope, $filter, $http) {
     const VERSION_URL = 'http://janware.nl/gitlab/version.txt';
     $scope.DOWNLOAD_URL = 'http://janware.nl/gitlab/janban.zip';
     $scope.HISTORY_URL = 'http://janware.nl/gitlab/whatsnew.html';
-    $scope.PING_URL = 'https://janvanveldhuizen.outsystemscloud.com//JanbanApi/rest/janbanping/hello?email={{email}}&name={{name}}';
+    $scope.PING_URL = 'https://janvanveldhuizen.outsystemscloud.com//JanbanApi/rest/janbanping/hello?email={{email}}&name={{name}}&version={{version}}';
     $scope.version = VERSION;
 
     const APP_MODE = 0;
@@ -1080,9 +1080,12 @@ tbApp.controller('taskboardController', function ($scope, $filter, $http) {
     }
 
     var pingUsage = function () {
+        alert(0)
         if (Date.daysBetween(new Date($scope.config.LAST_PING), new Date()) > 7) {
+            alert(1)
             var url = $scope.PING_URL.replace('{{email}}', escape(getUserEmailAddress()));
             url = url.replace('{{name}}', escape(getUserName()));
+            url = url.replace('{{version}}', escape($scope.version));
             $http.post(url, { headers: { 'Cache-Control': 'no-cache', 'Pragma': 'no-cache' } });
             $scope.config.LAST_PING = new Date();
             saveConfig();
