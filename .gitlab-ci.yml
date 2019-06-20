@@ -9,7 +9,7 @@ deploy:
   script:
     - apt-get -u update 
     - apt-get -y install zip unzip curl
-    - sed -i -e 's/#WHATSNEW#/$FTPSITE/g' js/app.1.js
+    - sed -i -e "s/#WHATSNEW#/$WHATSNEW/g" js/app.1.js
     - zip -r  janban.zip *
     - sed 's/";//g' js/version.js > version.txt1
     - sed 's/const VERSION = "//g' version.txt1 > version.txt
