@@ -7,6 +7,7 @@ tbApp.controller('taskboardController', function ($scope, $filter, $http) {
     var applMode;
     var outlookCategories;
 
+    // These variables are replaced in the build pipeline
     const VERSION_URL = 'http://janware.nl/gitlab/version.txt';
     $scope.DOWNLOAD_URL = 'http://janware.nl/gitlab/janban.zip';
     $scope.WHATSNEW_URL = 'http://janware.nl/gitlab/whatsnew.html';
