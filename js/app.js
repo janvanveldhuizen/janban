@@ -7,12 +7,7 @@ tbApp.controller('taskboardController', function ($scope, $filter, $http) {
     var applMode;
     var outlookCategories;
 
-    // These variables are replaced in the build pipeline
-    const VERSION_URL = 'http://janware.nl/gitlab/version.txt';
-    $scope.DOWNLOAD_URL = 'http://janware.nl/gitlab/janban.zip';
-    $scope.WHATSNEW_URL = 'http://janware.nl/gitlab/whatsnew.html';
-    $scope.PING_URL = 'https://janvanveldhuizen.outsystemscloud.com//JanbanApi/rest/janbanping/hello?email={{email}}&name={{name}}&version={{version}}';
-    $scope.version = VERSION;
+    setUrls();
 
     const APP_MODE = 0;
     const CONFIG_MODE = 1;
@@ -1081,6 +1076,16 @@ tbApp.controller('taskboardController', function ($scope, $filter, $http) {
         }
     }
 
+    var setUrls = function () {
+        // These variables are replaced in the build pipeline
+        $scope.VERSION_URL = '#VERSION#';
+        $scope.DOWNLOAD_URL = '#DOWNLOAD#';
+        $scope.WHATSNEW_URL = '#WHATSNEW#';
+        $scope.PING_URL = '#PINGBACK#';
+        $scope.version = VERSION;
+
+    }
+
     var pingUsage = function () {
         if ($scope.config.PING_BACK) {
             // monitor the usage of the app
@@ -1100,7 +1105,7 @@ tbApp.controller('taskboardController', function ($scope, $filter, $http) {
     };
 
     var getVersion = function () {
-        $http.get(VERSION_URL, { headers: { 'Cache-Control': 'no-cache', 'Pragma': 'no-cache' } })
+        $http.get($scope.VERSION_URL, { headers: { 'Cache-Control': 'no-cache', 'Pragma': 'no-cache' } })
             .then(function (response) {
                 $scope.version_number = response.data;
                 $scope.version_number = $scope.version_number.replace(/\n|\r/g, "");
