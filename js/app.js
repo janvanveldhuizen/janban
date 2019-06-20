@@ -7,8 +7,6 @@ tbApp.controller('taskboardController', function ($scope, $filter, $http) {
     var applMode;
     var outlookCategories;
 
-    setUrls();
-
     const APP_MODE = 0;
     const CONFIG_MODE = 1;
     const HELP_MODE = 2;
@@ -64,6 +62,7 @@ tbApp.controller('taskboardController', function ($scope, $filter, $http) {
     }
 
     $scope.init = function () {
+        setUrls();
 
         $scope.isBrowserSupported = checkBrowser();
         if (!$scope.isBrowserSupported) {
