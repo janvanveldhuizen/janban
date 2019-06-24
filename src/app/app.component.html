@@ -1,8 +1,19 @@
 <div>
   <app-not-supported *ngIf="!canRun"></app-not-supported>
   <div *ngIf="canRun" class="taskboard container-fluid">
-    <app-header-bar [privacyFilter]=privateOrWork></app-header-bar>
+    <app-header-bar 
+      [privacyFilter]="privateOrWork"
+      [textFilter]="taskFilter"
+      (titleClicked)="titleClicked()"
+      (refreshButtonClicked)="refreshButtonClicked()"
+      (reportButtonClicked)="reportButtonClicked()"
+      (configButtonClicked)="configButtonClicked()"
+      (helpButtonClicked)="helpButtonClicked()"
+      (textFilterChanged)="taskFilterChanged($event)"
+      ></app-header-bar>
     <p>canRun={{canRun}}</p>
     <p>privateOrWork={{privateOrWork}}</p>
+    <p>appMode={{appMode}}</p>
+    <p>taskFilter={{taskFilter}}</p>
   </div>
 </div>

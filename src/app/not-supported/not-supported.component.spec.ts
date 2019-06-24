@@ -22,4 +22,8 @@ describe('NotSupportedComponent', () => {
   it('should create', () => {
     expect(component).toBeTruthy();
   });
+
+  it('should display the proper message', () => {
+    expect(component.message).toEqual('Sorry, this app can only be run as the home page of a folder in Outlook')
+  })
 });

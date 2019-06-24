@@ -1,4 +1,5 @@
 import { BrowserModule } from '@angular/platform-browser';
+import { FormsModule} from '@angular/forms';
 import { NgModule } from '@angular/core';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { library as FontLibrary } from '@fortawesome/fontawesome-svg-core';
@@ -17,6 +18,7 @@ import { HeaderBarComponent } from './header-bar/header-bar.component';
   ],
   imports: [
     BrowserModule, 
+    FormsModule,
     FontAwesomeModule
   ],
   providers: [OutlookService],
