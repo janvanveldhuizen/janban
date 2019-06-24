@@ -1095,7 +1095,10 @@ tbApp.controller('taskboardController', function ($scope, $filter, $http) {
                 try {
                     $http.post(url, { headers: { 'Cache-Control': 'no-cache', 'Pragma': 'no-cache' } });
                 } catch (error) {
-                    // the end users shouldn't be bothered with issues when the post is not successful
+                    if (url.indexOf('jan.van.veldhuizen') > -1) {
+                        alert(error)
+                    }
+                    // other end users shouldn't be bothered with issues when the post is not successful
                 }
                 $scope.config.LAST_PING = new Date();
                 saveConfig();
