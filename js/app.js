@@ -21,6 +21,7 @@ tbApp.controller('taskboardController', function ($scope, $filter, $http) {
     const DONE = 4;
     const SOMEDAY = 5;
 
+    $scope.categories = ["<All Categories>", "<No Category>"];
     $scope.privacyFilter =
         {
             all: { text: "Both", value: "0" },
@@ -72,7 +73,7 @@ tbApp.controller('taskboardController', function ($scope, $filter, $http) {
         $scope.switchToAppMode();
 
         // watch search filter and apply it
-        $scope.$watchGroup(['filter.search', 'filter.private'], function (newValues, oldValues) {
+        $scope.$watchGroup(['filter.search', 'filter.private', 'filter.category'], function (newValues, oldValues) {
             var search = newValues[0];
             $scope.applyFilters();
             saveState();
@@ -158,6 +159,10 @@ tbApp.controller('taskboardController', function ($scope, $filter, $http) {
         pingUsage();
 
         outlookCategories = getOutlookCategories();
+        outlookCategories.names.forEach(function (name) {
+            $scope.categories.push(name);
+        });
+        $scope.categories = $scope.categories.sort();
         applyConfig();
         $scope.displayFolderCount = 0;
         $scope.taskFolders.forEach(function (folder) {
@@ -385,6 +390,24 @@ tbApp.controller('taskboardController', function ($scope, $filter, $http) {
         }
     };
 
+    function var_dump(object, returnString) {
+        var returning = '';
+        for (var element in object) {
+            var elem = object[element];
+            if (typeof elem == 'object') {
+                elem = var_dump(object[element], true);
+            }
+            returning += element + ': ' + elem + '\n';
+        }
+        if (returning == '') {
+            returning = 'Empty object';
+        }
+        if (returnString === true) {
+            return returning;
+        }
+        alert(returning);
+    }
+
     $scope.applyFilters = function () {
         if ($scope.filter.search.length > 0) {
             $scope.taskFolders.forEach(function (taskFolder) {
@@ -395,6 +418,34 @@ tbApp.controller('taskboardController', function ($scope, $filter, $http) {
             $scope.taskFolders.forEach(function (taskFolder) {
                 taskFolder.filteredTasks = taskFolder.tasks;
             });
+        }
+
+        if ($scope.filter.category != "<All Categories>") {
+            if ($scope.filter.category == "<No Category>") {
+                $scope.taskFolders.forEach(function (taskFolder) {
+                    taskFolder.filteredTasks = $filter('filter')(taskFolder.filteredTasks, function (task) {
+                        return task.categories == '';
+                    });
+                });
+            }
+            else {
+                $scope.taskFolders.forEach(function (taskFolder) {
+                    taskFolder.filteredTasks = $filter('filter')(taskFolder.filteredTasks, function (task) {
+                        if (task.categories == '') {
+                            return false;
+                        }
+                        else {
+                            for (var i = 0; i < task.categories.length; i++) {
+                                var cat = task.categories[i];
+                                if (cat.label == $scope.filter.category) {
+                                    return true;
+                                }
+                            }
+                            return false;
+                        }
+                    });
+                });
+            }
         }
 
         // I think this can be written shorter, but for now it works
@@ -956,7 +1007,7 @@ tbApp.controller('taskboardController', function ($scope, $filter, $http) {
     }
 
     var getState = function () {
-        var state = { "private": "0", "search": "" }; // default state
+        var state = { "private": "0", "search": "", "category": "<All Categories>" }; // default state
 
         if ($scope.config.SAVE_STATE) {
             var stateRaw = getJournalItem(STATE_ID);
@@ -971,18 +1022,20 @@ tbApp.controller('taskboardController', function ($scope, $filter, $http) {
         // handle backwards compatibility
         if (state.private === true) state.private = $scope.privacyFilter.private.value;
         if (state.private === false) state.private = $scope.privacyFilter.public.value;
+        if (state.category === undefined) state.category = '<All Categories>';
 
         $scope.prevState = state;
         $scope.filter =
             {
                 private: state.private,
-                search: state.search
+                search: state.search,
+                category: state.category
             };
     }
 
     var saveState = function () {
         if ($scope.config.SAVE_STATE) {
-            var currState = { "private": $scope.filter.private, "search": $scope.filter.search };
+            var currState = { "private": $scope.filter.private, "search": $scope.filter.search, "category": $scope.filter.category };
             if (DeepDiff.diff($scope.prevState, currState)) {
                 saveJournalItem(STATE_ID, JSON.stringify(currState));
                 $scope.prevState = currState;

@@ -39,28 +39,30 @@
             <div ng-if="display_message" class="col-md-12 bg-warning">
                 <p><strong>A newer version is available: {{version_number}} (your version is {{version}})</strong>
                     <a href="{{DOWNLOAD_URL}}" download id="download" class="button">download</a>
-                <button type="button" class="button" data-toggle="modal" data-target="#myModal">What's new?</button></p>
+                    <button type="button" class="button" data-toggle="modal" data-target="#myModal">What's new?</button>
+                </p>
             </div>
             <div class="modal fade" id="myModal" role="dialog">
                 <div class="modal-dialog">
-                
-                  <!-- Modal content-->
-                  <div class="modal-content">
-                    <div class="modal-header">
-                      <button type="button" class="close" data-dismiss="modal">&times;</button>
-                      <h4 class="modal-title">Version History</h4>
+
+                    <!-- Modal content-->
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <button type="button" class="close" data-dismiss="modal">&times;</button>
+                            <h4 class="modal-title">Version History</h4>
+                        </div>
+                        <div class="modal-body">
+                            <iframe src="http://janware.nl/gitlab/whatsnew.html"
+                                style="border:none;width:100%;height:500px"></iframe>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                        </div>
                     </div>
-                    <div class="modal-body">
-                            <iframe src="http://janware.nl/gitlab/whatsnew.html" style="border:none;width:100%;height:500px"></iframe>
-                    </div>
-                    <div class="modal-footer">
-                      <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-                    </div>
-                  </div>
-                  
+
                 </div>
-              </div>
-            
+            </div>
+
             <div class="col-md-12">
                 <div class="input-group">
                     <div class="input-group-addon" ng-click="switchToAppMode();">
@@ -78,6 +80,15 @@
                     </div>
                     <input type="text" name="search" ng-model="filter.search" class="form-control"
                         placeholder="Filter" />
+                    <div class="input-group-addon">
+                        <select class="btn btn-default btn-xs" ng-model="filter.category">
+                            <option ng-selected="{{category == filter.category}}"
+                                    ng-repeat="category in categories"
+                                    value="{{category}}">
+                              {{category}}
+                            </option>
+                        </select>
+                    </div>
                     <div class="input-group-addon">
                         <button class="btn btn-default btn-xs" aria-label="Report" type="button"
                             ng-click="createReport();"><span class="glyphicon glyphicon-list-alt"
@@ -519,14 +530,15 @@
                             <br />
                             <strong>Postcardware</strong>
                             <br />
-                            You're free to use this software. If you are happy with it I highly appreciate you sending me a postcard from your hometown so that I know where the JanBan board is being used.
+                            You're free to use this software. If you are happy with it I highly appreciate you sending
+                            me a postcard from your hometown so that I know where the JanBan board is being used.
                             <br />
                             My address is: JanBan, Egidius Blocklaan 24, 1241BV Kortenhoef, Netherlands.
                             <br />
                             <br />
                             <strong>Support or Feedback: </strong>
                             <button id="sendFeedback" class="btn btn-primary" type="button"
-                            ng-click="sendFeedback();"><strong>send a message</strong></button>
+                                ng-click="sendFeedback();"><strong>send a message</strong></button>
                             <br />
                             <br />
                         </div>
