@@ -13,9 +13,14 @@ deploy:
     - sed -i "s|#VERSION#|$VERSION|" js/app.js
     - sed -i "s|#DOWNLOAD#|$DOWNLOAD|" js/app.js
     - sed -i "s|#PINGBACK#|$PINGBACK|" js/app.js
-    - zip -r  janban.zip *
     - sed 's/";//g' js/version.js > version.txt1
     - sed 's/const VERSION = "//g' version.txt1 > version.txt
-    - curl -T janban.zip $FTPSITE --user $FTPUSER:$FTPPWD
     - curl -T version.txt $FTPSITE --user $FTPUSER:$FTPPWD
     - curl -T whatsnew.html $FTPSITE --user $FTPUSER:$FTPPWD
+    - curl -T upgrade.html $FTPSITE --user $FTPUSER:$FTPPWD
+    - curl -T janban-upgrade.gif $FTPSITE --user $FTPUSER:$FTPPWD
+    - rm version.txt
+    - rm whatsnew.html
+    - rm upgrade.html
+    - zip -r  janban.zip *
+    - curl -T janban.zip $FTPSITE --user $FTPUSER:$FTPPWD

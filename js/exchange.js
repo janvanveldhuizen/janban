@@ -39,6 +39,10 @@ function getOutlookCategories() {
     return { names: catNames, colors: catColors };
 }
 
+function getOutlookTodayHomePageFolder() {
+    return outlookNS.GetDefaultFolder(13).Parent.WebViewUrl.replace('\\kanban.html','')
+}
+
 function getOutlookVersion() {
     return outlookApp.version;
 }

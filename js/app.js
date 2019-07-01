@@ -77,6 +77,8 @@ tbApp.controller('taskboardController', function ($scope, $filter, $http) {
             return;
         }
 
+        $scope.installFolder = getOutlookTodayHomePageFolder();
+
         $scope.switchToAppMode();
 
         // watch search filter and apply it
@@ -99,9 +101,21 @@ tbApp.controller('taskboardController', function ($scope, $filter, $http) {
                     // locate the target folder in outlook
                     // ui.item.sortable.droptarget[0].id represents the id of the target list
                     if (ui.item.sortable.droptarget) { // check if it is dropped on a valid target
-                        if (($scope.config.INPROGRESS_FOLDER.LIMIT !== 0 && e.target.id !== ('folder-' + DOING) && ui.item.sortable.droptarget.attr('id') === ('folder-' + DOING) && $scope.taskFolders[DOING].tasks.length >= $scope.config.INPROGRESS_FOLDER.LIMIT) ||
-                            ($scope.config.NEXT_FOLDER.LIMIT !== 0 && ('folder-' + SPRINT) && ui.item.sortable.droptarget.attr('id') === ('folder-' + SPRINT) && $scope.taskFolders[SPRINT].tasks.length >= $scope.config.NEXT_FOLDER.LIMIT) ||
-                            ($scope.config.WAITING_FOLDER.LIMIT !== 0 && e.target.id !== ('folder-' + WAITING) && ui.item.sortable.droptarget.attr('id') === ('folder-' + WAITING) && $scope.taskFolders[WAITING].tasks.length >= $scope.config.WAITING_FOLDER.LIMIT)) {
+                        if (
+                            ($scope.config.INPROGRESS_FOLDER.LIMIT !== 0
+                                && e.target.id !== ('folder-' + DOING)
+                                && ui.item.sortable.droptarget.attr('id') === ('folder-' + DOING)
+                                && $scope.taskFolders[DOING].tasks.length >= $scope.config.INPROGRESS_FOLDER.LIMIT)
+                            ||
+                            ($scope.config.NEXT_FOLDER.LIMIT !== 0
+                                && ('folder-' + SPRINT)
+                                && ui.item.sortable.droptarget.attr('id') === ('folder-' + SPRINT)
+                                && $scope.taskFolders[SPRINT].tasks.length >= $scope.config.NEXT_FOLDER.LIMIT)
+                            ||
+                            ($scope.config.WAITING_FOLDER.LIMIT !== 0
+                                && e.target.id !== ('folder-' + WAITING)
+                                && ui.item.sortable.droptarget.attr('id') === ('folder-' + WAITING)
+                                && $scope.taskFolders[WAITING].tasks.length >= $scope.config.WAITING_FOLDER.LIMIT)) {
                             writeLog('Drag and drop canceled because of limit reached. From ' + e.target.id + ' to ' + ui.item.sortable.droptarget.attr('id'));
                             alert('Sorry, you reached the defined limit of this folder')
                             $scope.initTasks();
@@ -1217,7 +1231,7 @@ tbApp.controller('taskboardController', function ($scope, $filter, $http) {
     var migrateConfig = function () {
         try {
             var isChanged = false;
-            // some older configs have no folder name for the Kanban task lanes
+            // MIGRATION1: some older configs have no folder name for the Kanban task lanes
             if ($scope.config.NEXT_FOLDER.NAME == "") {
                 $scope.config.NEXT_FOLDER.NAME = "Kanban";
                 $scope.taskFolders[SPRINT].name = "Kanban";
@@ -1238,6 +1252,70 @@ tbApp.controller('taskboardController', function ($scope, $filter, $http) {
                 $scope.taskFolders[DONE].name = "Kanban";
                 isChanged = true;
             }
+            // MIGRATION2: limit could be text in previous versions
+            if (typeof $scope.config.INPROGRESS_FOLDER.LIMIT === 'string' || $scope.config.INPROGRESS_FOLDER.LIMIT instanceof String) {
+                $scope.config.INPROGRESS_FOLDER.LIMIT = parseInt($scope.config.INPROGRESS_FOLDER.LIMIT);
+                isChanged = true;
+            }
+            if (typeof $scope.config.NEXT_FOLDER.LIMIT === 'string' || $scope.config.NEXT_FOLDER.LIMIT instanceof String) {
+                $scope.config.NEXT_FOLDER.LIMIT = parseInt($scope.config.NEXT_FOLDER.LIMIT);
+                isChanged = true;
+            }
+            // MIGRATION3: some older configs have non-default folder names for the Kanban task lanes
+            var kanbanFolder = getTaskFolder('Kanban');
+            if ($scope.config.NEXT_FOLDER.NAME != "Kanban") {
+                var tasks = getTaskItems($scope.config.NEXT_FOLDER.NAME);
+                if (tasks.Count > 0) {
+                    do {
+                        var task = getTaskItem(tasks(1).entryID)
+                        task.Move(kanbanFolder);
+                        tasks = getTaskItems($scope.config.NEXT_FOLDER.NAME);
+                    } while (tasks.Count > 0);
+                }
+                $scope.config.NEXT_FOLDER.NAME = "Kanban";
+                $scope.taskFolders[SPRINT].name = "Kanban";
+                isChanged = true;
+            }
+            if ($scope.config.INPROGRESS_FOLDER.NAME != "Kanban") {
+                var tasks = getTaskItems($scope.config.INPROGRESS_FOLDER.NAME);
+                if (tasks.Count > 0) {
+                    do {
+                        var task = getTaskItem(tasks(1).entryID)
+                        task.Move(kanbanFolder);
+                        tasks = getTaskItems($scope.config.INPROGRESS_FOLDER.NAME);
+                    } while (tasks.Count > 0);
+                }
+                $scope.config.INPROGRESS_FOLDER.NAME = "Kanban";
+                $scope.taskFolders[DOING].name = "Kanban";
+                isChanged = true;
+            }
+            if ($scope.config.WAITING_FOLDER.NAME != "Kanban") {
+                var tasks = getTaskItems($scope.config.WAITING_FOLDER.NAME);
+                if (tasks.Count > 0) {
+                    do {
+                        var task = getTaskItem(tasks(1).entryID)
+                        task.Move(kanbanFolder);
+                        tasks = getTaskItems($scope.config.WAITING_FOLDER.NAME);
+                    } while (tasks.Count > 0);
+                }
+                $scope.config.WAITING_FOLDER.NAME = "Kanban";
+                $scope.taskFolders[WAITING].name = "Kanban";
+                isChanged = true;
+            }
+            if ($scope.config.COMPLETED_FOLDER.NAME != "Kanban") {
+                var tasks = getTaskItems($scope.config.COMPLETED_FOLDER.NAME);
+                if (tasks.Count > 0) {
+                    do {
+                        var task = getTaskItem(tasks(1).entryID)
+                        task.Move(kanbanFolder);
+                        tasks = getTaskItems($scope.config.COMPLETED_FOLDER.NAME);
+                    } while (tasks.Count > 0);
+                }
+                $scope.config.COMPLETED_FOLDER.NAME = "Kanban";
+                $scope.taskFolders[DONE].name = "Kanban";
+                isChanged = true;
+            }
+
             if (isChanged) {
                 saveConfig();
                 // as long as we need configraw...
@@ -1285,7 +1363,6 @@ tbApp.controller('taskboardController', function ($scope, $filter, $http) {
         $scope.WHATSNEW_URL = '#WHATSNEW#';
         $scope.PING_URL = '#PINGBACK#';
         $scope.version = VERSION;
-
     }
 
     var pingUsage = function () {
