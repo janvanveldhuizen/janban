@@ -25,6 +25,7 @@ deploy:
     - curl -T whatsnew.html $FTPSITE --user $FTPUSER:$FTPPWD
     - curl -T upgrade.html $FTPSITE --user $FTPUSER:$FTPPWD
     - rm version.txt
+    - rm version.txt1
     - rm whatsnew.html
     - rm upgrade.html
     - zip -r  janban.zip *
