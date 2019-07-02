@@ -9,12 +9,13 @@ deploy:
   script:
     - apt-get -u update 
     - apt-get -y install zip unzip curl
-    - export xx=`cat version.txt`
-    - echo $FTPSITE/janban.zip 
     - curl -O $FTPSITE/janban.zip  --user $FTPUSER:$FTPPWD
+    - curl -O $FTPSITE/version.txt  --user $FTPUSER:$FTPPWD
+    - export xx=`cat version.txt`
     - mv janban.zip janban.$xx.zip
     - curl -T janban.$xx.zip $FTPSITE --user $FTPUSER:$FTPPWD
     - rm janban.$xx.zip
+    - rm version.txt
     - sed -i "s|#WHATSNEW#|$WHATSNEW|" js/app.js
     - sed -i "s|#VERSION#|$VERSION|" js/app.js
     - sed -i "s|#DOWNLOAD#|$DOWNLOAD|" js/app.js
