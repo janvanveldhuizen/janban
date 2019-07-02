@@ -1224,7 +1224,7 @@ tbApp.controller('taskboardController', function ($scope, $filter, $http) {
                 }
             }
         } catch (error) {
-            alert("updateConfig: " + error)
+            writeLog("updateConfig: " + error)
         }
     }
 
