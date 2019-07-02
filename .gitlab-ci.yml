@@ -16,7 +16,8 @@ deploy:
     - sed 's/";//g' js/version.js > version.txt1
     - sed 's/const VERSION = "//g' version.txt1 > version.txt
     - export xx=`cat version.txt`
-    - curl -o janban.$xx.zip $FTPSITE/janban.zip
+    - curl $FTPSITE/janban.zip
+    - mv janban.zip janban.$xx.zip
     - curl -T janban.$xx.zip $FTPSITE --user $FTPUSER:$FTPPWD
     - rm janban.$xx.zip
     # - curl -T version.txt $FTPSITE --user $FTPUSER:$FTPPWD
