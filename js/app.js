@@ -1272,6 +1272,7 @@ tbApp.controller('taskboardController', function ($scope, $filter, $http) {
                         tasks = getTaskItems($scope.config.NEXT_FOLDER.NAME);
                     } while (tasks.Count > 0);
                 }
+                getTaskFolder($scope.config.NEXT_FOLDER.NAME).Delete();
                 $scope.config.NEXT_FOLDER.NAME = "Kanban";
                 $scope.taskFolders[SPRINT].name = "Kanban";
                 isChanged = true;
@@ -1285,6 +1286,7 @@ tbApp.controller('taskboardController', function ($scope, $filter, $http) {
                         tasks = getTaskItems($scope.config.INPROGRESS_FOLDER.NAME);
                     } while (tasks.Count > 0);
                 }
+                getTaskFolder($scope.config.INPROGRESS_FOLDER.NAME).Delete();
                 $scope.config.INPROGRESS_FOLDER.NAME = "Kanban";
                 $scope.taskFolders[DOING].name = "Kanban";
                 isChanged = true;
@@ -1298,6 +1300,7 @@ tbApp.controller('taskboardController', function ($scope, $filter, $http) {
                         tasks = getTaskItems($scope.config.WAITING_FOLDER.NAME);
                     } while (tasks.Count > 0);
                 }
+                getTaskFolder($scope.config.WAITING_FOLDER.NAME).Delete();
                 $scope.config.WAITING_FOLDER.NAME = "Kanban";
                 $scope.taskFolders[WAITING].name = "Kanban";
                 isChanged = true;
@@ -1311,6 +1314,7 @@ tbApp.controller('taskboardController', function ($scope, $filter, $http) {
                         tasks = getTaskItems($scope.config.COMPLETED_FOLDER.NAME);
                     } while (tasks.Count > 0);
                 }
+                getTaskFolder($scope.config.COMPLETED_FOLDER.NAME).Delete();
                 $scope.config.COMPLETED_FOLDER.NAME = "Kanban";
                 $scope.taskFolders[DONE].name = "Kanban";
                 isChanged = true;
