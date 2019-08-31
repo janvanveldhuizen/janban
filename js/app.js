@@ -15,12 +15,14 @@ tbApp.controller('taskboardController', function ($scope, $filter, $http) {
     const CONFIG_ID = "KanbanConfig";
     const LOG_ID = "KanbanErrorLog";
 
-    const BACKLOG = 0;
-    const SPRINT = 1;
-    const DOING = 2;
-    const WAITING = 3;
-    const DONE = 4;
-    const SOMEDAY = 5;
+    const SOMEDAY = 0;
+    const BACKLOG = 1;
+    const SPRINT = 2;
+    const DOING = 3;
+    const WAITING = 4;
+    const DONE = 5;
+
+    //$scope
 
     const MAX_LOG_ENTRIES = 500;
 
@@ -42,7 +44,8 @@ tbApp.controller('taskboardController', function ($scope, $filter, $http) {
         { type: 1 },
         { type: 2 },
         { type: 3 },
-        { type: 4 }
+        { type: 4 },
+        { type: 5 }
     ];
 
     $scope.switchToAppMode = function () {
@@ -123,6 +126,10 @@ tbApp.controller('taskboardController', function ($scope, $filter, $http) {
                         } else {
                             //TODO dit kan korter
                             switch (ui.item.sortable.droptarget[0].id) {
+                                case 'folder-' + SOMEDAY:
+                                    var tasksfolder = getTaskFolder($scope.config.SOMEDAY_FOLDER.NAME);
+                                    var newstatus = $scope.config.STATUS.NOT_STARTED.VALUE;
+                                    break;
                                 case 'folder-' + BACKLOG:
                                     var tasksfolder = getTaskFolder($scope.config.BACKLOG_FOLDER.NAME);
                                     var newstatus = $scope.config.STATUS.NOT_STARTED.VALUE;
@@ -679,6 +686,28 @@ tbApp.controller('taskboardController', function ($scope, $filter, $http) {
                 mailBody += "</ul>";
             }
 
+            // SOMEDAY ITEMS
+            if ($scope.config.SOMEDAY_FOLDER.REPORT.DISPLAY) {
+                var tasks = getTaskFolder($scope.config.SOMEDAY_FOLDER.NAME).Items;
+                tasks.Sort("[Importance][Status]", true);
+                mailBody += "<h3>" + $scope.config.SOMEDAY_FOLDER.TITLE + "</h3>";
+                mailBody += "<ul>";
+                var count = tasks.Count;
+                for (i = 1; i <= count; i++) {
+                    mailBody += "<li>"
+                    if (tasks(i).Categories !== "") { mailBody += "[" + tasks(i).Categories + "] "; }
+                    mailBody += "<strong>" + tasks(i).Subject + "</strong>" + " - <i>" + taskStatusText(tasks(i).Status) + "</i>";
+                    if ($scope.config.SOMEDAY_FOLDER.DISPLAY_PROPERTIES.TOTALWORK) { mailBody += " - " + tasks(i).TotalWork + " mn "; }
+                    if (tasks(i).Importance == 2) { mailBody += "<font color=red> [H]</font>"; }
+                    if (tasks(i).Importance == 0) { mailBody += "<font color=gray> [L]</font>"; }
+                    var dueDate = new Date(tasks(i).DueDate);
+                    if (moment(dueDate).isValid && moment(dueDate).year() != 4501) { mailBody += " [Due: " + moment(dueDate).format("DD-MMM") + "]"; }
+                    if (taskBodyNotes(tasks(i).Body, 10000)) { mailBody += "<br>" + "<font color=gray>" + taskBodyNotes(tasks(i).Body, 10000) + "</font>"; }
+                    mailBody += "</li>";
+                }
+                mailBody += "</ul>";
+            }
+
             mailBody += "</body>"
 
             // include report content to the mail body
@@ -723,6 +752,9 @@ tbApp.controller('taskboardController', function ($scope, $filter, $http) {
         try {
             // set the parent folder to target defined
             switch (target) {
+                case SOMEDAY:
+                    var tasksfolder = getTaskFolder($scope.taskFolders[SOMEDAY].name);
+                    break;
                 case BACKLOG:
                     var tasksfolder = getTaskFolder($scope.taskFolders[BACKLOG].name);
                     break;
@@ -909,14 +941,21 @@ tbApp.controller('taskboardController', function ($scope, $filter, $http) {
 
     var applyConfig = function () {
         try {
-            // $scope.taskFolders[SOMEDAY].type = BACKLOG;
-            // $scope.taskFolders[SOMEDAY].initialStatus = $scope.config.STATUS.NOT_STARTED.VALUE;
-            // $scope.taskFolders[SOMEDAY].display = $scope.config.BACKLOG_FOLDER.ACTIVE;
-            // $scope.taskFolders[SOMEDAY].name = $scope.config.BACKLOG_FOLDER.NAME;
-            // $scope.taskFolders[SOMEDAY].title = $scope.config.BACKLOG_FOLDER.TITLE;
-
-            // $scope.taskFolders[SOMEDAY].limit = $scope.config.BACKLOG_FOLDER.LIMIT;
-            // $scope.taskFolders[SOMEDAY].sort = $scope.config.BACKLOG_FOLDER.SORT;
+            $scope.taskFolders[SOMEDAY].type = SOMEDAY;
+            $scope.taskFolders[SOMEDAY].initialStatus = $scope.config.STATUS.NOT_STARTED.VALUE;
+            $scope.taskFolders[SOMEDAY].initialStatus = -1;
+            $scope.taskFolders[SOMEDAY].display = $scope.config.SOMEDAY_FOLDER.ACTIVE;
+            $scope.taskFolders[SOMEDAY].name = $scope.config.SOMEDAY_FOLDER.NAME;
+            $scope.taskFolders[SOMEDAY].title = $scope.config.SOMEDAY_FOLDER.TITLE;
+            $scope.taskFolders[SOMEDAY].limit = $scope.config.SOMEDAY_FOLDER.LIMIT;
+            $scope.taskFolders[SOMEDAY].sort = $scope.config.SOMEDAY_FOLDER.SORT;
+            $scope.taskFolders[SOMEDAY].displayOwner = $scope.config.SOMEDAY_FOLDER.DISPLAY_PROPERTIES.OWNER;
+            $scope.taskFolders[SOMEDAY].displayPercent = $scope.config.SOMEDAY_FOLDER.DISPLAY_PROPERTIES.PERCENT;
+            $scope.taskFolders[SOMEDAY].displayTotalWork = $scope.config.SOMEDAY_FOLDER.DISPLAY_PROPERTIES.TOTALWORK;
+            $scope.taskFolders[SOMEDAY].filterOnStartDate = $scope.config.SOMEDAY_FOLDER.FILTER_ON_START_DATE;
+            $scope.taskFolders[SOMEDAY].displayInReport = $scope.config.SOMEDAY_FOLDER.REPORT.DISPLAY;
+            $scope.taskFolders[SOMEDAY].allowAdd = true;
+            $scope.taskFolders[SOMEDAY].allowEdit = true;
 
             $scope.taskFolders[BACKLOG].type = BACKLOG;
             $scope.taskFolders[BACKLOG].initialStatus = $scope.config.STATUS.NOT_STARTED.VALUE;
@@ -999,6 +1038,23 @@ tbApp.controller('taskboardController', function ($scope, $filter, $http) {
     };
 
     const DEFAULT_CONFIG = {
+        "SOMEDAY_FOLDER": {
+            "TYPE": SOMEDAY,
+            "ACTIVE": false,
+            "NAME": "Someday",
+            "TITLE": "SOMEDAY/MAYBE",
+            "LIMIT": 0,
+            "SORT": "-priority",
+            "DISPLAY_PROPERTIES": {
+                "OWNER": false,
+                "PERCENT": false,
+                "TOTALWORK": false
+            },
+            "FILTER_ON_START_DATE": undefined,
+            "REPORT": {
+                "DISPLAY": false
+            }
+        },
         "BACKLOG_FOLDER": {
             "TYPE": BACKLOG,
             "ACTIVE": true,
@@ -1319,6 +1375,8 @@ tbApp.controller('taskboardController', function ($scope, $filter, $http) {
                 $scope.taskFolders[DONE].name = "Kanban";
                 isChanged = true;
             }
+            // MIGRATION 4: If Someday folder exists, then move all tasks to status Defered
+
 
             if (isChanged) {
                 saveConfig();

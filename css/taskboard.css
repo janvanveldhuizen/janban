@@ -15,7 +15,7 @@
     padding-left: 5px;
 } */
 
-.row > [class*='col-'] {
+.row>[class*='col-'] {
     padding-right: 5px;
     padding-left: 5px;
 }
@@ -34,10 +34,13 @@
     margin-bottom: 20px;
 }
 
-#headerbar .btn-default, .task .btn-default  { background: transparent; border: none;}
+#headerbar .btn-default, .task .btn-default {
+    background: transparent;
+    border: none;
+}
 
 .tasklane header h5 {
-    margin-top:  5px;
+    margin-top: 5px;
     margin-bottom: 10px;
     font-weight: 700;
     color: #555;
@@ -76,8 +79,13 @@ li.task footer {
     padding: 3px 7px;
 }
 
-.task-overdue { color: #dd3333; }
-.task-today { color: #6f8eb3; }
+.task-overdue {
+    color: #dd3333;
+}
+
+.task-today {
+    color: #6f8eb3;
+}
 
 li.task.task-medium {
     background-color: #fff;
@@ -105,71 +113,87 @@ li.task.task-completed {
 }
 
 .panel-default>.panel-heading-completed {
-  color: #333;
-  background-color: #E7D4EA;
-  border-color: #ddd;
-  padding-top: 5px;
-  Padding-bottom: 5px;
-  padding-left: 10px;
-  padding-right: 10px;
+    color: #333;
+    background-color: #E7D4EA;
+    border-color: #ddd;
+    padding-top: 5px;
+    Padding-bottom: 5px;
+    padding-left: 10px;
+    padding-right: 10px;
 }
 
 .panel-default>.panel-heading-waiting {
-  color: #333;
-  background-color: #EBDD82;
-  border-color: #ddd;
-  padding-top: 5px;
-  Padding-bottom: 5px;
-  padding-left: 10px;
-  padding-right: 10px;
+    color: #333;
+    background-color: #EBDD82;
+    border-color: #ddd;
+    padding-top: 5px;
+    Padding-bottom: 5px;
+    padding-left: 10px;
+    padding-right: 10px;
 }
+
 .panel-default>.panel-heading-progress {
-  color: #333;
-  background-color: #AFCAD5;
-  border-color: #ddd;
-  padding-top: 5px;
-  Padding-bottom: 5px;
-  padding-left: 10px;
-  padding-right: 10px;
+    color: #333;
+    background-color: #AFCAD5;
+    border-color: #ddd;
+    padding-top: 5px;
+    Padding-bottom: 5px;
+    padding-left: 10px;
+    padding-right: 10px;
 }
 
 .panel-default>.panel-heading-next {
-  color: #333;
-  background-color: #D9E6CA;
-  border-color: #ddd;
-  padding-top: 5px;
-  Padding-bottom: 5px;
-  padding-left: 10px;
-  padding-right: 10px;
+    color: #333;
+    background-color: #D9E6CA;
+    border-color: #ddd;
+    padding-top: 5px;
+    Padding-bottom: 5px;
+    padding-left: 10px;
+    padding-right: 10px;
 }
 
 .panel-default>.panel-heading-todo {
-  color: #333;
-  background-color: #D0D4DC;
-  border-color: #ddd;
-  padding-top: 5px;
-  Padding-bottom: 5px;
-  padding-left: 10px;
-  padding-right: 10px;
+    color: #333;
+    background-color: #D0D4DC;
+    border-color: #ddd;
+    padding-top: 5px;
+    Padding-bottom: 5px;
+    padding-left: 10px;
+    padding-right: 10px;
+}
+
+.panel-default>.panel-heading-someday {
+    color: #333;
+    background-color: #D0D4DC;
+    border-color: #ddd;
+    padding-top: 5px;
+    Padding-bottom: 5px;
+    padding-left: 10px;
+    padding-right: 10px;
 }
 
 .col-lg-100 {
     width: 100%
 }
+
 .col-lg-50 {
     width: 50%
 }
+
 .col-lg-33 {
     width: 33%
 }
+
 .col-lg-25 {
     width: 25%
 }
+
 .col-lg-20 {
     width: 20%
 }
+
 .col-lg-16 {
-    width: 16%
+    width: 16.65%
 }
 
 .panel-about {
@@ -179,9 +203,9 @@ li.task.task-completed {
     padding-left: 10px;
     padding-right: 10px;
     font-size: 125%;
-  }
+}
 
-  .button {
+.button {
     font: bold 11px Arial;
     text-decoration: none;
     background-color: #EEEEEE;
@@ -191,12 +215,9 @@ li.task.task-completed {
     border-right: 1px solid #333333;
     border-bottom: 1px solid #333333;
     border-left: 1px solid #CCCCCC;
-  }
-
-  
+}
 
 .left {
     float: left;
     padding: 0 20px 20px 0;
 }
-   
