@@ -48,6 +48,24 @@ function getOutlookVersion() {
 }
 
 function getTaskFolder(folderName) {
+
+    try {
+        alert('hallo')
+        var fldr = outlookNS.Folders.item('TasksAndCalendar')
+        var fldrs = fldr.Folders(1)
+        var i;
+        for (i=1; i<12; i++){
+            // alert(fldrs[i].DefaultItemType)
+            alert(fldr.Folders(i))
+            alert(fldr.Folders(i).DefaultItemType) // moet 3 zijn voor tasks
+           }
+
+            
+    } catch (error) {
+        alert(error)
+    }
+    stopdebug
+
     if (folderName === undefined || folderName === '') {
         // if folder path is not defined, return main Tasks folder
         var folder = outlookNS.GetDefaultFolder(13);
