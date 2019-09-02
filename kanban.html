@@ -138,10 +138,10 @@
                         </h5>
                     </header>
                     <ul id="folder-{{folder.type}}" ui-sortable="sortableOptions" ng-model="folder.filteredTasks"
-                        ng-class=" { 'tasklist-default' : !display_message, 'tasklist-message' : display_message }"
+                        ng-class="{ 'tasklist-default' : !display_message, 'tasklist-message' : display_message }"
                         class="panel-body list-unstyled tasklist">
                         <li ng-repeat="task in folder.filteredTasks" class="task panel"
-                            ng-class=" {  'task-completed': folder.type == 5 , task-low' : task.priority === 0, 'task-medium' : task.priority === 1, 'task-high' : task.priority === 2, 'task-private': task.sensitivity === 2 }"
+                            ng-class="{ 'task-completed': folder.type == 5,  'task-low' : task.priority === 0, 'task-medium' : task.priority === 1, 'task-high' : task.priority === 2, 'task-private': task.sensitivity === 2 }"
                             ng-dblclick="editTask(task)">
                             <header class="panel-heading">
                                 {{ task.subject }}
