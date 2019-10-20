@@ -34,10 +34,10 @@ deploy:
     - mv kanban.html index.html
     - curl -T index.html $FTPSITE --user $FTPUSERJANBAN:$FTPPWDJANBAN
     - curl -T janban-icon-512.jpg $FTPSITE --user $FTPUSERJANBAN:$FTPPWDJANBAN
-    - curl -T lib/angular.js $FTPSITE --user $FTPUSERJANBAN:$FTPPWDJANBAN
+    - curl -T lib/angular.js $FTPSITE/lib/ --user $FTPUSERJANBAN:$FTPPWDJANBAN
     - curl -T lib/angular.min.js $FTPSITE --user $FTPUSERJANBAN:$FTPPWDJANBAN
     - curl -T lib/bootstrap.min.js $FTPSITE --user $FTPUSERJANBAN:$FTPPWDJANBAN
-    - curl -T lib/deep-diff-0.3.8.js $FTPSITE --user $FTPUSERJANBAN:$FTPPWDJANBAN
+    - curl -T lib/deep-diff-0.3.8.min.js $FTPSITE --user $FTPUSERJANBAN:$FTPPWDJANBAN
     - curl -T lib/jquery.min.js $FTPSITE --user $FTPUSERJANBAN:$FTPPWDJANBAN
     - curl -T lib/jquery-ui.js $FTPSITE --user $FTPUSERJANBAN:$FTPPWDJANBAN
     - curl -T lib/minify.json.js $FTPSITE --user $FTPUSERJANBAN:$FTPPWDJANBAN
@@ -49,8 +49,3 @@ deploy:
     - curl -T js/version.js $FTPSITE --user $FTPUSERJANBAN:$FTPPWDJANBAN
     - curl -T css/bootstrap.min.css $FTPSITE --user $FTPUSERJANBAN:$FTPPWDJANBAN
     - curl -T css/taskboard.css $FTPSITE --user $FTPUSERJANBAN:$FTPPWDJANBAN
-    - mv *.css css
-    - mv app.js js
-    - mv exchange.js js
-    - mv version.js js
-    - mv *.js lib
