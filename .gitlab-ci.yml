@@ -39,7 +39,7 @@ deploy:
     - curl -T lib/bootstrap.min.js $FTPSITE/lib/ --user $FTPUSERJANBAN:$FTPPWDJANBAN
     - curl -T lib/deep-diff-0.3.8.min.js $FTPSITE/lib/ --user $FTPUSERJANBAN:$FTPPWDJANBAN
     - curl -T lib/jquery.min.js $FTPSITE/lib/ --user $FTPUSERJANBAN:$FTPPWDJANBAN
-    - curl -T lib/jquery-ui.js $FTPSITE/lib/ --user $FTPUSERJANBAN:$FTPPWDJANBAN
+    - curl -T lib/jquery-ui.min.js $FTPSITE/lib/ --user $FTPUSERJANBAN:$FTPPWDJANBAN
     - curl -T lib/minify.json.js $FTPSITE/lib/ --user $FTPUSERJANBAN:$FTPPWDJANBAN
     - curl -T lib/moment.min.js $FTPSITE/lib/ --user $FTPUSERJANBAN:$FTPPWDJANBAN
     - curl -T lib/sortable.js $FTPSITE/lib/ --user $FTPUSERJANBAN:$FTPPWDJANBAN
