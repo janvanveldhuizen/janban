@@ -31,3 +31,21 @@ deploy:
     - rm upgrade.html
     - zip -r  janban.zip *
     - curl -T janban.zip $FTPSITE --user $FTPUSER:$FTPPWD
+    - mv kanban.html index.html
+    - curl -T index.html $FTPSITE --user $FTPUSERJANBAN:$FTPPWDJANBAN
+    - curl -T janban-icon-512 $FTPSITE --user $FTPUSERJANBAN:$FTPPWDJANBAN
+    - curl -T lib/angular.js $FTPSITE/lib --user $FTPUSERJANBAN:$FTPPWDJANBAN
+    - curl -T lib/angular.min.js $FTPSITE/lib --user $FTPUSERJANBAN:$FTPPWDJANBAN
+    - curl -T lib/bootstrap.min.js $FTPSITE/lib --user $FTPUSERJANBAN:$FTPPWDJANBAN
+    - curl -T lib/deep-diff-0.3.8.js $FTPSITE/lib --user $FTPUSERJANBAN:$FTPPWDJANBAN
+    - curl -T lib/jquery.min.js $FTPSITE/lib --user $FTPUSERJANBAN:$FTPPWDJANBAN
+    - curl -T lib/jquery-ui.js $FTPSITE/lib --user $FTPUSERJANBAN:$FTPPWDJANBAN
+    - curl -T lib/minify.json.js $FTPSITE/lib --user $FTPUSERJANBAN:$FTPPWDJANBAN
+    - curl -T lib/moment.min.js $FTPSITE/lib --user $FTPUSERJANBAN:$FTPPWDJANBAN
+    - curl -T lib/sortable.js $FTPSITE/lib --user $FTPUSERJANBAN:$FTPPWDJANBAN
+    - curl -T lib/sortable.min.js $FTPSITE/lib --user $FTPUSERJANBAN:$FTPPWDJANBAN
+    - curl -T js/app.js $FTPSITE/js --user $FTPUSERJANBAN:$FTPPWDJANBAN
+    - curl -T js/exchange.js $FTPSITE/js --user $FTPUSERJANBAN:$FTPPWDJANBAN
+    - curl -T js/version.js $FTPSITE/js --user $FTPUSERJANBAN:$FTPPWDJANBAN
+    - curl -T css/bootstrap.min.css $FTPSITE/css --user $FTPUSERJANBAN:$FTPPWDJANBAN
+    - curl -T css/taskboard.css $FTPSITE/css --user $FTPUSERJANBAN:$FTPPWDJANBAN
