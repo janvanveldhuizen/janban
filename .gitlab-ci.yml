@@ -12,9 +12,8 @@ deploy:
     - curl -O $FTPSITE/janban.zip  --user $FTPUSER:$FTPPWD
     - curl -O $FTPSITE/version.txt  --user $FTPUSER:$FTPPWD
     - export xx=`cat version.txt`
-    - mv janban.zip janban.$xx.zip
-    - curl -T janban.$xx.zip $FTPSITE --user $FTPUSER:$FTPPWD
-    - rm janban.$xx.zip
+    - curl -O janban.$xx.zip $FTPSITE --user $FTPUSER:$FTPPWD
+    - if [ -f janban.$xx.zip ]; then echo no upload needed; else mv janban.zip janban.$xx.zip && curl -T janban.$xx.zip $FTPSITE --user $FTPUSER:$FTPPWD && rm janban.$xx.zip; fi
     - rm version.txt
     - sed -i "s|#WHATSNEW#|$WHATSNEW|" js/app.js
     - sed -i "s|#VERSION#|$VERSION|" js/app.js
@@ -49,3 +48,4 @@ deploy:
     - curl -T js/version.js $FTPSITE/js/ --user $FTPUSERJANBAN:$FTPPWDJANBAN
     - curl -T css/bootstrap.min.css $FTPSITE/css/ --user $FTPUSERJANBAN:$FTPPWDJANBAN
     - curl -T css/taskboard.css $FTPSITE/css/ --user $FTPUSERJANBAN:$FTPPWDJANBAN
+    - curl -T install.cmd $FTPSITE --user $FTPUSERJANBAN:$FTPPWDJANBAN

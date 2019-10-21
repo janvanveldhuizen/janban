@@ -40,7 +40,7 @@ function getOutlookCategories() {
 }
 
 function getOutlookTodayHomePageFolder() {
-    return outlookNS.GetDefaultFolder(13).Parent.WebViewUrl.replace('\\kanban.html','')
+    return outlookNS.GetDefaultFolder(13).Parent.WebViewUrl
 }
 
 function getOutlookVersion() {
