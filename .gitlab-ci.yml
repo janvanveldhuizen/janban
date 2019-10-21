@@ -13,7 +13,8 @@ deploy:
     - curl -O $FTPSITE/version.txt  --user $FTPUSER:$FTPPWD
     - export xx=`cat version.txt`
     - curl -O $FTPSITE/janban.$xx.zip --user $FTPUSER:$FTPPWD
-    - if [ -f janban.$xx.zip ]; then echo no upload needed; else mv janban.zip janban.$xx.zip && curl -T janban.$xx.zip $FTPSITE --user $FTPUSER:$FTPPWD && rm janban.$xx.zip; fi
+    - if [ -f janban.$xx.zip ]; then echo no upload needed; else mv janban.zip janban.$xx.zip && curl -T janban.$xx.zip $FTPSITE --user $FTPUSER:$FTPPWD; fi
+    - rm janban.$xx.zip
     - rm version.txt
     - sed -i "s|#WHATSNEW#|$WHATSNEW|" js/app.js
     - sed -i "s|#VERSION#|$VERSION|" js/app.js
@@ -28,6 +29,9 @@ deploy:
     - rm version.txt1
     - rm whatsnew.html
     - rm upgrade.html
+    - zip -r  install.zip install.cmd
+    - curl -T install.zip $FTPSITE --user $FTPUSER:$FTPPWD
+    - rm install.zip
     - zip -r  janban.zip *
     - curl -T janban.zip $FTPSITE --user $FTPUSER:$FTPPWD
     - mv kanban.html index.html
