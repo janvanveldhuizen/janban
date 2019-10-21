@@ -12,6 +12,7 @@ deploy:
     - curl -O $FTPSITE/janban.zip  --user $FTPUSER:$FTPPWD
     - curl -O $FTPSITE/version.txt  --user $FTPUSER:$FTPPWD
     - export xx=`cat version.txt`
+    - echo curl -O janban.$xx.zip $FTPSITE --user $FTPUSER:$FTPPWD
     - curl -O janban.$xx.zip $FTPSITE --user $FTPUSER:$FTPPWD
     - if [ -f janban.$xx.zip ]; then echo no upload needed; else mv janban.zip janban.$xx.zip && curl -T janban.$xx.zip $FTPSITE --user $FTPUSER:$FTPPWD && rm janban.$xx.zip; fi
     - rm version.txt
