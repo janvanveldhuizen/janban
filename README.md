@@ -1,4 +1,4 @@
-# Outlook Taskboard aka **JanBan**
+# Outlook Kanban Taskboard aka **JanBan**
 
 In case you found this repository on Github:
 
@@ -41,4 +41,4 @@ That's all !!
 
 ## Local Setup (advanced)
 
-For a local setup, refer to the instructions on [http://papasmurf.nl/janban/]
+For a local setup, refer to the instructions on http://papasmurf.nl/janban
