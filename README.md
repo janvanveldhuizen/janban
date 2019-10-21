@@ -30,18 +30,15 @@ The main features of JanBan are:
 Only tested with Outlook 2013 and 2016 running on Windows 8.1/10.
 It may also work with earlier Outlook versions, and possibly work with Windows 7.
 
-The taskboard can also be opened in Internet Explorer. Due to limitations with ActiveX controls, only Internet Explorer 9/10 and 11 are supported.
-
 ## Basic Setup
 
-1. Download the latest release zip file from https://papasmurf.nl/janban/ and extract it to a folder in your local hard drive.
+1. Right-click your Outlook Home Folder and then click **Properties**. Select the *Home Page* tab in the <folder name> Properties dialog box.
 
-2. Right-click your Outlook Home Folder and then click **Properties**. Select the *Home Page* tab in the <folder name> Properties dialog box.
-
-3. In the *Address box*, browse to the folder you have just extracted the Taskboard files and select the **kanban.html** file.
+2. In the *Address box* fill in: https://janware.nl/janban.
    Click to select the *Show home page by default for this folder* check box and then click **OK**.
 
-      ![Folder Home Page Offline Warning](http://evrenvarol.github.io/outlook-taskboard/img/folder-home-page-offline-warning.png)
+That's all !!
 
-      <sub>*If you receive above warning, simply click X icon to close both warning prompt and the Properties window.*</sub>
+## Local Setup (advanced)
 
+For a local setup, refer to the instructions on [http://papasmurf.nl/janban/]
