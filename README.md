@@ -32,10 +32,7 @@ It may also work with earlier Outlook versions, and possibly work with Windows 7
 
 ## Basic Setup
 
-1. Right-click your Outlook Home Folder and then click **Properties**. Select the *Home Page* tab in the <folder name> Properties dialog box.
-
-2. In the *Address box* fill in: https://janware.nl/janban.
-   Click to select the *Show home page by default for this folder* check box and then click **OK**.
+Go to [the JanBan application page](https://janware.nl/janban), and follow the instructions.
 
 That's all !!
 
