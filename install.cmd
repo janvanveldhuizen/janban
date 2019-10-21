@@ -14,5 +14,8 @@ if not %offver%==0 (
       del %offver%
       reg add HKCU\Software\Microsoft\Office\%offver%.0\Outlook\Today /v Stamp /t REG_DWORD /d 1 /f
       reg add HKCU\Software\Microsoft\Office\%offver%.0\Outlook\Today /v UserDefinedUrl /t REG_SZ /d "https://janware.nl/janban" /f
+      cls
+      echo  JanBan successfully set up. Have fun.
+      pause
       goto :EOF
 )

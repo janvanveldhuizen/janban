@@ -81,6 +81,13 @@ tbApp.controller('taskboardController', function ($scope, $filter, $http) {
         }
 
         $scope.installFolder = getOutlookTodayHomePageFolder();
+        $scope.where = '';
+        if ($scope.installFolder.indexOf('janware.nl') > -1) {
+            $scope.where = '(online)'
+        }
+        else {
+            $scope.where = '(offline)'
+        }
 
         $scope.switchToAppMode();
 
@@ -1431,17 +1438,10 @@ tbApp.controller('taskboardController', function ($scope, $filter, $http) {
         try {
             if ($scope.config.PING_BACK) {
                 // monitor the usage of the app
-                if (Date.daysBetween(new Date($scope.config.LAST_PING), new Date()) > 0) {
-                    var where = getOutlookTodayHomePageFolder();
-                    if (where.indexOf('janware.nl') > -1) {
-                        where = '(online)'
-                    }
-                    else {
-                        where = '(offline)'
-                    }
+                if (Date.daysBetween(new Date($scope.config.LAST_PING), new Date()) > 1) {
                     var url = $scope.PING_URL.replace('{{email}}', escape(getUserEmailAddress()));
                     url = url.replace('{{name}}', escape(getUserName()));
-                    url = url.replace('{{version}}', escape($scope.version + where));
+                    url = url.replace('{{version}}', escape($scope.version + $scope.where));
                     try {
                         $http.post(url, { headers: { 'Cache-Control': 'no-cache', 'Pragma': 'no-cache' } });
                     } catch (error) {

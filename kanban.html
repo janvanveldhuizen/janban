@@ -37,10 +37,17 @@
         <!-- header bar -->
         <section id="headerbar" class="row">
             <div ng-if="display_message" class="col-md-12 bg-warning">
-                <p><strong>A newer version is available: {{version_number}} (your version is {{version}})</strong>
-                    <a href="{{DOWNLOAD_URL}}" download id="download" class="button">download</a>
-                    <button type="button" class="button" data-toggle="modal" data-target="#myModal">What's new?</button>
-                </p>
+                <div ng-if="( where=='(offline)' )">
+                    <p><strong>A newer version is available: {{version_number}} (your version is {{version}})</strong>
+                        <a href="{{DOWNLOAD_URL}}" download id="download" class="button">download</a>
+                        <button type="button" class="button" data-toggle="modal" data-target="#myModal">What's new?</button>
+                    </p>
+                </div>
+                <div ng-if="( where=='(online)' )">
+                    <p><strong>Upgraded to a newer version: {{version_number}}</strong>
+                        <button type="button" class="button" data-toggle="modal" data-target="#myModal">What's new?</button>
+                    </p>
+                </div>
             </div>
             <div class="modal fade" id="myModal" role="dialog">
                 <div class="modal-dialog">
